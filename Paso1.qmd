@@ -1,0 +1,453 @@
+---
+title: "Paso 1"
+description: |
+  Explicación 
+date: "`r withr::with_locale(new = c('LC_TIME' = 'C'), code =format(Sys.time(),'%B %d, %Y'))`"
+author: "Andrés González Santa Cruz"
+format: 
+  html:
+    code-fold: true
+editor: visual
+---
+
+```{css}
+#| echo: false
+
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+
+```
+
+```{js zoom-jquery, echo = FALSE}
+$(document).ready(function() {
+
+$('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+
+// onClick function for all plots (img's)
+
+$('img:not(.zoomImg)').click(function() {
+$('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+$('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+});
+
+// onClick function for zoomImg
+
+$('img.zoomImg').click(function() {
+$('.zoomDiv').css({opacity: '0', width: '0%'});
+});
+});
+```
+
+```{css hideOutput-lib-src, echo = FALSE}
+<script src="hideOutput.js"></script>
+```
+
+```{js hideOutput, echo = FALSE}
+$(document).ready(function() {
+
+\$chunks = \$('.fold');
+
+\$chunks.each(function () { // add button to source code chunks
+if ( \$(this).hasClass('s') ) {
+    \$('pre.r', this).prepend("\<div class=\\"showopt\\"\>Show Source\</div\>\<br style=\\"line-height:22px;\\"/\>");
+    \$('pre.r', this).children('code').attr('class', 'folded');
+    } // add button to output chunks
+
+    if ( \$(this).hasClass('o') ) {
+        \$('pre:not(.r)', this).has('code').prepend("\<div class=\\"showopt\\"\>Show Output\</div\>\<br style=\\"line-height:22px;\\"/\>");
+        \$('pre:not(.r)', this).children('code:not(r)').addClass('folded'); // add button to plots
+        \$(this).find('img').wrap('\<pre class=\\"plot\\"\>\</pre\>');
+        \$('pre.plot', this).prepend("\<div class=\\"showopt\\"\>Show Plot\</div\>\<br style=\\"line-height:22px;\\"/\>");
+        \$('pre.plot', this).children('img').addClass('folded');
+        }
+}); // hide all chunks when document is loaded
+
+\$('.folded').css('display', 'none') // function to toggle the visibility
+\$('.showopt').click(function() {
+        var label = \$(this).html();
+        if (label.indexOf("Show") \>= 0) {
+            \$(this).html(label.replace("Show", "Hide"));
+        } else {
+        \$(this).html(label.replace("Hide", "Show"));
+        }
+
+\$(this).siblings('code, img').slideToggle('fast', 'swing');
+});
+});
+```
+
+```{=html}
+<style type="text/css">
+
+.showopt {
+
+background-color: #004c93; color: #FFFFFF; width: 100px; height: 20px; text-align: center; vertical-align: middle !important; float: right; font-family: sans-serif; border-radius: 8px;
+
+}
+
+.showopt:hover {
+background-color: #dfe4f2;
+color: #004c93;
+
+}
+
+pre.plot {
+background-color: white !important;
+}
+
+.tablelines table, .tablelines td, .tablelines th {
+border: 1px solid black;
+}
+
+.centrado {
+text-align: center;
+}
+
+.table.center {
+margin-left:auto;
+margin-right:auto;
+}
+
+/* https://vivekjaiskumar.medium.com/css-is-and-not-selector-17c942ec83f :is()*/
+
+/* Applies to outputs that are not code other than R*/
+
+pre {
+overflow-x: auto !important;
+}
+
+pre code {
+word-wrap: normal !important;
+white-space: pre !important;
+}
+
+/*
+pre:not(.sourceCode) {
+white-space: nowrap !important;
+}
+*/
+.sourceCode { /* Important gives precedence */
+font-size: 10px !important;
+line-height: 50% !important;
+}
+body{ /* Normal */
+text-align: justify;
+}
+.superbigimage{
+overflow-y:scroll;
+height:350px;
+white-space: nowrap;
+overflow-x: auto;
+width:100%;
+}
+.superbigimage img{
+overflow-y: scroll;
+overflow-x: hidden;
+}
+.message { color:#446C6E; font-family: monospace;font-size: 10px; line-height: 110%; font-weight: bold;}
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 5px; text-align: justify;}
+div.red { background-color:#e6bab1; border-radius: 5px; padding: 5px; text-align: justify;}
+.pandoc-table { /* Should add !important; but it seems no necessary */
+margin-left:auto; /* To center */
+margin-right:auto;
+border-collapse: collapse;
+table-layout: auto;
+font-size: 11px;
+overflow-y: auto;
+max-height:450px !important;
+white-space: nowrap;
+overflow-x: auto;
+width:450px;
+}
+.pandoc-table th {/* header */
+text-align: center !important;
+font-size: 10px;
+padding: 0px;
+}
+.pandoc-table td {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+}
+.pandoc-table caption {
+text-align: left !important;
+font-size: 11px !important;
+}
+.controlly{
+overflow-y:scroll;
+height:350px;
+overflow-x: scroll;
+
+}
+</style>
+```
+```{=html}
+<!-- We gotta do each function to hide code and outputs per section, by every ID, we gotta create a different function -->
+
+<script>
+function myFunction1() {
+var x = document.getElementById("myDIV");
+if (x.style.display === "none") {
+x.style.display = "block";
+} else {
+x.style.display = "none";
+}
+}
+</script>
+
+<script>
+function myFunction2() {
+var x = document.getElementById("myDIV2");
+if (x.style.display === "none") {
+x.style.display = "block";
+} else {
+x.style.display = "none";
+}
+}
+</script>
+```
+## Cargar paquetes
+
+Cargar bases de datos
+
+```{r}
+#| message: false
+#| include: false
+#| warning: false
+
+rm(list = ls()) # limpiar completamente el entorno global environment
+
+if(!require(rio)){install.packages("rio")}
+if(!require(tidyverse)){install.packages("tidyverse")}
+if(!require(tableone)){install.packages("tableone")}
+if(!require(compareGroups)){install.packages("compareGroups")}
+if(!require(brms)){install.packages("brms")}
+if(!require(parallel)){install.packages("parallel")}
+if(!require(compareGroups)){install.packages("compareGroups")}
+if(!require(jtools)){install.packages("jtools")}
+if(!require(Hmisc)){install.packages("Hmisc")}
+if(!require(missRanger)){install.packages("missRanger")}
+if(!require(polycor)){install.packages("polycor")}
+if(!require(corrplot)){install.packages("corrplot")}
+if(!require(survminer)){install.packages("survminer")}
+if(!require(survcomp)){BiocManager::install("survcomp")}
+if(!require(ggpmisc)){BiocManager::install("ggpmisc")}
+if(!require(survRM2)){BiocManager::install("survRM2")}
+
+`%>%`<- magrittr::`%>%`
+
+
+#ags_funcion_para ver datos
+cbind.fill <- function(...){
+  nm <- list(...) 
+  nm <- lapply(nm, as.matrix)
+  n <- max(sapply(nm, nrow)) 
+  do.call(cbind, lapply(nm, function (x) rbind(x, matrix(, n-nrow(x), ncol(x)))))}
+
+# 1 leer excel IVE 2018--------------------------------------------------
+data <- readxl::read_excel("CASOS_LEY_21030_2018_2022.xlsx")
+```
+
+Ordenar ingresos por año y mes
+
+```{r}
+data$MES_NUM<-readr::parse_number(data$MES)
+
+data2<- dplyr::arrange(data, `AÑO`, MES_NUM) %>% 
+  #ordenar columna
+        dplyr::select(`AÑO`, MES_NUM, MES, CAUSAL, everything())
+
+#DataExplorer::create_report(data2)
+```
+
+Reemplazar "Sin información" por dato perdido (NA).
+
+```{r}
+#| label: fig-airquality
+#| fig-cap: "Temperature and ozone level."
+#| warning: false
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#NACIONALIDAD
+data2$PAIS_ORIGEN<-ifelse(data2$PAIS_ORIGEN=="SIN INFORMACIÓN",NA, data2$PAIS_ORIGEN)
+data2$PAIS_ORIGEN<-ifelse(data2$PAIS_ORIGEN=="SIN INFORMACION",NA, data2$PAIS_ORIGEN)
+
+#NACIONALIDAD REC
+data2<- dplyr::mutate(data2, PAIS_ORIGEN_REC= dplyr::case_when(PAIS_ORIGEN=="CHILE"~0, PAIS_ORIGEN!= "CHILE"~1, T~NA_real_))
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+data2$REGION_RESIDENCIA<-ifelse(data2$REGION_RESIDENCIA=="SIN INFORMACION",NA, data2$REGION_RESIDENCIA)
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+data2$PREVISION_SALUD<-ifelse(data2$PREVISION_SALUD=="DESCONOCIDO",NA, data2$PREVISION_SALUD)
+data2$PREVISION_SALUD<-ifelse(data2$PREVISION_SALUD=="SIN INFORMACIÓN",NA, data2$PREVISION_SALUD)
+data2$PREVISION_SALUD<-ifelse(data2$PREVISION_SALUD=="SIN PREVISIÓN","NINGUNA", data2$PREVISION_SALUD)
+data2$PREVISION_SALUD<-ifelse(data2$PREVISION_SALUD=="SISA", "NINGUNA", data2$PREVISION_SALUD)
+
+
+data2$PREVISION_SALUD_REC<-ifelse(data2$PREVISION_SALUD=="SISTEMA PREVISIONAL DE LAS FFAA", "FFAA Y ORDEN", data2$PREVISION_SALUD)
+data2$PREVISION_SALUD_REC<-ifelse(data2$PREVISION_SALUD_REC=="CAPREDENA", "FFAA Y ORDEN", data2$PREVISION_SALUD_REC)
+data2$PREVISION_SALUD_REC<-ifelse(data2$PREVISION_SALUD_REC=="DIPRECA", "FFAA Y ORDEN", data2$PREVISION_SALUD_REC)
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+data2$TIPO_ESTABLECIMIENTO<-ifelse(data2$TIPO_ESTABLECIMIENTO=="SIN INFORMACIÓN",NA, data2$TIPO_ESTABLECIMIENTO)
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+data2$HITO3_PROCEDIMIENTO_INTERVENCION<- ifelse(data2$HITO3_PROCEDIMIENTO_INTERVENCION=="SIN INFORMACIÓN",NA, data2$HITO3_PROCEDIMIENTO_INTERVENCION)
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+data2$HITO4_MUJER_ACEPTA_ACOM<- ifelse(data2$HITO4_MUJER_ACEPTA_ACOM=="SIN INFORMACIÓN",NA, data2$HITO4_MUJER_ACEPTA_ACOM)
+
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+data2$EDAD_MUJER_REC<- cut(data2$EDAD_MUJER,5)
+
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+#previsión y tramo
+#table(data2$PREVISION_SALUD_REC, data2$TRAMO_REC, exclude=NULL)
+data2$PREV_TRAMO<-ifelse(data2$PREVISION_SALUD_REC== "FONASA", 
+                        paste0("FONASA ",data2$TRAMO_FONASA), 
+                        data2$PREVISION_SALUD_REC)
+
+#si no tiene tramo, el mas vulnerable
+data2$PREV_TRAMO<-ifelse(data2$PREV_TRAMO=="FONASA NA", 
+                             "FONASA A",
+                             data2$PREV_TRAMO)
+#table(data2$PREV_TRAMO, exclude=NULL)
+
+#table(data2$PREVISION_SALUD_REC, data2$tramo_rec, exclude=NULL)
+data2$PREV_TRAMO= relevel(factor(data2$PREV_TRAMO), ref = "ISAPRE")
+```
+
+Qué es SISA en PREVISIÓN, y tener en cuenta la categoria en HITO2 DECISIÓN, "NO APLICA, INSCONSCIENTE". LAS SISA podrían tener tramo igual ¿no?, a su vez, los Ninguna previsión pueden ir en tramo A. Analizar en el futuro.
+
+-   Operacionalizar acompañamiento psicosocial (¿es `HITO4_MUJER_ACEPTA_ACOM`?)
+
+-   Clasificar nivel de atención
+
+## Exploratorio
+
+```{r}
+
+as.data.frame.TableOne <- function(x, ...) {capture.output(print(x,
+                          showAllLevels = TRUE, ...) -> x)
+  y <- as.data.frame(x)
+  y$charactersitic <- dplyr::na_if(rownames(x), "")
+  y <- y %>%
+  fill(charactersitic, .direction = "down") %>%
+  select(charactersitic, everything())
+  rownames(y) <- NULL
+  y}
+
+#c("AÑO", "MES_NUM", "MES", "CAUSAL", "EDAD_MUJER", "PAIS_ORIGEN", "PUEBLO_ORIGINARIO", "REGION_RESIDENCIA", "PREVISION_SALUD",  "TRAMO_FONASA", "TIPO_ESTABLECIMIENTO", "SEREMIoSERVICIO", "HITO1_EDAD_GESTACIONAL_SEMANAS", "HITO2_DECISION_MUJER_IVE", "HITO3_PROCEDIMIENTO_INTERVENCION", "HITO3_SEMANAS_G_EVACUA", "HITO3_COMPLICACION_POST_IVE", "HITO3_CONDICION_MUJER_POST_IVE", "HITO3_TIPO_ATENCION", "HITO3_SERV_SALUD_ESTABLECIMIENTO", "HITO4_MUJER_ACEPTA_ACOM", "N_C_PSICOLOGO", "N_C_ASIST_SOCIAL", "N_C_DUPLA", "N_C_PSIQUIATRA", "N_VISITAS_DOM", "TOTAL_ATENCIONES_ACOMPAÑAMIENTO", "PAIS_ORIGEN_REC", "PREVISION_SALUD_REC", "tramo_rec", "TRAMO_REC", "PREV_TRAMO")
+
+tab1<-
+    CreateTableOne(vars =c("AÑO", "MES_NUM", "CAUSAL", "EDAD_MUJER", "PUEBLO_ORIGINARIO", "REGION_RESIDENCIA", "TIPO_ESTABLECIMIENTO", "SEREMIoSERVICIO", "HITO1_EDAD_GESTACIONAL_SEMANAS", "HITO2_DECISION_MUJER_IVE", "HITO3_PROCEDIMIENTO_INTERVENCION", "HITO3_SEMANAS_G_EVACUA", "HITO3_COMPLICACION_POST_IVE", "HITO3_CONDICION_MUJER_POST_IVE", "HITO3_TIPO_ATENCION", "HITO3_SERV_SALUD_ESTABLECIMIENTO", "HITO4_MUJER_ACEPTA_ACOM", "N_C_PSICOLOGO", "N_C_ASIST_SOCIAL", "N_C_DUPLA", "N_C_PSIQUIATRA", "N_VISITAS_DOM", "TOTAL_ATENCIONES_ACOMPAÑAMIENTO", "PAIS_ORIGEN_REC", "PREVISION_SALUD_REC", "PREV_TRAMO"),
+                 #transforma la variable en numerico
+                 data= data2, 
+                 factorVars=c("AÑO","MES_NUM", "CAUSAL", "PAIS_ORIGEN_REC",  "HITO3_COMPLICACION_POST_IVE", "HITO3_CONDICION_MUJER_POST_IVE", "HITO3_TIPO_ATENCION",  "HITO3_SERV_SALUD_ESTABLECIMIENTO", "HITO4_MUJER_ACEPTA_ACOM"),
+                 strata= "HITO2_DECISION_MUJER_IVE",addOverall = T, includeNA =T)
+
+
+as.data.frame.TableOne(tab1)%>% 
+  DT::datatable(filter = 'top', height = '550px', #colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
+              caption = htmltools::tags$caption(
+        style = 'caption-side: top; text-align: left;',
+        '', htmltools::em('Descriptivos')),
+      options=list(
+initComplete = htmlwidgets::JS(
+        "function(settings, json) {",
+        "$(this.api().tables().body()).css({
+            'font-family': 'Helvetica Neue',
+            'font-size': '50%', 
+            'code-inline-font-size': '15%', 
+            'white-space': 'nowrap',
+            'line-height': '0.75em',
+            'min-height': '0.5em'
+            });",#;
+        "}")))
+```
+
+**Diferencia entre semana hito 1 e hito 3 (evento= interrumpe) (reset-time)**
+
+```{r}
+#| label: fig-reset
+#| fig-cap: "Tiempo a la interrupción"
+#| warning: false
+#| error: true
+#HITO1_EDAD_GESTACIONAL_SEMANAS	HITO3_SEMANAS_G_EVACUA	HITO2_DECISION_MUJER_IVE	INTERRUMPIR EL EMBARAZO
+library(ggfortify)
+
+reset_time<- survfit(Surv(HITO3_SEMANAS_G_EVACUA- HITO1_EDAD_GESTACIONAL_SEMANAS,  data2$HITO2_DECISION_MUJER_IVE== "INTERRUMPIR EL EMBARAZO") ~1, data=data2, type      = "kaplan-meier", error     = "greenwood", conf.type = "log-log") 
+
+survminer::ggsurvplot(reset_time,
+           fun = "cumhaz",
+           conf.int = TRUE,
+           #legend.labs = c("Tr Comp", "Tr Non-Comp (Early)", "Tr Non-Comp (Late)"), 
+           risk.table = "abs_pct",
+           #ncensor.plot = TRUE,
+           ggtheme = ggpubr::theme_classic2(base_size=15),
+           risk.table.y.text.col = F,
+           risk.table.col="black",
+           font.tickslab = c(10),
+           risk.table.height = .2,
+           risk.table.fontsize = 2.5,
+           #break.time.by = 365.25,
+           pval = T,
+           #ylim=c(0,10),
+           legend = c(0.88, 0.17), 
+           legend.title="Tiempo a interrupción",
+           xlab= "Tiempo (en semanas)", 
+           #cumevents=T,
+           surv.connect = T,
+           censor= F
+           )
+#
+```
+
+**Diferencia entre semana hito 1 e hito 3 (evento= interrumpe) (staggered entry)**
+
+```{r}
+#| label: fig-staggered
+#| fig-cap: "Tiempo a la interrupción"
+#| warning: false
+#| error: true
+
+no_at_risk<-
+survcomp::no.at.risk(formula.s=Surv(time2=HITO3_SEMANAS_G_EVACUA, time=HITO1_EDAD_GESTACIONAL_SEMANAS,  HITO2_DECISION_MUJER_IVE== "INTERRUMPIR EL EMBARAZO") ~1, data.s=data2, sub.s="all", t.step=round(min(data2$HITO1_EDAD_GESTACIONAL_SEMANAS, na.rm=T)), t.end=round(max(data2$HITO3_SEMANAS_G_EVACUA, na.rm=T)))
+
+staggered<- survfit(Surv(time2=HITO3_SEMANAS_G_EVACUA, time=HITO1_EDAD_GESTACIONAL_SEMANAS,  HITO2_DECISION_MUJER_IVE== "INTERRUMPIR EL EMBARAZO") ~1, data= data2, type      = "fleming-harrington", conf.type = "log-log") 
+
+ggplot2::fortify(staggered, fun = "cumhaz") %>% 
+    data.frame() %>% 
+    ggplot2::ggplot(ggplot2::aes(x=time, y=surv))+ #fill=strata, color=strata, group=strata
+    ggplot2::geom_step(size=.8)+
+    ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper), alpha = .2) +
+    ggpubr::theme_classic2(base_size=15)+
+    ggplot2::annotate(geom = "table",
+             x = 3,
+             y = -0.5,
+             label = list(no_at_risk),
+             table.theme = ggpp::ttheme_gtminimal)
+```
+
+guardar avances
+
+```{r}
+save(data2, file = "data2.RData")
+```

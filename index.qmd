@@ -1,0 +1,13 @@
+---
+title: "Índice"
+author: "María Angélica Saldías, Macarena Martínez y Andrés González-Santa Cruz"
+description: |
+  Resúmenes descriptivos de los datos y proceso de limpieza, normalización y análisis de datos sobre casos enmarcados en la Ley 21.030
+format: html
+editor: visual
+---
+
+## Contenidos
+
+-   [Paso 1. Limpieza, normalización y exploración](Paso1.html)
+-   [Reporte de datos (exploración)](report.html)
