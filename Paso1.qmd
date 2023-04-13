@@ -457,7 +457,7 @@ Vemos las tendencias agregadas
 
 ```{r}
 #| label: fig-trends
-#| fig-cap: "Recuento mensual de interrupciones y continuaciones de embarazo"
+#| fig-cap: "Recuento mensual de interrupciones y continuaciones de embarazo (azul=continuar)"
 #| warning: false
 #| error: true
 
