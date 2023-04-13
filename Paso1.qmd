@@ -365,11 +365,14 @@ tab1<-
 
 
 as.data.frame.TableOne(tab1)%>% 
-  DT::datatable(filter = 'top', height = '550px', #colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
+  DT::datatable(filter = 'top', #height = '550px', #colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
               caption = htmltools::tags$caption(
         style = 'caption-side: top; text-align: left;',
         '', htmltools::em('Descriptivos')),
       options=list(
+        pageLength = 200, 
+        scrollY = "350px",
+        #columnDefs = list(list(width = '200px', targets = "_all")),
 initComplete = htmlwidgets::JS(
         "function(settings, json) {",
         "$(this.api().tables().body()).css({
@@ -382,6 +385,10 @@ initComplete = htmlwidgets::JS(
             });",#;
         "}")))
 ```
+
+<br>
+
+No tiene mucho sentido porque hay pocos eventos censurados, pero para ver cómo ocurre.
 
 **Diferencia entre semana hito 1 e hito 3 (evento= interrumpe) (reset-time)**
 
@@ -396,7 +403,7 @@ library(ggfortify)
 reset_time<- survfit(Surv(HITO3_SEMANAS_G_EVACUA- HITO1_EDAD_GESTACIONAL_SEMANAS,  data2$HITO2_DECISION_MUJER_IVE== "INTERRUMPIR EL EMBARAZO") ~1, data=data2, type      = "kaplan-meier", error     = "greenwood", conf.type = "log-log") 
 
 survminer::ggsurvplot(reset_time,
-           fun = "cumhaz",
+           #fun = "cumhaz",
            conf.int = TRUE,
            #legend.labs = c("Tr Comp", "Tr Non-Comp (Early)", "Tr Non-Comp (Late)"), 
            risk.table = "abs_pct",
@@ -410,7 +417,7 @@ survminer::ggsurvplot(reset_time,
            #break.time.by = 365.25,
            pval = T,
            #ylim=c(0,10),
-           legend = c(0.88, 0.17), 
+           legend = c(0.68, 0.17), 
            legend.title="Tiempo a interrupción",
            xlab= "Tiempo (en semanas)", 
            #cumevents=T,
@@ -433,7 +440,7 @@ survcomp::no.at.risk(formula.s=Surv(time2=HITO3_SEMANAS_G_EVACUA, time=HITO1_EDA
 
 staggered<- survfit(Surv(time2=HITO3_SEMANAS_G_EVACUA, time=HITO1_EDAD_GESTACIONAL_SEMANAS,  HITO2_DECISION_MUJER_IVE== "INTERRUMPIR EL EMBARAZO") ~1, data= data2, type      = "fleming-harrington", conf.type = "log-log") 
 
-ggplot2::fortify(staggered, fun = "cumhaz") %>% 
+ggplot2::fortify(staggered)  %>% 
     data.frame() %>% 
     ggplot2::ggplot(ggplot2::aes(x=time, y=surv))+ #fill=strata, color=strata, group=strata
     ggplot2::geom_step(size=.8)+
@@ -441,13 +448,39 @@ ggplot2::fortify(staggered, fun = "cumhaz") %>%
     ggpubr::theme_classic2(base_size=15)+
     ggplot2::annotate(geom = "table",
              x = 3,
-             y = -0.5,
+             y = -0.05,
              label = list(no_at_risk),
              table.theme = ggpp::ttheme_gtminimal)
+```
+
+Vemos las tendencias agregadas
+
+```{r}
+#| label: fig-trends
+#| fig-cap: "Recuento mensual de interrupciones y continuaciones de embarazo"
+#| warning: false
+#| error: true
+
+
+data2 %>%
+  #filter(HITO2_DECISION_MUJER_IVE %in% c("INTERRUMPIR EL EMBARAZO", "CONTINUAR EL EMBARAZO")) %>%
+  dplyr::group_by(AÑO, MES_NUM) %>%
+  dplyr::summarise(n_interrumpir = sum(HITO2_DECISION_MUJER_IVE == "INTERRUMPIR EL EMBARAZO"),
+            n_continuar = sum(HITO2_DECISION_MUJER_IVE == "CONTINUAR EL EMBARAZO")) %>%
+  dplyr::ungroup() %>%
+  dplyr::mutate(rn = paste0(AÑO, " ", MES_NUM)) %>%
+  ggplot() +
+  geom_line(aes(x = as.Date(paste0("01-", MES_NUM, "-", AÑO), format = "%d-%m-%Y"), y = n_interrumpir, group = 1), color = "green") +
+  geom_line(aes(x = as.Date(paste0("01-", MES_NUM, "-", AÑO), format = "%d-%m-%Y"), y = n_continuar, group = 1), color = "blue") +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  labs(x = "Mes año", y = "Recuento") +
+  theme_minimal()+
+  theme(axis.text.x =element_text(angle = 90, hjust = 1))
 ```
 
 guardar avances
 
 ```{r}
 save(data2, file = "data2.RData")
+rio::export(data2,"lca0.dta")
 ```
