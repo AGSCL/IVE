@@ -1,15 +1,15 @@
 <<dd_version: 2>>
-<<dd_include: "[DIRECTORIO CARPETA]_lca/header.txt" >>
+<<dd_include: "H:/Mi unidad/Angelica/secreto/IVE/header.txt" >>
 
-# Database (step 1)
+# Database (paso 1)
 
-Date created: <<dd_display: "`c(current_time)' `c(current_date)'">>.
+Fecha creación: <<dd_display: "`c(current_time)' `c(current_date)'">>.
 
-Install commands that are unavailable or out of date.
+Instalar comandos
 
 ~~~~
 <<dd_do>>
-log using "[DIRECTORIO CARPETA]_lca\registry_lca1.smcl", replace
+log using "H:\Mi unidad\Angelica\secreto\IVE\registry_lca1_apr23.smcl", replace
 
 *<< dd_do : noout > >
 clear all
@@ -71,8 +71,7 @@ if _rc==111 {
 <</dd_do>>
 ~~~~
 
-We need to obtain the file and the work folder.
-
+Necesitamos obtener el archivo y el directorio de trabajo.
 
 ~~~~
 <<dd_do>>
@@ -114,9 +113,9 @@ program lmrtest, rclass
 ~~~~
 
 
-Date created: <<dd_display: "`c(current_time)' `c(current_date)'">>.
+Fecha de creación: <<dd_display: "`c(current_time)' `c(current_date)'">>.
 
-Get the folder
+Acceder a la carpeta
 
 ~~~~
 <<dd_do: nocommand>>
@@ -127,101 +126,32 @@ pathutil split "`c(filename)'"
 <</dd_do>>
 ~~~~
 
-<<dd_display: "Path data= ${pathdata};">>
+<<dd_display: "Ubicación= ${pathdata};">>
 
-<<dd_display: "Timestamp:`c(current_time)' `c(current_date)', considering that is a `c(os)' OS for the username: `c(username)'">>
+<<dd_display: "Timestamp:`c(current_time)' `c(current_date)', considerando un SO `c(os)' OS para el usuario: `c(username)'">>
 
 
-The file is located and named as: <<dd_display: "`c(pwd)'/lca0.dta" >>
+El archivo se encuentra en: <<dd_display: "`c(pwd)'/mydata_preds3_2023_04_21.dta" >>
 
 ===================================================================================
-## Database consolidation and explore
+## Consolidación y exploración base de datos
 ===================================================================================
 
 <<dd_do:quietly>>
 *a) open 
-	use "./_lca/lca0.dta"
+	use "mydata_preds3_2023_04_21.dta"
 	
-	*label
-	cap noi label variable anio "Año base de datos"
-	cap noi label variable edad_mujer "Edad mujer"
-	cap noi label variable nacionalidad_rec "Nacionalidad"
-	cap noi label variable prev_tramo2 "Previsión y tramo"
-	cap noi label variable region_rec "Macrozona"	
-	cap noi label variable tpm "Tasa de pobreza multidimensional"		
-	cap noi label variable tpm4 "Tasa de pobreza multidimensional (4 cat binning)"		
-	cap noi label variable tpm6 "Tasa de pobreza multidimensional (6 cat binning)"		
-	cap noi label variable acps "Acompañamiento psicosocial"		
-	cap noi label variable causal "Causal"			
-	cap noi label variable niv_entrada_rec "Niv. Entrada"
+	*label CAUSAL EDAD_MUJER_REC PUEBLO_ORIGINARIO_REC PAIS_ORIGEN_REC HITO1_EDAD_GEST_SEM_REC MACROZONA AÑO HITO2_DECISION_MUJER_IVE outcome
+	cap noi label variable AÑO "Año base de datos"
+	cap noi label variable EDAD_MUJER_REC "Edad mujer (5 categorías)"
+	cap noi label variable PUEBLO_ORIGINARIO_REC "Pertenece a pueblo originario (binario)"
+	cap noi label variable PAIS_ORIGEN_REC "Nacionalidad"
+	cap noi label variable PREV_TRAMO_REC "Previsión y tramo"
+	cap noi label variable MACROZONA "Macrozona"	
+	cap noi label variable HITO1_EDAD_GEST_SEM_REC "Tasa de pobreza multidimensional (5 categorías)"		
+	cap noi label variable CAUSAL "Causal"			
+	cap noi label variable outcome "Resultado (1=Interrumpe)"
 <</dd_do>>
-
-Posteriorly, we brought the urban-rural classification of municipallities from this [link]("https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fwww.masvidarural.gob.cl%2Fwp-content%2Fuploads%2F2021%2F04%2FClasificacion-comunas-PNDR.xlsx&wdOrigin=BROWSELINK").
-
-~~~~
-<<dd_do>>
-cap qui noi frame create temp
-frame temp: import excel "./_lca/Clasificacion-comunas-PNDR.xlsx", firstrow clear
-*frame temp: browse
-*frame change default
-
-*select code of municipality
-frame default: gen str5 comuna_str = ustrregexs(1) if ustrregexm(cod_comuna,"([\d,]+)")
-
-*codebook comuna_str
-*recode comuna if 
-*http://www.sinim.cl/archivos/centro_descargas/modificacion_instructivo_pres_codigos.pdf
-*file:///C:/Users/CISSFO~1/AppData/Local/Temp/MicrosoftEdgeDownloads/4ef08de9-6832-4db6-8124-f69a7b256270/codigoComunas-20180801%20(1).pdf
-
-replace comuna_str= "16101" if strpos(strlower(comuna_str),"8401")>0
-replace comuna_str= "16102" if strpos(strlower(comuna_str),"8402")>0
-replace comuna_str= "16103" if strpos(strlower(comuna_str),"8406")>0
-replace comuna_str= "16104" if strpos(strlower(comuna_str),"8407")>0
-replace comuna_str= "16105" if strpos(strlower(comuna_str),"8410")>0
-replace comuna_str= "16106" if strpos(strlower(comuna_str),"8411")>0
-replace comuna_str= "16107" if strpos(strlower(comuna_str),"8413")>0
-replace comuna_str= "16108" if strpos(strlower(comuna_str),"8418")>0
-replace comuna_str= "16109" if strpos(strlower(comuna_str),"8421")>0
-replace comuna_str= "16201" if strpos(strlower(comuna_str),"8414")>0
-replace comuna_str= "16202" if strpos(strlower(comuna_str),"8403")>0
-replace comuna_str= "16203" if strpos(strlower(comuna_str),"8404")>0
-replace comuna_str= "16204" if strpos(strlower(comuna_str),"8408")>0
-replace comuna_str= "16205" if strpos(strlower(comuna_str),"8412")>0
-replace comuna_str= "16206" if strpos(strlower(comuna_str),"8415")>0
-replace comuna_str= "16207" if strpos(strlower(comuna_str),"8420")>0
-replace comuna_str= "16301" if strpos(strlower(comuna_str),"8416")>0
-replace comuna_str= "16302" if strpos(strlower(comuna_str),"8405")>0
-replace comuna_str= "16303" if strpos(strlower(comuna_str),"8409")>0
-replace comuna_str= "16304" if strpos(strlower(comuna_str),"8417")>0
-replace comuna_str= "16305" if strpos(strlower(comuna_str),"8419")>0
-
-
-*frame temp: gen str20 comuna_str = ustrregexs(1) if ustrregexm(cod_com,"([\d,]+)")
-*frame temp: tostring cod_com, gen0(comuna_str) 
-frame temp: gen comuna_str = string(cod_com)
-
-frlink m:1 comuna_str, frame(temp comuna_str) //*Clasificación
-frget Clasificación, from(temp)
-
-*70,863
-<</dd_do>>
-~~~~
-
-We show a table of missing values
-
-~~~~
-<<dd_do>>
-misstable sum  anio causal edad_mujer nacionalidad region comuna prevision tramo niv_entrada edad_ges acps decision prevision_rec tramo_rec prev_tramo prev_tramo2 niv_entrada_rec decision_rec nacionalidad_rec region_rec cod_comuna tpm tpm4 tpm6 Clasificación
-<</dd_do>>
-~~~~
-
-And missing patterns
-
-~~~~
-<<dd_do>>
-misstable pat anio causal edad_mujer nacionalidad region comuna prevision tramo niv_entrada edad_ges acps decision prevision_rec tramo_rec prev_tramo prev_tramo2 niv_entrada_rec decision_rec nacionalidad_rec region_rec cod_comuna tpm tpm4 tpm6 Clasificación
-<</dd_do>>
-~~~~
 
 
 ===================================================================================
@@ -230,17 +160,32 @@ misstable pat anio causal edad_mujer nacionalidad region comuna prevision tramo 
 
 
 
-We also formatted variables as a factor.
+Formateamos las variables a factor.
 
 ~~~~
 <<dd_do>>
 *codebook con_quien_vive_joel, tab(100)
 
-encode nacionalidad_rec, gen(nacionalidad_rec_factor)
-encode region_rec, gen(region_rec_factor)
-encode niv_entrada_rec, gen(niv_entrada_rec_factor)
-encode acps, gen(acps_factor)
-encode Clasificación, gen(clas)
+foreach vars of varlist CAUSAL-PREV_TRAMO_REC {
+cap noi encode `vars', gen(new`vars')
+cap confirm variable new`vars'
+    if !_rc {		
+cap noi drop `vars'
+cap noi rename new`vars' `vars'
+	}	
+}
+
+rename AÑO ANIO
+/* 
+cap noi decode freq_cons_sus_prin, gen(str_freq_cons_sus_prin)
+cap confirm variable str_freq_cons_sus_prin
+    if !_rc {	
+cap noi drop freq_cons_sus_prin
+label def freq_cons_sus_prin2 1 "Less than 1 day a week" 2 "1 day a week or more" 3 "2 to 3 days a week" 4 "4 to 6 days a week" 5 "Daily"
+encode str_freq_cons_sus_prin, gen(freq_cons_sus_prin) label (freq_cons_sus_prin2)
+	}
+*/
+
 /* 
 recode freq_cons_sus_prin_rec (1=2 "1 day a week or more") (2=3 "2 to 3 days a week") ///
  (3=4 "4 to 6 days a week")(4=5 "Daily") (5=1 "Less than 1 day a week"), gen(freq_cons_sus_prin_rec_joel)
@@ -253,40 +198,36 @@ encode numero_de_hijos_mod_joel, generate(numero_de_hijos_mod_joel_rec)
 
 ~~~~
 <<dd_do>>
-global draws = 2 //80
-global iterate = 2 //80
-global iterate2 = 2 //1000
+global draws = 80 //80
+global iterate = 80 //80
+global iterate2 = 500 //500
 //https://github.com/lindeloev/job
 //https://rpubs.com/chinedu2301/833708
 //https://rpubs.com/cyanjiner/889802
 //https://rpubs.com/liliana/94701
-
+       
 set seed 2125
-	qui noi gsem(decision_rec ///
-	anio ///
-	nacionalidad_rec_factor /// 
-	region_rec_factor ///
-	prev_tramo2  ///
-	niv_entrada_rec_factor  ///	
-	acps_factor ///
-	edad_mujer ///
-	clas /// //added later, not in R
-	tpm4 <- , mlogit), lclass(C 1) 
+	qui noi gsem(CAUSAL ///
+	EDAD_MUJER_REC ///
+	PUEBLO_ORIGINARIO_REC /// 
+	PAIS_ORIGEN_REC ///
+	HITO1_EDAD_GEST_SEM_REC  ///
+	MACROZONA  ///	
+	ANIO ///
+	PREV_TRAMO_REC <- , mlogit), lclass(C 1) 
 	//*startvalues(randomid, draws(50)) //* agregado posteriormente 2021-10-08= feasible starting values not found
 	estimates store lca_prueba_c1
 
 set seed 2125
-	forvalues i = 2/7{
-	qui noi gsem(decision_rec ///
-	anio ///
-	nacionalidad_rec_factor /// 
-	region_rec_factor ///
-	prev_tramo2  ///
-	niv_entrada_rec_factor  ///	
-	acps_factor ///
-	edad_mujer ///
-	clas /// //added later, not in R
-	tpm4 <- , mlogit), lclass(C `i') nocapslatent nonrtolerance iterate($iterate2 ) ///
+	forvalues i = 2/8{
+	qui noi gsem(CAUSAL ///
+	EDAD_MUJER_REC ///
+	PUEBLO_ORIGINARIO_REC /// 
+	PAIS_ORIGEN_REC ///
+	HITO1_EDAD_GEST_SEM_REC  ///
+	MACROZONA  ///	
+	ANIO ///
+	PREV_TRAMO_REC <- , mlogit), lclass(C `i') nocapslatent nonrtolerance iterate($iterate2 ) ///
 	emopts(iterate($iterate ) difficult) ///
 	startvalues(randomid, draws($draws ) seed(2125)) ///
 	//*startvalues(randomid, draws(50)) //* agregado posteriormente 2021-10-08= feasible starting values not found
@@ -336,30 +277,30 @@ set seed 2125
 *adequately - basically, you aren't sure (because Stata is not sure) 
 *if you are at a global maximum of the likelihood function. 
 
-matrix entr= (0 \ $Entropy__2 \ $Entropy__3 \ $Entropy__4 \ $Entropy__5 \ $Entropy__6 \ $Entropy__7 )
+matrix entr= (0 \ $Entropy__2 \ $Entropy__3 \ $Entropy__4 \ $Entropy__5 \ $Entropy__6 \ $Entropy__7 \ $Entropy__8 )
 
-matrix lmrt_mat = (1 \ $lmrt_2 \ $lmrt_3 \ $lmrt_4 \ $lmrt_5 \ $lmrt_6 \ $lmrt_7 )
-matrix lmrt_p_mat = (1 \ $lmrt_p_2 \ $lmrt_p_3 \ $lmrt_p_4 \ $lmrt_p_5 \ $lmrt_p_6 \ $lmrt_p_7 )
-matrix cs = (1 \ 2 \ 3 \ 4 \ 5 \ 6 \ 7 )
+matrix lmrt_mat = (1 \ $lmrt_2 \ $lmrt_3 \ $lmrt_4 \ $lmrt_5 \ $lmrt_6 \ $lmrt_7 \ $lmrt_8 )
+matrix lmrt_p_mat = (1 \ $lmrt_p_2 \ $lmrt_p_3 \ $lmrt_p_4 \ $lmrt_p_5 \ $lmrt_p_6 \ $lmrt_p_7 \ $lmrt_p_8 )
+matrix cs = (1 \ 2 \ 3 \ 4 \ 5 \ 6 \ 7 \ 8)
 
 mat lmrt = (cs, entr, lmrt_mat, lmrt_p_mat)
 matrix colnames lmrt  = n_classes Entropy LMRT p-value
 
-cap noi estwrite _all using "./_lca/analisis_lcas_tests_real.sters", replace
+cap noi estwrite _all using "./analisis_lcas_tests_real_apr23.sters", replace
 
-esttab matrix(lmrt) using "./_lca/lmrt_lca.csv", replace
-esttab matrix(lmrt) using "./_lca/lmrt_lca.html", replace
+esttab matrix(lmrt) using "./lmrt_lca.csv", replace
+esttab matrix(lmrt) using "./lmrt_lca.html", replace
 <</dd_do>>
 ~~~~
 
-<<dd_include: "./_lca/lmrt_lca.html" >>
+<<dd_include: "lmrt_lca.html" >>
 
 
-Then, we compared these models to detect the optimal number of classes.
+Luego comparamos los modelos para detectar el número óptimo de clases.
 
 ~~~~
 <<dd_do>>
-estread "./_lca/analisis_lcas_tests_real.sters"
+estread "./analisis_lcas_tests_real_apr23.sters"
 
 estimates stats _all
 matrix stats_lca_ppio= r(S)
@@ -393,30 +334,30 @@ end
 
 mata: st_sort_matrix("stats_lca_ppio",6)
 
-esttab matrix(stats_lca_ppio) using "./_lca/testreg_bic_lca.csv", replace
-esttab matrix(stats_lca_ppio) using "./_lca/testreg_bic_lca.html", replace
+esttab matrix(stats_lca_ppio) using "./testreg_bic_lca.csv", replace
+esttab matrix(stats_lca_ppio) using "./testreg_bic_lca.html", replace
 <</dd_do>>
 ~~~~
 
-<<dd_include: "./_lca/testreg_bic_lca.html" >>
+<<dd_include: "testreg_bic_lca.html" >>
 
 ~~~~
 <<dd_do>>
-cap qui save "./_lca/lca_step1.dta", all replace emptyok
+cap qui save "./lca_step1_apr23.dta", all replace emptyok
 
 log close
 <</dd_do>>
 ~~~~
 
-<<dd_display: "Time= `c(current_time)' `c(current_date)'">>
+<<dd_display: "Tiempo de guardado= `c(current_time)' `c(current_date)'">>
 
 <<dd_do: nocommand>>
 /*
 FORMA DE EXPORTAR LOS DATOS Y EL MARKDOWN
 
-cap rm "[DIRECTORIO CARPETA]_lca/_lca_step1_corr.html"
-dyndoc "[DIRECTORIO CARPETA]_lca\_lca_step1_corr.do", saving("[DIRECTORIO CARPETA]_lca\_lca_step1_corr.html") replace nostop 
-copy "[DIRECTORIO CARPETA]_lca\_lca_step1_corr.html" "[DIRECTORIO CARPETA]_lca_step1_corr.html", replace
+cap rm "H:/Mi unidad/Angelica/secreto/IVE/_lca_step1_corr_apr23.html"
+dyndoc "H:\Mi unidad\Angelica\secreto\IVE\_lca_step1_corr_apr23.do", saving("H:\Mi unidad\Angelica\secreto\IVE\_lca_step1_corr_apr23.html") replace nostop 
+copy "H:\Mi unidad\Angelica\secreto\IVE\_lca_step1_corr_apr23.html" "H:\Mi unidad\Angelica\secreto\IVE\_lca_step1_corr_back.html", replace
 
 _outputs
 */

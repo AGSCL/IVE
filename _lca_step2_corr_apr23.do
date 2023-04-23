@@ -1,15 +1,16 @@
 <<dd_version: 2>>
-<<dd_include: "H:/Mi unidad/Angelica/secreto/_lca/header.txt" >>
+<<dd_include: "H:/Mi unidad/Angelica/secreto/IVE/header.txt" >>
 
-# Database (step 2)
+# Database (paso2 2)
 
-Date created: <<dd_display: "`c(current_time)' `c(current_date)'">>.
+Fecha creación: <<dd_display: "`c(current_time)' `c(current_date)'">>.
 
-Install commands that are unavailable or out of date.
+Instalar comandos
 
 ~~~~
 <<dd_do>>
-*<< dd_do : noout > >
+log using "H:\Mi unidad\Angelica\secreto\IVE\registry_lca2_apr23.smcl", replace
+
 clear all
 
 set maxvar 120000, perm
@@ -27,9 +28,29 @@ set niceness 1, perm
 *https://github.com/dvorakt/TIER_exercises/blob/master/dyndoc_debt_growth/debt%20and%20growth%20stata%20dyndoc.do
 
 
-cap noi which merlin
+cap noi which rcsgen
+if _rc==111 {	
+	ssc install rcsgen
+	}	
+cap noi which matselrc
+if _rc==111 {		
+cap noi net install dm79, from("http://www.stata.com/stb/stb56")
+	}
+cap noi which tabout
 if _rc==111 {
-	cap noi net install merlin, from("https://www.mjcrowther.co.uk/code/merlin/") 
+	cap noi ssc install tabout
+	}
+cap noi which pathutil
+if _rc==111 {
+	cap noi net install pathutil, from("http://fmwww.bc.edu/repec/bocode/p/") 
+	}
+cap noi which pathutil
+if _rc==111 {
+	ssc install dirtools	
+	}
+cap noi which project
+if _rc==111 {	
+	ssc install project
 	}
 cap noi which sumat
 if _rc==111 {
@@ -43,13 +64,17 @@ cap noi which winsor2
 if _rc==111 {
 	cap noi ssc install winsor2
 	}	
+cap noi which matsave
+if _rc==111 {
+	cap noi ssc install matsave
+	}	
 	
 <</dd_do>>
 ~~~~
 
-Date created: <<dd_display: "`c(current_time)' `c(current_date)'">>.
+Fecha creación: <<dd_display: "`c(current_time)' `c(current_date)'">>.
 
-Get the folder
+Acceder a carpeta
 
 ~~~~
 <<dd_do: nocommand>>
@@ -57,33 +82,34 @@ Get the folder
 pathutil split "`c(filename)'"
 	cap qui noi cd `"`dir'"'
 	global pathdata `"`dir'"' 
-	di "Fecha: `c(current_date)', considerando un SO `c(os)' para el usuario: `c(username)'"
+	di "Fecha: `c(current_date)', considering an OS `c(os)' to the user: `c(username)'"
 <</dd_do>>
 ~~~~
 
-<<dd_display: "Path data= ${pathdata};">>
+<<dd_display: "Ubicación= ${pathdata};">>
 
-<<dd_display: "Time: `c(current_date)', considering an OS `c(os)'">>
+<<dd_display: "Tiempo: `c(current_date)', considerando un SO `c(os)'">>
 
 
-The file is located and named as: <<dd_display: ".dta" >>
+El archivo se encuentra en: <<dd_display: "`c(pwd)'/_lca/lca_step1.dta" >>
 
 <<dd_do:quietly>>
 *a) open 
-	use ".dta", clear	
+	use "./lca_step1_apr23.dta"
 
 <</dd_do>>
 
-According to the data, the model with six latent classes was the model that had best fit to the data.
+De acuerdo a los datos, el mejor modelo asumía 5 clases latentes.
 
 ~~~~
 <<dd_do>>
-estread "${pathdata2}analisis_joel_lcas_tests.sters"
+*cap noi estread "./analisis_lcas_tests_prueba.sters"
+cap noi estread "./analisis_lcas_tests_real_apr23.sters"
 
-estimates describe lca_prueba_c10
-estimates replay lca_prueba_c10
-estimates restore lca_prueba_c10
-matrix b10_start= e(b)
+estimates describe lca_prueba_c5
+estimates replay lca_prueba_c5
+estimates restore lca_prueba_c5
+matrix b5_start= e(b)
 <</dd_do>>
 ~~~~
 
@@ -92,22 +118,24 @@ matrix b10_start= e(b)
 ~~~~
 <<dd_do>>
 *startvalues are computed b randomly assigning observations to initial classes
-set seed 4345
+set seed 2125
 
-qui noi gsem(con_quien_vive_joel_rec ///
-	sexo_2 ///
-	estado_conyugal_2 /// 
-	sus_ini_mod_mvv via_adm_sus_prin_act  ///
-	tipo_centro macrozona ///
-	tenencia_de_la_vivienda_mod condicion_ocupacional_corr ///
-	comorbidity_icd_10 <- , mlogit)(edad_al_ing edad_ini_cons <- , regress)(numero_de_hijos_mod_joel_rec escolaridad_rec freq_cons_sus_prin_rec_joel ///
-	 compromiso_biopsicosocial<- , ologit), lclass(C 10) nocapslatent iterate(1000) vce(robust) ///
-	startvalues(randomid, draws(80) seed(4345)) emopts(iterate(80) difficult) ///
-	from(b10_start, skip)
 
-estimates store an_joel_c10_211006 //* previous had an invalid name
+qui noi gsem(decision_rec ///
+	anio ///
+	nacionalidad_rec_factor /// 
+	region_rec_factor ///
+	prev_tramo2  ///
+	niv_entrada_rec_factor  ///	
+	acps_factor ///
+	edad_mujer ///
+	clas /// //added later, not in R	
+	tpm4 <- , mlogit), lclass(C 5) nocapslatent nonrtolerance iterate(1000) vce(robust) ///
+	startvalues(randomid, draws(80) seed(2125)) emopts(iterate(80) difficult) ///
+	from(b5_start, skip)
 
-*startvalues(randomid, draws(50) seed(4345)) emopts(iter(50)) ///
+estimates store an_lca_c5_220315 //* previous had an invalid name
+
 
 *entropy. functions after getting the model.
 *https://www.statalist.org/forums/forum/general-stata-discussion/general/1412686-calculating-entropy-for-lca-latent-class-analysis-in-stata-15/page3
@@ -129,26 +157,27 @@ display Entropy
 *.70111211
 estat lcgof
 
-estwrite _all using "${pathdata2}analisis_joel_lca_final.sters", replace
+*cap noi estwrite _all using "./analisis_lcas_tests_definitivo_prueba.sters", replace
+cap noi estwrite _all using "./analisis_lcas_tests_definitivo_apr23.sters", replace
 
 <</dd_do>>
 ~~~~
 
-<<dd_display: "Time= `c(current_time)' `c(current_date)'">>
+<<dd_display: "Tiempo= `c(current_time)' `c(current_date)'">>
 
 
-## Estimates & plots
+## Estimaciones y figuras
 
-To obtain entropy estimates from an active model
+Para obtener estimaciones de entroppía del modelo activo
 
 ~~~~
 <<dd_do>>
 *Without nose, takes time
 
 *reports the probabilities of class membership.
-estat lcprob
+estat lcprob //takes too many time
 *reports the estimated mean for each item in each class.
-estat lcmean	
+estat lcmean	//takes too many time
 *error-too many options	
 *update: when I changed the initial command to only have about 25 variables or so, the solution was not with an iteration that had "(not concave)" noted. After this, the "estat lcmean" command worked.
 *Having thresholds fixed at -15 or +15 is not a problem. It just means that for endorsing that particular item the probability is one or zero in that class. It can be helpful for defining the class.
@@ -156,8 +185,7 @@ estat lcmean
 <</dd_do>>
 ~~~~
 
-<<dd_display: "Time= `c(current_time)' `c(current_date)'">>
-
+<<dd_display: "Tiempo post lcmean y lcprob= `c(current_time)' `c(current_date)'">>
 
 ~~~~
 <<dd_do>>
@@ -174,49 +202,63 @@ estat lcmean
 *estat lcgof
 *estimates esample: //* to allow to predict
 
+*cap noi estread "./analisis_lcas_tests_definitivo_prueba.sters"
+cap noi estread "./analisis_lcas_tests_definitivo_apr23.sters"
+
 margins, predict(classpr class(1)) ///
 	predict(classpr class(2)) ///
 	predict(classpr class(3)) ///
 	predict(classpr class(4)) ///
-	predict(classpr class(5)) ///
-	predict(classpr class(6)) ///
-	predict(classpr class(7)) ///
-	predict(classpr class(8)) ///
-	predict(classpr class(9)) ///
-	predict(classpr class(10)) 
-	marginsplot, xtitle("") ytitle("") ///
-	xlabel(1 "Class 1" 2 "Class 2" 3 "Class 3" 4 "Class 4" 5 "Class 5" 6 "Class 6" 7 "Class 7" 8 "Class 8" 9 "Class 9" 10 "Class 10") ///
+	predict(classpr class(5)) 
+marginsplot, xtitle("") ytitle("") ///
+	xlabel(1 "Class 1" 2 "Class 2" 3 "Class 3" 4 "Class 4" 5 "Class 5") ///
 	title("Predicted Latent Class Probabilities with 95% CI")
-	*graph save "${pathdata2}plot_predict_probs.gph"
+	cap noi graph save "./plot_predict_probs_apr23.gph"
 	
 <</dd_do>>
 ~~~~
 
-<<dd_graph: saving(analisis_joel_predict.svg) width(800) replace>>
+<<dd_graph: saving("./lca.svg") width(800) replace>>
 
-<<dd_display: "Time= `c(current_time)' `c(current_date)'">>
+<<dd_display: "Tiempo post-predicciones= `c(current_time)' `c(current_date)'">>
 
 ~~~~
 <<dd_do>>
 
 *predict classprior*, classpr
-predict cl_ps_anj_211006_*, classposteriorpr
-format %9.4f cl_ps_anj_211006_*
+predict an_lca_c5_220315*, classposteriorpr
+format %9.4f an_lca_c5_220315*
  *We can determine the expected class for each individual based 
  *on whether the posterior probability is greater than 0.5
  
- forvalues i = 1/6{
-generate exp_cl_ps_anj_211006_`i' = (cl_post_anj_211006_`i'>0.5)
-tab exp_cl_ps_anj_211006_`i'
+ forvalues i = 1/4{
+generate exp_an_lca_c5_220315`i' = (an_lca_c5_220315`i'>0.5)
+tab exp_an_lca_c5_220315`i'
 }
+cap noi estwrite _all using "./analisis_lcas_tests_definitivo2_apr23.sters", replace
+
 <</dd_do>>
 ~~~~
 
-<<dd_display: "Saved at= `c(current_time)' `c(current_date)'">>
+<<dd_display: "Guardado en= `c(current_time)' `c(current_date)'">>
 
 ~~~~
 <<dd_do>>
 
-cap qui save "${pathdata2}analisis_joel_an2.dta", all replace emptyok
+cap qui save "./lca_step2_apr23.dta", all replace emptyok
+
+log close
 <</dd_do>>
 ~~~~
+
+<<dd_do: nocommand>>
+/*
+FORMA DE EXPORTAR LOS DATOS Y EL MARKDOWN
+
+cap rm "H:/Mi unidad/Angelica/secreto/IVE/_lca_step2_corr.html"
+dyndoc "H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr.do", saving("H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr.html") replace nostop 
+copy "H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr.html" "H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr_back.html", replace
+
+_outputs
+*/
+<</dd_do>>

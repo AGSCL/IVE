@@ -172,6 +172,16 @@ padding: 0px;
 text-align: left !important;
 font-size: 11px !important;
 }
+
+.center-table {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+overflow-y:scroll;
+height:400px;
+overflow-x: scroll;
+}
+
 .controlly{
 overflow-y:scroll;
 height:350px;
@@ -232,6 +242,7 @@ if(!require(survminer)){install.packages("survminer")}
 if(!require(survcomp)){BiocManager::install("survcomp")}
 if(!require(ggpmisc)){BiocManager::install("ggpmisc")}
 if(!require(survRM2)){BiocManager::install("survRM2")}
+if(!require(kableExtra)){BiocManager::install("kableExtra")}
 
 `%>%`<- magrittr::`%>%`
 
@@ -241,7 +252,8 @@ cbind.fill <- function(...){
   nm <- list(...) 
   nm <- lapply(nm, as.matrix)
   n <- max(sapply(nm, nrow)) 
-  do.call(cbind, lapply(nm, function (x) rbind(x, matrix(, n-nrow(x), ncol(x)))))}
+  do.call(cbind, lapply(nm, function (x) rbind(x, matrix(, n-nrow(x), ncol(x)))))
+}
 
 # 1 leer excel IVE 2018--------------------------------------------------
 data <- readxl::read_excel("CASOS_LEY_21030_2018_2022.xlsx")
@@ -341,9 +353,30 @@ data2$PREV_TRAMO<-ifelse(data2$PREV_TRAMO=="FONASA NA",
                              "FONASA A",
                              data2$PREV_TRAMO)
 #table(data2$PREV_TRAMO, exclude=NULL)
+data2$PREV_TRAMO_REC<- 
+  dplyr::case_when(data2$PREV_TRAMO %in% c("FONASA A", "FONASA B")~ "FONASA A/B", data2$PREV_TRAMO %in% c("FONASA C", "FONASA D")~ "FONASA C/D",data2$PREV_TRAMO %in% c("FFAA Y ORDEN", "ISAPRE")~ "ISAPRE o FFAA", T~data2$PREV_TRAMO)
+# ISAPRE
+# FFAA Y ORDEN
+# FONASA A
+# FONASA B
+# FONASA C
+# FONASA D
+# NINGUNA
+
 
 #table(data2$PREVISION_SALUD_REC, data2$tramo_rec, exclude=NULL)
 data2$PREV_TRAMO= relevel(factor(data2$PREV_TRAMO), ref = "ISAPRE")
+data2$PREV_TRAMO_REC= relevel(factor(data2$PREV_TRAMO_REC), ref = "ISAPRE o FFAA")
+
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#macrozona
+#Dirección Zonal Norte: Regiones de Arica y Parinacota, Tarapacá, Antofagasta y Atacama, Dirección Zonal Centro Norte: Regiones de Coquimbo y Valparaíso, Nivel Central: Regiones Metropolitana y de Bernardo O´Higgins, Dirección Zonal Centro Sur: Regiones del Maule, Ñuble y Biobío, Dirección Zonal Sur: Regiones de La Araucanía, Los Ríos, Los Lagos, Aysén y Magallanes
+
+if(is.null(data2$MACROZONA)){
+    data2$MACROZONA <- factor(dplyr::case_when(data2$REGION_RESIDENCIA %in% c("REGION DE ARICA PARINACOTA", "REGION DE TARAPACA", "REGION DE ANTOFAGASTA", "REGION DE ATACAMA")~"NORTE",  data2$REGION_RESIDENCIA %in% c("REGION DE COQUIMBO", "REGION DE VALPARAISO")~"CENTRO NORTE", data2$REGION_RESIDENCIA %in% c("REGION DEL LIBERTADOR GRAL. B. O'HIGGINS", "REGION DEL LIBERTADOR GRAL.B.OHIGGINS", "REGION METROPOLITANA DE SANTIAGO")~"CENTRO", data2$REGION_RESIDENCIA %in% c("REGION DE ÑUBLE", "REGION DEL BIOBIO", "REGION DEL MAULE")~"CENTRO SUR", data2$REGION_RESIDENCIA %in% c("REGION DE LA ARAUCANIA", "REGION DE LOS RIOS", "REGION DE LOS LAGOS", "REGION DE AYSEN DEL GENERAL CARLOS IBAÑEZ DEL CAMPO","REGION DE MAGALLANES Y DE LA ANTARTICA CHILENA")~"SUR",T~NA_character_))
+}
 ```
 
 Qué es SISA en PREVISIÓN, y tener en cuenta la categoria en HITO2 DECISIÓN, "NO APLICA, INSCONSCIENTE". LAS SISA podrían tener tramo igual ¿no?, a su vez, los Ninguna previsión pueden ir en tramo A. Analizar en el futuro.
@@ -354,8 +387,10 @@ Qué es SISA en PREVISIÓN, y tener en cuenta la categoria en HITO2 DECISIÓN, "
 
 ## Exploratorio
 
+::: {.center-table}
 ```{r}
-
+#https://stackoverflow.com/questions/75364577/prevent-html-table-to-use-full-page-width-in-quarto
+#| class-output: controlly
 as.data.frame.TableOne <- function(x, ...) {capture.output(print(x,
                           showAllLevels = TRUE, ...) -> x)
   y <- as.data.frame(x)
@@ -365,9 +400,6 @@ as.data.frame.TableOne <- function(x, ...) {capture.output(print(x,
   select(charactersitic, everything())
   rownames(y) <- NULL
   y}
-
-#c("AÑO", "MES_NUM", "MES", "CAUSAL", "EDAD_MUJER", "PAIS_ORIGEN", "PUEBLO_ORIGINARIO", "REGION_RESIDENCIA", "PREVISION_SALUD",  "TRAMO_FONASA", "TIPO_ESTABLECIMIENTO", "SEREMIoSERVICIO", "HITO1_EDAD_GESTACIONAL_SEMANAS", "HITO2_DECISION_MUJER_IVE", "HITO3_PROCEDIMIENTO_INTERVENCION", "HITO3_SEMANAS_G_EVACUA", "HITO3_COMPLICACION_POST_IVE", "HITO3_CONDICION_MUJER_POST_IVE", "HITO3_TIPO_ATENCION", "HITO3_SERV_SALUD_ESTABLECIMIENTO", "HITO4_MUJER_ACEPTA_ACOM", "N_C_PSICOLOGO", "N_C_ASIST_SOCIAL", "N_C_DUPLA", "N_C_PSIQUIATRA", "N_VISITAS_DOM", "TOTAL_ATENCIONES_ACOMPAÑAMIENTO", "PAIS_ORIGEN_REC", "PREVISION_SALUD_REC", "tramo_rec", "TRAMO_REC", "PREV_TRAMO")
-
 tab1<-
     CreateTableOne(vars =c("AÑO", "MES_NUM", "CAUSAL", "EDAD_MUJER", "EDAD_MUJER_REC", "PUEBLO_ORIGINARIO_REC", "REGION_RESIDENCIA", "TIPO_ESTABLECIMIENTO", "SEREMIoSERVICIO", "HITO1_EDAD_GESTACIONAL_SEMANAS", "HITO1_EDAD_GEST_SEM_REC", "HITO2_DECISION_MUJER_IVE", "HITO3_PROCEDIMIENTO_INTERVENCION", "HITO3_SEMANAS_G_EVACUA", "HITO3_COMPLICACION_POST_IVE", "HITO3_CONDICION_MUJER_POST_IVE", "HITO3_TIPO_ATENCION", "HITO3_SERV_SALUD_ESTABLECIMIENTO", "HITO4_MUJER_ACEPTA_ACOM", "N_C_PSICOLOGO", "N_C_ASIST_SOCIAL", "N_C_DUPLA", "N_C_PSIQUIATRA", "N_VISITAS_DOM", "TOTAL_ATENCIONES_ACOMPAÑAMIENTO", "PAIS_ORIGEN_REC", "PREVISION_SALUD_REC", "PREV_TRAMO"),
                  #transforma la variable en numerico
@@ -375,28 +407,33 @@ tab1<-
                  factorVars=c("AÑO","MES_NUM", "CAUSAL", "EDAD_MUJER_REC", "PUEBLO_ORIGINARIO_REC","PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC",  "HITO3_COMPLICACION_POST_IVE", "HITO3_CONDICION_MUJER_POST_IVE", "HITO3_TIPO_ATENCION",  "HITO3_SERV_SALUD_ESTABLECIMIENTO", "HITO4_MUJER_ACEPTA_ACOM"),
                  strata= "HITO2_DECISION_MUJER_IVE",addOverall = T, includeNA =T)
 
-
 as.data.frame.TableOne(tab1)%>% 
-  DT::datatable(filter = 'top', #height = '550px', #colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
-              caption = htmltools::tags$caption(
-        style = 'caption-side: top; text-align: left;',
-        '', htmltools::em('Descriptivos')),
-      options=list(
-        pageLength = 200, 
-        scrollY = "350px",
-        #columnDefs = list(list(width = '200px', targets = "_all")),
-initComplete = htmlwidgets::JS(
-        "function(settings, json) {",
-        "$(this.api().tables().body()).css({
-            'font-family': 'Helvetica Neue',
-            'font-size': '50%', 
-            'code-inline-font-size': '15%', 
-            'white-space': 'nowrap',
-            'line-height': '0.75em',
-            'min-height': '0.5em'
-            });",#;
-        "}")))
+  knitr::kable("markdown", caption="Descriptivos") #%>% 
+    # kable_styling(font_size = 8) %>%
+    # gsub("font-size: initial !important;", 
+    #      "font-size: 9pt !important;", 
+    #      .)
+#   DT::datatable(filter = 'top', #height = '550px', #colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
+#               caption = htmltools::tags$caption(
+#         style = 'caption-side: top; text-align: left;',
+#         '', htmltools::em('Descriptivos')),
+#       options=list(
+#         pageLength = 200, 
+#         scrollY = "350px",
+#         #columnDefs = list(list(width = '200px', targets = "_all")),
+# initComplete = htmlwidgets::JS(
+#         "function(settings, json) {",
+#         "$(this.api().tables().body()).css({
+#             'font-family': 'Helvetica Neue',
+#             'font-size': '50%', 
+#             'code-inline-font-size': '15%', 
+#             'white-space': 'nowrap',
+#             'line-height': '0.75em',
+#             'min-height': '0.5em'
+#             });",#;
+#         "}")))
 ```
+:::
 
 <br>
 
@@ -472,7 +509,6 @@ Vemos las tendencias agregadas
 #| fig-cap: "Recuento mensual de interrupciones y continuaciones de embarazo (azul=continuar)"
 #| warning: false
 #| error: true
-
 
 data2 %>%
   #filter(HITO2_DECISION_MUJER_IVE %in% c("INTERRUMPIR EL EMBARAZO", "CONTINUAR EL EMBARAZO")) %>%

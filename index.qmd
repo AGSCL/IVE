@@ -10,4 +10,6 @@ editor: visual
 ## Contenidos
 
 -   [Paso 1. Limpieza, normalización y exploración](Paso1.html)
+-   [Paso 2. Análisis de clases latentes, selección de clases](Paso2.html)
+-   [Paso 2 (Stata). Análisis de clases latentes, selección de clases](_lca_step1_corr_apr23.html)
 -   [Reporte de datos (exploración)](report.html)
