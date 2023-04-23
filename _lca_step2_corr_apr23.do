@@ -255,9 +255,9 @@ log close
 /*
 FORMA DE EXPORTAR LOS DATOS Y EL MARKDOWN
 
-cap rm "H:/Mi unidad/Angelica/secreto/IVE/_lca_step2_corr.html"
-dyndoc "H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr.do", saving("H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr.html") replace nostop 
-copy "H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr.html" "H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr_back.html", replace
+cap rm "H:/Mi unidad/Angelica/secreto/IVE/lca_step2_corr.html"
+dyndoc "H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr.do", saving("H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr.html") replace nostop 
+copy "H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr.html" "H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_back.html", replace
 
 _outputs
 */
