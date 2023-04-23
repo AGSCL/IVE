@@ -1,0 +1,614 @@
+---
+title: "Paso 3"
+description: |
+  Análisis de clases latentes: modelo seleccionado sin predictores, caracterización de clases y medidas de ajuste
+date: "`r withr::with_locale(new = c('LC_TIME' = 'C'), code =format(Sys.time(),'%B %d, %Y'))`"
+author: "Andrés González Santa Cruz"
+output:
+  distill::distill_article:
+    code_folding: true
+    fig_height: 6
+    fig_width: 8
+    theme: flatly
+    toc: yes
+    toc_depth: 5
+    toc_float: yes
+    output_dir: "docs"
+  toc_float:
+    collapsed: false
+    smooth_scroll: true
+---
+
+```{css zoom-lib-src, echo = FALSE}
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+```
+
+```{js zoom-jquery, echo = FALSE}
+ $(document).ready(function() {
+    $('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+    // onClick function for all plots (img's)
+    $('img:not(.zoomImg)').click(function() {
+      $('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+      $('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+    });
+    // onClick function for zoomImg
+    $('img.zoomImg').click(function() {
+      $('.zoomDiv').css({opacity: '0', width: '0%'}); 
+    });
+  });
+  
+```
+
+```{css hideOutput-lib-src, echo = FALSE}
+<script src="hideOutput.js"></script> 
+```
+
+```{js hideOutput, echo = FALSE}
+$(document).ready(function() {    
+	$chunks = $('.fold');    
+	$chunks.each(function () {      // add button to source code chunks     
+	if ( $(this).hasClass('s') ) {       
+		$('pre.r', this).prepend("<div class=\"showopt\">Show Source</div><br style=\"line-height:22px;\"/>");
+       		$('pre.r', this).children('code').attr('class', 'folded');     
+       		}      // add button to output chunks     
+		if ( $(this).hasClass('o') ) {       
+			$('pre:not(.r)', this).has('code').prepend("<div class=\"showopt\">Show Output</div><br style=\"line-height:22px;\"/>");       
+			$('pre:not(.r)', this).children('code:not(r)').addClass('folded');        // add button to plots       
+			$(this).find('img').wrap('<pre class=\"plot\"></pre>');       
+			$('pre.plot', this).prepend("<div class=\"showopt\">Show Plot</div><br style=\"line-height:22px;\"/>");       
+			$('pre.plot', this).children('img').addClass('folded');      
+			}   
+});    // hide all chunks when document is loaded   
+	$('.folded').css('display', 'none')    // function to toggle the visibility   
+	$('.showopt').click(function() {     
+			var label = $(this).html();     
+			if (label.indexOf("Show") >= 0) {       
+				$(this).html(label.replace("Show", "Hide"));     
+			} else {
+			  $(this).html(label.replace("Hide", "Show"));     
+			}     
+	$(this).siblings('code, img').slideToggle('fast', 'swing');   
+	}); 
+}); 
+
+```
+
+```{=html}
+<style type="text/css">
+.showopt {   
+  background-color: #004c93;   color: #FFFFFF;    width: 100px;   height: 20px;   text-align: center;   vertical-align: middle !important;   float: right;   font-family: sans-serif;   border-radius: 8px; 
+  }
+
+.showopt:hover {     
+        background-color: #dfe4f2;
+        color: #004c93; 
+        }  
+pre.plot {   
+        background-color: white !important; 
+        } 
+.tablelines table, .tablelines td, .tablelines th {
+        border: 1px solid black;
+        }
+
+.centrado {
+    text-align: center;
+}
+
+.table.center {
+    margin-left:auto; 
+    margin-right:auto;
+  }
+
+/* https://vivekjaiskumar.medium.com/css-is-and-not-selector-17c942ec83f :is()*/
+
+/* Applies to outputs that are not code other than R*/
+
+pre {
+  overflow-x: auto !important;
+}
+pre code {
+  word-wrap: normal !important;
+  white-space: pre !important;
+}
+/*
+pre:not(.sourceCode) { 
+  white-space: nowrap !important;
+}
+*/
+.sourceCode { /* Important gives precedence  */
+  font-size: 10px !important;
+  line-height: 50% !important;
+}
+
+body{ /* Normal  */
+      text-align: justify;
+  }
+
+.superbigimage{
+    overflow-y:scroll;
+    height:350px;
+    white-space: nowrap;
+    overflow-x: auto; 
+    width:100%;
+}
+.superbigimage img{
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.message { color:#446C6E; font-family: monospace;font-size: 10px; line-height: 110%; font-weight: bold;}
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 5px; text-align: justify;}
+div.red { background-color:#e6bab1; border-radius: 5px; padding: 5px; text-align: justify;}
+
+.pandoc-table { /* Should add !important; but it seems no necessary  */
+  margin-left:auto; /* To center */
+  margin-right:auto;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 11px;
+  overflow-y: auto;
+  max-height:450px !important;
+  white-space: nowrap;
+  overflow-x: auto; 
+  width:450px;
+}
+
+.pandoc-table th {/* header */
+text-align: center !important;
+font-size: 10px;
+padding: 0px;
+}
+
+.pandoc-table td {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+}
+
+.pandoc-table caption {
+    text-align: left !important;
+    font-size: 11px !important;
+}
+
+.controlly{
+    overflow-y:scroll;
+    height:350px;
+    overflow-x: scroll; 
+}
+
+
+.controlly2{
+    overflow-y:scroll;
+    height:550px;
+    overflow-x: scroll; 
+}
+
+</style>
+```
+```{=html}
+<!-- We gotta do each function to hide code and outputs per section, by every ID, we gotta create a different function -->
+<script>
+function myFunction1() {
+    var x = document.getElementById("myDIV");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+
+<script>
+function myFunction2() {
+    var x = document.getElementById("myDIV2");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+```
+
+
+Cargamos los datos
+
+```{r, echo=FALSE}
+rm(list = ls());gc()
+load("data2_lca2_2023_04_21.RData")
+```
+
+Cargamos los paquetes
+
+```{r, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(echo = TRUE)
+
+if(!require(poLCA)){install.packages("poLCA")}
+if(!require(poLCAParallel)){devtools::install_github("QMUL/poLCAParallel@package")}
+if(!require(compareGroups)){install.packages("compareGroups")}
+if(!require(parallel)){install.packages("parallel")}
+if(!require(Hmisc)){install.packages("Hmisc")}
+if(!require(tidyverse)){install.packages("tidyverse")}
+try(if(!require(sjPlot)){install.packages("sjPlot")})
+if(!require(emmeans)){install.packages("emmeans")}
+if(!require(nnet)){install.packages("nnet")}
+if(!require(here)){install.packages("here")}
+if(!require(doParallel)){install.packages("doParallel")}
+if(!require(progress)){install.packages("progress")}
+if(!require(caret)){install.packages("caret")}
+if(!require(rpart)){install.packages("rpart")}
+if(!require(rpart.plot)){install.packages("rpart.plot")}
+if(!require(partykit)){install.packages("partykit")}
+if(!require(randomForest)){install.packages("randomForest")}
+if(!require(ggcorrplot)){install.packages("ggcorrplot")}
+if(!require(polycor)){install.packages("polycor")}
+if(!require(tableone)){install.packages("tableone")}
+if(!require(broom)){install.packages("broom")}
+if(!require(plotly)){install.packages("plotly")}
+
+#if(!require(poLCA)){githubinstall::gh_install_packages("poLCA", ref = github_pull("14"))}
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+lca_dir<-here::here()
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#
+#	
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+
+tryNA <- function(x){
+    x <- try(x)
+    if(inherits(x,'try-error')) return(NA)
+    x
+}
+
+#https://rdrr.io/github/hyunsooseol/snowRMM/src/R/lca.b.R
+#https://github.com/dlinzer/poLCA/issues/7
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#' Bivariate residuals for latent class models
+#' 
+#' Calculate the "bivariate residuals" (BVRs) between pairs of variables 
+#' in a latent class model.
+#' 
+#' This function compares the model-implied (expected) counts in the crosstables
+#' of all pairs of observed dependent variables to the observed counts. For each
+#' pair, it calculates a "chi-square" statistic,
+#' 
+#' \deqn{\text{BVR} = \sum_{j, j'} \frac{(n_{jj'} - e_{jj'})^2}{e_{jj'}}},
+#' 
+#' where \eqn{n_{jj'}} are the observed counts for categories \eqn{j} and \eqn{j'} 
+#' of the variables being crosstabulated, and \eqn{e_{jj'}} are
+#' the expected counts under the latent class model. 
+#' 
+#' Note that the BVR does not follow an asymptotic chi-square distribution and
+#' for accurate p-values, parametric bootstrapping is necessary (Oberski et al. 2013).
+#' 
+#' @param fit A poLCA fit object
+#' @param tol Optional: tolerance for small expected counts
+#' @param rescale_to_df Optional: whether to divide the pairwise "chi-square" values by 
+#' the degrees of freedom of the local crosstable. Default is TRUE.
+#' @return The table of bivariate residuals
+#' @author Daniel Oberski (daniel.oberski@gmail.com)
+#' @seealso \code{\link{poLCA}} for fitting the latent class model.
+#' @references 
+#' Oberski, DL, Van Kollenburg, GH and Vermunt, JK (2013). 
+#'   A Monte Carlo evaluation of three methods to detect local dependence in binary data latent class models. 
+#'   Advances in Data Analysis and Classification 7 (3), 267-279.
+#' @examples
+#' data(values)
+#' f <- cbind(A, B, C, D) ~ 1
+#' M0 <- poLCA(f,values, nclass=1, verbose = FALSE) 
+#' bvr(M0) # 12.4, 5.7, 8.3, 15.6, ... 
+bvr <- function(fit, tol = 1e-3, rescale_to_df = TRUE) {
+  stopifnot(class(fit) == "poLCA")
+
+  ov_names <- names(fit$predcell)[1:(ncol(fit$predcell) - 2)]
+  ov_combn <- combn(ov_names, 2)
+
+  get_bvr <- function(ov_pair) {
+    form_obs <- as.formula(paste0("observed ~ ", ov_pair[1], " + ", ov_pair[2]))
+    form_exp <- as.formula(paste0("expected ~ ", ov_pair[1], " + ", ov_pair[2]))
+
+    counts_obs <- xtabs(form_obs, data = fit$predcell)
+    counts_exp <- xtabs(form_exp, data = fit$predcell)
+    counts_exp <- ifelse(counts_exp < tol, tol, counts_exp) # Prevent Inf/NaN
+
+    bvr_df <- prod(dim(counts_exp) - 1)
+    bvr_value <- sum((counts_obs - counts_exp)^2 / counts_exp)
+
+    if(rescale_to_df) bvr_value <- bvr_value / bvr_df
+
+    attr(bvr_value, "df") <- bvr_df
+
+    bvr_value
+  }
+
+  bvr_pairs <- apply(ov_combn, 2, get_bvr)
+
+  attr(bvr_pairs, "rescale_to_df") <- rescale_to_df
+  attr(bvr_pairs, "class") <- "dist"
+  attr(bvr_pairs, "Size") <- length(ov_names)
+  attr(bvr_pairs, "Labels") <- ov_names
+  attr(bvr_pairs, "Diag") <- FALSE
+  attr(bvr_pairs, "Upper") <- FALSE
+
+  bvr_pairs
+}
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+poLCA.entropy.fix <- function (lc)
+{
+  K.j <- sapply(lc$probs, ncol)
+  fullcell <- expand.grid(sapply(K.j, seq, from = 1))
+  P.c <- poLCA.predcell(lc, fullcell)
+  return(-sum(P.c * log(P.c), na.rm = TRUE))
+}
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#Calculate entropy R2 for poLCA model
+
+# MIT license
+# Author: Daniel Oberski
+# Input: result of a poLCA model fit
+# Output: entropy R^2 statistic (Vermunt & Magidson, 2013, p. 71)
+# See: daob.nl/wp-content/uploads/2015/07/ESRA-course-slides.pdf
+# And: https://www.statisticalinnovations.com/wp-content/uploads/LGtecnical.pdf
+machine_tolerance <- sqrt(.Machine$double.eps)
+entropy.R2 <- function(fit) {
+  entropy <- function(p) {
+    p <- p[p > machine_tolerance] # since Lim_{p->0} p log(p) = 0
+    sum(-p * log(p))
+  }
+  error_prior <- entropy(fit$P) # Class proportions
+  error_post <- mean(apply(fit$posterior, 1, entropy))
+  R2_entropy <- (error_prior - error_post) / error_prior
+  R2_entropy
+}
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#http://researchdata.gla.ac.uk/879/1/Survey_data_processed_using_R.pdf
+##Function to plot variable probabilites by latent class
+
+## Function to undertake chisquare analayis and plot graphs of residuals and contributions
+chisquaretest.predictions.function <-
+ function(indfactor.data,
+	 predclass.data,
+	 noclasses,
+	 pitem,
+	 gitem,
+	 chirows,
+	 chicols) {
+	 chisquare.results <- chisq.test(indfactor.data, predclass.data)
+	 residuals.data <- chisquare.results$residuals
+	 colnames(residuals.data) <- chicols
+	 rownames(residuals.data) <- chirows
+		 title.text <-
+			 paste(
+			 "Residuals: chi Square Crosstabulation of\n",
+			 pitem,
+			 "and",
+			 gitem,
+			 "\n(Chisquare =",
+			 round(chisquare.results$statistic, 3),
+			 " p <",
+			 round(chisquare.results$p.value, 3),
+			 ")",
+			 sep = " "
+			 )
+		 corrplot(
+			 residuals.data,
+			 is.cor = FALSE,
+			 title = title.text,
+			 mar = c(0, 0, 4, 0)
+			 )
+		 contrib.data <-
+		 100 * residuals.data ^ 2 / chisquare.results$statistic
+		 round(contrib.data, 3)
+		 colnames(contrib.data) <- chicols
+		 rownames(contrib.data) <- chirows
+		 title.text <-
+		 paste(
+			 "Contributions: chi Square Crosstabulation of\n",
+			 pitem,
+			 "and",
+			 gitem,
+			 "\n(Chisquare =",
+			 round(chisquare.results$statistic, 3),
+			 " p <",
+			 round(chisquare.results$p.value, 3),
+			 ")",
+			 sep = " "
+			 )
+		 corrplot(
+			 contrib.data,
+			 is.cor = FALSE,
+			 title = title.text,
+			 mar = c(0, 0, 4, 0)
+			 )
+		 return(chisquare.results)
+ }
+##Funciton for Cramers V test
+cv.test = function(x, y) {
+	 CV = sqrt(chisq.test(x, y, correct = FALSE)$statistic /
+	 (length(x) * (min(
+	 length(unique(x)), length(unique(y))
+	 ) - 1)))
+	 print.noquote("Cramér V / Phi:")
+	 return(as.numeric(CV))
+	}
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+
+if(.Platform$OS.type == "windows") withAutoprint({
+  memory.size()
+  memory.size(TRUE)
+  memory.limit(size=56000)
+})
+
+path<-try(dirname(rstudioapi::getSourceEditorContext()$path))
+
+options(knitr.kable.NA = '')
+
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+
+knitr::knit_hooks$set(time_it = local({
+  now <- NULL
+  function(before, options) {
+    if (before) {
+      # record the current time before each chunk
+      now <<- Sys.time()
+    } else {
+      # calculate the time difference after a chunk
+      res <- ifelse(difftime(Sys.time(), now)>(60^2),difftime(Sys.time(), now)/(60^2),difftime(Sys.time(), now)/(60^1))
+      # return a character string to show the time
+      x<-ifelse(difftime(Sys.time(), now)>(60^2),paste("Time for this code chunk to run:", round(res,1), "hours"),paste("Time for this code chunk to run:", round(res,1), "minutes"))
+      paste('<div class="message">', gsub('##', '\n', x),'</div>', sep = '\n')
+    }
+  }
+}))
+knitr::opts_chunk$set(time_it = TRUE)
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+
+#to format rows in bold
+format_cells <- function(df, rows ,cols, value = c("italics", "bold", "strikethrough")){
+
+  # select the correct markup
+  # one * for italics, two ** for bold
+  map <- setNames(c("*", "**", "~~"), c("italics", "bold", "strikethrough"))
+  markup <- map[value]  
+
+  for (r in rows){
+    for(c in cols){
+
+      # Make sure values are not factors
+      df[[c]] <- as.character( df[[c]])
+
+      # Update formatting
+      df[r, c] <- ifelse(nchar(df[r, c])==0,"",paste0(markup, gsub(" ", "", df[r, c]), markup))
+    }
+  }
+
+  return(df)
+}
+#To produce line breaks in messages and warnings
+knitr::knit_hooks$set(
+   error = function(x, options) {
+     paste('\n\n<div class="alert alert-danger">',
+           gsub('##', '\n', gsub('^##\ Error', '**Error**', x)),
+           '</div>', sep = '\n')
+   },
+   warning = function(x, options) {
+     paste('\n\n<div class="alert alert-warning">',
+           gsub('##', '\n', gsub('^##\ Warning:', '**Warning**', x)),
+           '</div>', sep = '\n')
+   },
+   message = function(x, options) {
+     paste('<div class="message">',
+           gsub('##', '\n', x),
+           '</div>', sep = '\n')
+   }
+)
+#
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+
+as.data.frame.TableOne <- function(x, ...) {capture.output(print(x,
+                          showAllLevels = TRUE, ...) -> x)
+  y <- as.data.frame(x)
+  y$charactersitic <- dplyr::na_if(rownames(x), "")
+  y <- y %>%
+  fill(charactersitic, .direction = "down") %>%
+  select(charactersitic, everything())
+  rownames(y) <- NULL
+  y}
+```
+
+```{r model,eval=T, echo=T, paged.print=TRUE, fig.cap="Figure 1. Directed Acyclic Graph"}                                 
+library(DiagrammeR) #⋉
+DiagrammeR::grViz("
+digraph flowchart {
+    fontname='Comic Sans MS'
+
+  # Nodes
+  subgraph samelevel {
+    ANIO [label = 'Año',fontsize=10,shape = box]
+    CAUSAL [label = 'Causal',fontsize=10,shape = box]
+    MUJER_REC [label = 'Sexo\n(mujer)',fontsize=10,shape = box]
+    EDAD_MUJER_REC [label = 'Edad\nmujer',fontsize=10,shape = box]
+    HITO1_EDAD_GEST_SEM_REC [label = 'Edad\nGestacional\nHito 1',fontsize=10,shape = box]
+    MACROZONA [label = 'Macrozona',fontsize=10,shape = box]
+    PAIS_ORIGEN_REC [label = 'País de\norigen',fontsize=10,shape = box]
+    PREV_TRAMO_REC [label = 'Previsión y\ntramo',fontsize=10,shape = box]
+    PUEBLO_ORIGINARIO_REC [label = 'Pueblo\noriginario',fontsize=10,shape = box]
+    
+  {rank=same; rankdir= 'TB'; ANIO CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC PUEBLO_ORIGINARIO_REC}
+  }
+  LCA [shape= circle, style=filled, color=lightgrey]
+  
+  inter [label = 'Interupción\nembarazo',fontsize=10,shape = box, height=.00002] # set the position of the inter node pos='15,100'
+
+  # Nodes
+  subgraph {
+   LCA ->  {ANIO CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC PUEBLO_ORIGINARIO_REC} [rank=same; rankdir= 'TB'] 
+}
+  subgraph {
+   LCA -> inter [minlen=14] #minlen es necesario para correr arrowhead = none; 
+  {rank=same; LCA inter [rankdir='LR']}; #; 
+}
+}")#, width = 1200, height = 900
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3733703/
+#Cohort matching on a variable associated with both outcome and censoring
+#Cohort matching on a confounder. We let A denote an exposure, Y denote an outcome, and C denote a confounder and matching variable. The variable S indicates whether an individual in the source population is selected for the matched study (1: selected, 0: not selected). See Section 2-7 for details.
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7064555/
+DPI = 1200
+WidthCM = 11
+HeightCM = 8
+
+sysfonts::font_add(family = "Rooney Sans", regular = paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_style/RooneySansRegular.otf"))
+
+showtext::showtext_begin()
+plot_merge_flowchart_after_dates %>%
+  export_svg %>% charToRaw %>% rsvg_pdf(paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_figs/_flowchart_merge3.pdf"))
+plot_merge_flowchart_after_dates %>% export_svg()%>%charToRaw %>% rsvg(width = WidthCM *(DPI/2.54), height = HeightCM *(DPI/2.54)) %>% png::writePNG(paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_figs/_flowchart_merge_wo_fmt3.png"))
+
+htmlwidgets::saveWidget(plot_merge_flowchart_after_dates, paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_figs/_flowchart_merge_222_3.html"))
+webshot::webshot(paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_figs/_flowchart_merge_222_3.html"), paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_figs/_flowchart_merge_formatted_3.png"),vwidth = 1200, vheight = 900,
+        zoom = 2)
+```
+
+
+```{r, echo=FALSE}
+save.image("data2_lca4.RData")
+```
+
+```{r, echo=FALSE}
+require(tidyverse)
+sesion_info <- devtools::session_info()
+dplyr::select(
+  tibble::as_tibble(sesion_info$packages),
+  c(package, loadedversion, source)
+) %>% 
+  DT::datatable(filter = 'top', colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
+              caption = htmltools::tags$caption(
+        style = 'caption-side: top; text-align: left;',
+        '', htmltools::em('Packages')),
+      options=list(
+initComplete = htmlwidgets::JS(
+        "function(settings, json) {",
+        "$(this.api().tables().body()).css({
+            'font-family': 'Helvetica Neue',
+            'font-size': '50%', 
+            'code-inline-font-size': '15%', 
+            'white-space': 'nowrap',
+            'line-height': '0.75em',
+            'min-height': '0.5em'
+            });",#;
+        "}")))
+```
+
