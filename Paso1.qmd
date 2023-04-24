@@ -387,7 +387,7 @@ Qué es SISA en PREVISIÓN, y tener en cuenta la categoria en HITO2 DECISIÓN, "
 
 ## Exploratorio
 
-::: {.center-table}
+::: center-table
 ```{r}
 #https://stackoverflow.com/questions/75364577/prevent-html-table-to-use-full-page-width-in-quarto
 #| class-output: controlly
@@ -407,7 +407,27 @@ tab1<-
                  factorVars=c("AÑO","MES_NUM", "CAUSAL", "EDAD_MUJER_REC", "PUEBLO_ORIGINARIO_REC","PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC",  "HITO3_COMPLICACION_POST_IVE", "HITO3_CONDICION_MUJER_POST_IVE", "HITO3_TIPO_ATENCION",  "HITO3_SERV_SALUD_ESTABLECIMIENTO", "HITO4_MUJER_ACEPTA_ACOM"),
                  strata= "HITO2_DECISION_MUJER_IVE",addOverall = T, includeNA =T)
 
-as.data.frame.TableOne(tab1)%>% 
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+invisible("Para ver asociaciones sobre la variable binaria")
+data2$HITO2_DECISION_MUJER_IVE_bin<- grepl('INTERRUMPIR', data2$HITO2_DECISION_MUJER_IVE)
+
+tab1_num<-
+    CreateTableOne(vars =c("EDAD_MUJER","HITO1_EDAD_GESTACIONAL_SEMANAS"),
+                 #transforma la variable en numerico
+                 data= data2, 
+                 strata= "HITO2_DECISION_MUJER_IVE_bin",addOverall = T, includeNA =T)
+#print(tab1_num, nonnormal= c("EDAD_MUJER", "HITO1_EDAD_GESTACIONAL_SEMANAS"))
+
+paste0("Wlicoxon test, HITO2_DECISION_MUJER_IVE_bin-EDAD_MUJER ")
+paste0("W= ",round(broom::tidy(wilcox.test(EDAD_MUJER ~ HITO2_DECISION_MUJER_IVE_bin, data=data2))$statistic/sqrt(nrow(data2)),0),", p= ",round(broom::tidy(wilcox.test(EDAD_MUJER ~ HITO2_DECISION_MUJER_IVE_bin, data=data2))$p.value,3))
+
+paste0("Wlicoxon test, HITO2_DECISION_MUJER_IVE_bin-HITO1_EDAD_GESTACIONAL_SEMANAS ")
+paste0("W= ",round(broom::tidy(wilcox.test(HITO1_EDAD_GESTACIONAL_SEMANAS ~ HITO2_DECISION_MUJER_IVE_bin, data=data2))$statistic/sqrt(nrow(data2)),0),", p= ",round(broom::tidy(wilcox.test(HITO1_EDAD_GESTACIONAL_SEMANAS ~ HITO2_DECISION_MUJER_IVE_bin, data=data2))$p.value,3))
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+as.data.frame.TableOne(tab1, nonnormal= c("EDAD_MUJER", "HITO1_EDAD_GESTACIONAL_SEMANAS"))%>% 
   knitr::kable("markdown", caption="Descriptivos") #%>% 
     # kable_styling(font_size = 8) %>%
     # gsub("font-size: initial !important;", 

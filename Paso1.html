@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Andrés González Santa Cruz">
-<meta name="dcterms.date" content="2023-04-20">
+<meta name="dcterms.date" content="2023-04-24">
 <meta name="description" content="Explicación">
 
 <title>Paso 1</title>
@@ -133,7 +133,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">April 20, 2023</p>
+      <p class="date">April 24, 2023</p>
     </div>
   </div>
   
@@ -511,21 +511,64 @@ See problems(...) for more details.</code></pre>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>                 <span class="at">factorVars=</span><span class="fu">c</span>(<span class="st">"AÑO"</span>,<span class="st">"MES_NUM"</span>, <span class="st">"CAUSAL"</span>, <span class="st">"EDAD_MUJER_REC"</span>, <span class="st">"PUEBLO_ORIGINARIO_REC"</span>,<span class="st">"PAIS_ORIGEN_REC"</span>, <span class="st">"HITO1_EDAD_GEST_SEM_REC"</span>,  <span class="st">"HITO3_COMPLICACION_POST_IVE"</span>, <span class="st">"HITO3_CONDICION_MUJER_POST_IVE"</span>, <span class="st">"HITO3_TIPO_ATENCION"</span>,  <span class="st">"HITO3_SERV_SALUD_ESTABLECIMIENTO"</span>, <span class="st">"HITO4_MUJER_ACEPTA_ACOM"</span>),</span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>                 <span class="at">strata=</span> <span class="st">"HITO2_DECISION_MUJER_IVE"</span>,<span class="at">addOverall =</span> T, <span class="at">includeNA =</span>T)</span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="fu">as.data.frame.TableOne</span>(tab1)<span class="sc">%&gt;%</span> </span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="st">"markdown"</span>, <span class="at">caption=</span><span class="st">"Descriptivos"</span>) <span class="co">#%&gt;% </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="co">#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="co">#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="st">"Para ver asociaciones sobre la variable binaria"</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>data2<span class="sc">$</span>HITO2_DECISION_MUJER_IVE_bin<span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="st">'INTERRUMPIR'</span>, data2<span class="sc">$</span>HITO2_DECISION_MUJER_IVE)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>tab1_num<span class="ot">&lt;-</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">CreateTableOne</span>(<span class="at">vars =</span><span class="fu">c</span>(<span class="st">"EDAD_MUJER"</span>,<span class="st">"HITO1_EDAD_GESTACIONAL_SEMANAS"</span>),</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>                 <span class="co">#transforma la variable en numerico</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data=</span> data2, </span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>                 <span class="at">strata=</span> <span class="st">"HITO2_DECISION_MUJER_IVE_bin"</span>,<span class="at">addOverall =</span> T, <span class="at">includeNA =</span>T)</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="co">#print(tab1_num, nonnormal= c("EDAD_MUJER", "HITO1_EDAD_GESTACIONAL_SEMANAS"))</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="fu">paste0</span>(<span class="st">"Wlicoxon test, HITO2_DECISION_MUJER_IVE_bin-EDAD_MUJER "</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Wlicoxon test, HITO2_DECISION_MUJER_IVE_bin-EDAD_MUJER "</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste0</span>(<span class="st">"W= "</span>,<span class="fu">round</span>(broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="fu">wilcox.test</span>(EDAD_MUJER <span class="sc">~</span> HITO2_DECISION_MUJER_IVE_bin, <span class="at">data=</span>data2))<span class="sc">$</span>statistic<span class="sc">/</span><span class="fu">sqrt</span>(<span class="fu">nrow</span>(data2)),<span class="dv">0</span>),<span class="st">", p= "</span>,<span class="fu">round</span>(broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="fu">wilcox.test</span>(EDAD_MUJER <span class="sc">~</span> HITO2_DECISION_MUJER_IVE_bin, <span class="at">data=</span>data2))<span class="sc">$</span>p.value,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "W= 16199, p= 0.097"</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste0</span>(<span class="st">"Wlicoxon test, HITO2_DECISION_MUJER_IVE_bin-HITO1_EDAD_GESTACIONAL_SEMANAS "</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Wlicoxon test, HITO2_DECISION_MUJER_IVE_bin-HITO1_EDAD_GESTACIONAL_SEMANAS "</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste0</span>(<span class="st">"W= "</span>,<span class="fu">round</span>(broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="fu">wilcox.test</span>(HITO1_EDAD_GESTACIONAL_SEMANAS <span class="sc">~</span> HITO2_DECISION_MUJER_IVE_bin, <span class="at">data=</span>data2))<span class="sc">$</span>statistic<span class="sc">/</span><span class="fu">sqrt</span>(<span class="fu">nrow</span>(data2)),<span class="dv">0</span>),<span class="st">", p= "</span>,<span class="fu">round</span>(broom<span class="sc">::</span><span class="fu">tidy</span>(<span class="fu">wilcox.test</span>(HITO1_EDAD_GESTACIONAL_SEMANAS <span class="sc">~</span> HITO2_DECISION_MUJER_IVE_bin, <span class="at">data=</span>data2))<span class="sc">$</span>p.value,<span class="dv">3</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "W= 20075, p= 0"</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co">#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">as.data.frame.TableOne</span>(tab1, <span class="at">nonnormal=</span> <span class="fu">c</span>(<span class="st">"EDAD_MUJER"</span>, <span class="st">"HITO1_EDAD_GESTACIONAL_SEMANAS"</span>))<span class="sc">%&gt;%</span> </span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="st">"markdown"</span>, <span class="at">caption=</span><span class="st">"Descriptivos"</span>) <span class="co">#%&gt;% </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <table class="table table-sm table-striped">
 <caption>Descriptivos</caption>
 <colgroup>
-<col style="width: 16%">
-<col style="width: 49%">
-<col style="width: 4%">
+<col style="width: 15%">
+<col style="width: 46%">
+<col style="width: 7%">
+<col style="width: 7%">
 <col style="width: 8%">
 <col style="width: 8%">
-<col style="width: 9%">
 <col style="width: 2%">
-<col style="width: 1%">
+<col style="width: 2%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -761,14 +804,14 @@ See problems(...) for more details.</code></pre>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">EDAD_MUJER (mean (SD))</td>
+<td style="text-align: left;">EDAD_MUJER (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">29.60 (7.75)</td>
-<td style="text-align: left;">29.95 (8.43)</td>
-<td style="text-align: left;">29.53 (7.63)</td>
-<td style="text-align: left;">30.38 (4.99)</td>
-<td style="text-align: left;">0.447</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">30.00 [24.00, 36.00]</td>
+<td style="text-align: left;">31.00 [24.00, 37.00]</td>
+<td style="text-align: left;">30.00 [24.00, 36.00]</td>
+<td style="text-align: left;">31.00 [29.00, 35.00]</td>
+<td style="text-align: left;">0.251</td>
+<td style="text-align: left;">nonnorm</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">EDAD_MUJER_REC (%)</td>
@@ -1461,14 +1504,14 @@ See problems(...) for more details.</code></pre>
 <td style="text-align: left;"></td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">HITO1_EDAD_GESTACIONAL_SEMANAS (mean (SD))</td>
+<td style="text-align: left;">HITO1_EDAD_GESTACIONAL_SEMANAS (median [IQR])</td>
 <td style="text-align: left;"></td>
-<td style="text-align: left;">16.82 (7.47)</td>
-<td style="text-align: left;">20.49 (7.62)</td>
-<td style="text-align: left;">16.09 (7.21)</td>
-<td style="text-align: left;">26.83 (8.07)</td>
+<td style="text-align: left;">16.00 [11.00, 22.00]</td>
+<td style="text-align: left;">21.00 [15.00, 26.00]</td>
+<td style="text-align: left;">16.00 [11.00, 21.00]</td>
+<td style="text-align: left;">27.50 [25.75, 31.75]</td>
 <td style="text-align: left;">&lt;0.001</td>
-<td style="text-align: left;"></td>
+<td style="text-align: left;">nonnorm</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">HITO1_EDAD_GEST_SEM_REC (%)</td>
@@ -4035,46 +4078,31 @@ See problems(...) for more details.</code></pre>
 </div>
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>    <span class="co"># kable_styling(font_size = 8) %&gt;%</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># gsub("font-size: initial !important;", </span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#      "font-size: 9pt !important;", </span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#      .)</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   DT::datatable(filter = 'top', #height = '550px', #colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="co">#               caption = htmltools::tags$caption(</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co">#         style = 'caption-side: top; text-align: left;',</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co">#         '', htmltools::em('Descriptivos')),</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co">#       options=list(</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="co">#         pageLength = 200, </span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="co">#         scrollY = "350px",</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="co">#         #columnDefs = list(list(width = '200px', targets = "_all")),</span></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co"># initComplete = htmlwidgets::JS(</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co">#         "function(settings, json) {",</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co">#         "$(this.api().tables().body()).css({</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co">#             'font-family': 'Helvetica Neue',</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co">#             'font-size': '50%', </span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="co">#             'code-inline-font-size': '15%', </span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="co">#             'white-space': 'nowrap',</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="co">#             'line-height': '0.75em',</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="co">#             'min-height': '0.5em'</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="co">#             });",#;</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a><span class="co">#         "}")))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>    <span class="co"># kable_styling(font_size = 8) %&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># gsub("font-size: initial !important;", </span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">#      "font-size: 9pt !important;", </span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="co">#      .)</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   DT::datatable(filter = 'top', #height = '550px', #colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">#               caption = htmltools::tags$caption(</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="co">#         style = 'caption-side: top; text-align: left;',</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">#         '', htmltools::em('Descriptivos')),</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="co">#       options=list(</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="co">#         pageLength = 200, </span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a><span class="co">#         scrollY = "350px",</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co">#         #columnDefs = list(list(width = '200px', targets = "_all")),</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a><span class="co"># initComplete = htmlwidgets::JS(</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="co">#         "function(settings, json) {",</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="co">#         "$(this.api().tables().body()).css({</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="co">#             'font-family': 'Helvetica Neue',</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="co">#             'font-size': '50%', </span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="co">#             'code-inline-font-size': '15%', </span></span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a><span class="co">#             'white-space': 'nowrap',</span></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="co">#             'line-height': '0.75em',</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="co">#             'min-height': '0.5em'</span></span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="co">#             });",#;</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a><span class="co">#         "}")))</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-</div>
-<div class="cell" data-class-output="controlly">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#load("data2_lca2_2022_04_19.RData")</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>tab2<span class="ot">&lt;-</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">CreateTableOne</span>(<span class="at">vars =</span><span class="fu">c</span>(<span class="st">"CAUSAL"</span>, <span class="st">"EDAD_MUJER_REC"</span>, <span class="st">"PUEBLO_ORIGINARIO_REC"</span>, <span class="st">"PAIS_ORIGEN_REC"</span>, <span class="st">"HITO1_EDAD_GEST_SEM_REC"</span>,<span class="st">"MACROZONA"</span>, <span class="st">"AÑO"</span>, <span class="st">"PREV_TRAMO_REC"</span>,<span class="st">"HITO2_DECISION_MUJER_IVE"</span>),</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                 <span class="co">#transforma la variable en numerico</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data=</span> data2, </span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                 <span class="at">factorVars=</span><span class="fu">c</span>(<span class="st">"CAUSAL"</span>, <span class="st">"EDAD_MUJER_REC"</span>, <span class="st">"PUEBLO_ORIGINARIO_REC"</span>, <span class="st">"PAIS_ORIGEN_REC"</span>, <span class="st">"HITO1_EDAD_GEST_SEM_REC"</span>,<span class="st">"MACROZONA"</span>, <span class="st">"AÑO"</span>, <span class="st">"PREV_TRAMO_REC"</span>),</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                 <span class="at">strata=</span> <span class="st">"HITO2_DECISION_MUJER_IVE"</span>,<span class="at">addOverall =</span> T, <span class="at">includeNA =</span>T)</span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="fu">as.data.frame.TableOne</span>(tab2) <span class="sc">%&gt;%</span> knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="st">"markdown"</span>, <span class="at">caption=</span><span class="st">"Descriptivos (acotado)"</span>)</span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="co">#as.data.frame.TableOne(tab2)%&gt;% rio::export("tabla12.xlsx")</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
 </div>
 <p><br></p>
 <p>No tiene mucho sentido porque hay pocos eventos censurados, pero para ver cómo ocurre.</p>
@@ -4082,34 +4110,34 @@ See problems(...) for more details.</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#HITO1_EDAD_GESTACIONAL_SEMANAS HITO3_SEMANAS_G_EVACUA  HITO2_DECISION_MUJER_IVE    INTERRUMPIR EL EMBARAZO</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggfortify)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>reset_time<span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(HITO3_SEMANAS_G_EVACUA<span class="sc">-</span> HITO1_EDAD_GESTACIONAL_SEMANAS,  data2<span class="sc">$</span>HITO2_DECISION_MUJER_IVE<span class="sc">==</span> <span class="st">"INTERRUMPIR EL EMBARAZO"</span>) <span class="sc">~</span><span class="dv">1</span>, <span class="at">data=</span>data2, <span class="at">type      =</span> <span class="st">"kaplan-meier"</span>, <span class="at">error     =</span> <span class="st">"greenwood"</span>, <span class="at">conf.type =</span> <span class="st">"log-log"</span>) </span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>survminer<span class="sc">::</span><span class="fu">ggsurvplot</span>(reset_time,</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>           <span class="co">#fun = "cumhaz",</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">conf.int =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>           <span class="co">#legend.labs = c("Tr Comp", "Tr Non-Comp (Early)", "Tr Non-Comp (Late)"), </span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table =</span> <span class="st">"abs_pct"</span>,</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>           <span class="co">#ncensor.plot = TRUE,</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">ggtheme =</span> ggpubr<span class="sc">::</span><span class="fu">theme_classic2</span>(<span class="at">base_size=</span><span class="dv">15</span>),</span>
-<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table.y.text.col =</span> F,</span>
-<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table.col=</span><span class="st">"black"</span>,</span>
-<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>           <span class="at">font.tickslab =</span> <span class="fu">c</span>(<span class="dv">10</span>),</span>
-<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table.height =</span> .<span class="dv">2</span>,</span>
-<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table.fontsize =</span> <span class="fl">2.5</span>,</span>
-<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>           <span class="co">#break.time.by = 365.25,</span></span>
-<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>           <span class="at">pval =</span> T,</span>
-<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>           <span class="co">#ylim=c(0,10),</span></span>
-<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>           <span class="at">legend =</span> <span class="fu">c</span>(<span class="fl">0.68</span>, <span class="fl">0.17</span>), </span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>           <span class="at">legend.title=</span><span class="st">"Tiempo a interrupción"</span>,</span>
-<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">xlab=</span> <span class="st">"Tiempo (en semanas)"</span>, </span>
-<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>           <span class="co">#cumevents=T,</span></span>
-<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>           <span class="at">surv.connect =</span> T,</span>
-<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>           <span class="at">censor=</span> F</span>
-<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>           )</span>
-<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">#HITO1_EDAD_GESTACIONAL_SEMANAS HITO3_SEMANAS_G_EVACUA  HITO2_DECISION_MUJER_IVE    INTERRUMPIR EL EMBARAZO</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggfortify)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>reset_time<span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(HITO3_SEMANAS_G_EVACUA<span class="sc">-</span> HITO1_EDAD_GESTACIONAL_SEMANAS,  data2<span class="sc">$</span>HITO2_DECISION_MUJER_IVE<span class="sc">==</span> <span class="st">"INTERRUMPIR EL EMBARAZO"</span>) <span class="sc">~</span><span class="dv">1</span>, <span class="at">data=</span>data2, <span class="at">type      =</span> <span class="st">"kaplan-meier"</span>, <span class="at">error     =</span> <span class="st">"greenwood"</span>, <span class="at">conf.type =</span> <span class="st">"log-log"</span>) </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>survminer<span class="sc">::</span><span class="fu">ggsurvplot</span>(reset_time,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>           <span class="co">#fun = "cumhaz",</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">conf.int =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>           <span class="co">#legend.labs = c("Tr Comp", "Tr Non-Comp (Early)", "Tr Non-Comp (Late)"), </span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table =</span> <span class="st">"abs_pct"</span>,</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>           <span class="co">#ncensor.plot = TRUE,</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>           <span class="at">ggtheme =</span> ggpubr<span class="sc">::</span><span class="fu">theme_classic2</span>(<span class="at">base_size=</span><span class="dv">15</span>),</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table.y.text.col =</span> F,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table.col=</span><span class="st">"black"</span>,</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>           <span class="at">font.tickslab =</span> <span class="fu">c</span>(<span class="dv">10</span>),</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table.height =</span> .<span class="dv">2</span>,</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>           <span class="at">risk.table.fontsize =</span> <span class="fl">2.5</span>,</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>           <span class="co">#break.time.by = 365.25,</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>           <span class="at">pval =</span> T,</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>           <span class="co">#ylim=c(0,10),</span></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>           <span class="at">legend =</span> <span class="fu">c</span>(<span class="fl">0.68</span>, <span class="fl">0.17</span>), </span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>           <span class="at">legend.title=</span><span class="st">"Tiempo a interrupción"</span>,</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>           <span class="at">xlab=</span> <span class="st">"Tiempo (en semanas)"</span>, </span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>           <span class="co">#cumevents=T,</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>           <span class="at">surv.connect =</span> T,</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>           <span class="at">censor=</span> F</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>           )</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-reset" class="quarto-figure quarto-figure-center anchored">
@@ -4124,22 +4152,22 @@ See problems(...) for more details.</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>no_at_risk<span class="ot">&lt;-</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>survcomp<span class="sc">::</span><span class="fu">no.at.risk</span>(<span class="at">formula.s=</span><span class="fu">Surv</span>(<span class="at">time2=</span>HITO3_SEMANAS_G_EVACUA, <span class="at">time=</span>HITO1_EDAD_GESTACIONAL_SEMANAS,  HITO2_DECISION_MUJER_IVE<span class="sc">==</span> <span class="st">"INTERRUMPIR EL EMBARAZO"</span>) <span class="sc">~</span><span class="dv">1</span>, <span class="at">data.s=</span>data2, <span class="at">sub.s=</span><span class="st">"all"</span>, <span class="at">t.step=</span><span class="fu">round</span>(<span class="fu">min</span>(data2<span class="sc">$</span>HITO1_EDAD_GESTACIONAL_SEMANAS, <span class="at">na.rm=</span>T)), <span class="at">t.end=</span><span class="fu">round</span>(<span class="fu">max</span>(data2<span class="sc">$</span>HITO3_SEMANAS_G_EVACUA, <span class="at">na.rm=</span>T)))</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>staggered<span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(<span class="at">time2=</span>HITO3_SEMANAS_G_EVACUA, <span class="at">time=</span>HITO1_EDAD_GESTACIONAL_SEMANAS,  HITO2_DECISION_MUJER_IVE<span class="sc">==</span> <span class="st">"INTERRUMPIR EL EMBARAZO"</span>) <span class="sc">~</span><span class="dv">1</span>, <span class="at">data=</span> data2, <span class="at">type      =</span> <span class="st">"fleming-harrington"</span>, <span class="at">conf.type =</span> <span class="st">"log-log"</span>) </span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">fortify</span>(staggered)  <span class="sc">%&gt;%</span> </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x=</span>time, <span class="at">y=</span>surv))<span class="sc">+</span> <span class="co">#fill=strata, color=strata, group=strata</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_step</span>(<span class="at">size=</span>.<span class="dv">8</span>)<span class="sc">+</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_ribbon</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper), <span class="at">alpha =</span> .<span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    ggpubr<span class="sc">::</span><span class="fu">theme_classic2</span>(<span class="at">base_size=</span><span class="dv">15</span>)<span class="sc">+</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">"table"</span>,</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">x =</span> <span class="dv">3</span>,</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> <span class="sc">-</span><span class="fl">0.05</span>,</span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">label =</span> <span class="fu">list</span>(no_at_risk),</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>             <span class="at">table.theme =</span> ggpp<span class="sc">::</span>ttheme_gtminimal)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>no_at_risk<span class="ot">&lt;-</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>survcomp<span class="sc">::</span><span class="fu">no.at.risk</span>(<span class="at">formula.s=</span><span class="fu">Surv</span>(<span class="at">time2=</span>HITO3_SEMANAS_G_EVACUA, <span class="at">time=</span>HITO1_EDAD_GESTACIONAL_SEMANAS,  HITO2_DECISION_MUJER_IVE<span class="sc">==</span> <span class="st">"INTERRUMPIR EL EMBARAZO"</span>) <span class="sc">~</span><span class="dv">1</span>, <span class="at">data.s=</span>data2, <span class="at">sub.s=</span><span class="st">"all"</span>, <span class="at">t.step=</span><span class="fu">round</span>(<span class="fu">min</span>(data2<span class="sc">$</span>HITO1_EDAD_GESTACIONAL_SEMANAS, <span class="at">na.rm=</span>T)), <span class="at">t.end=</span><span class="fu">round</span>(<span class="fu">max</span>(data2<span class="sc">$</span>HITO3_SEMANAS_G_EVACUA, <span class="at">na.rm=</span>T)))</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>staggered<span class="ot">&lt;-</span> <span class="fu">survfit</span>(<span class="fu">Surv</span>(<span class="at">time2=</span>HITO3_SEMANAS_G_EVACUA, <span class="at">time=</span>HITO1_EDAD_GESTACIONAL_SEMANAS,  HITO2_DECISION_MUJER_IVE<span class="sc">==</span> <span class="st">"INTERRUMPIR EL EMBARAZO"</span>) <span class="sc">~</span><span class="dv">1</span>, <span class="at">data=</span> data2, <span class="at">type      =</span> <span class="st">"fleming-harrington"</span>, <span class="at">conf.type =</span> <span class="st">"log-log"</span>) </span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">fortify</span>(staggered)  <span class="sc">%&gt;%</span> </span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x=</span>time, <span class="at">y=</span>surv))<span class="sc">+</span> <span class="co">#fill=strata, color=strata, group=strata</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_step</span>(<span class="at">size=</span>.<span class="dv">8</span>)<span class="sc">+</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">geom_ribbon</span>(ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper), <span class="at">alpha =</span> .<span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    ggpubr<span class="sc">::</span><span class="fu">theme_classic2</span>(<span class="at">base_size=</span><span class="dv">15</span>)<span class="sc">+</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    ggplot2<span class="sc">::</span><span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">"table"</span>,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>             <span class="at">x =</span> <span class="dv">3</span>,</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">y =</span> <span class="sc">-</span><span class="fl">0.05</span>,</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>             <span class="at">label =</span> <span class="fu">list</span>(no_at_risk),</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>             <span class="at">table.theme =</span> ggpp<span class="sc">::</span>ttheme_gtminimal)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-staggered" class="quarto-figure quarto-figure-center anchored">
@@ -4154,20 +4182,20 @@ See problems(...) for more details.</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>data2 <span class="sc">%&gt;%</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#filter(HITO2_DECISION_MUJER_IVE %in% c("INTERRUMPIR EL EMBARAZO", "CONTINUAR EL EMBARAZO")) %&gt;%</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(AÑO, MES_NUM) <span class="sc">%&gt;%</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">n_interrumpir =</span> <span class="fu">sum</span>(HITO2_DECISION_MUJER_IVE <span class="sc">==</span> <span class="st">"INTERRUMPIR EL EMBARAZO"</span>),</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">n_continuar =</span> <span class="fu">sum</span>(HITO2_DECISION_MUJER_IVE <span class="sc">==</span> <span class="st">"CONTINUAR EL EMBARAZO"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">rn =</span> <span class="fu">paste0</span>(AÑO, <span class="st">" "</span>, MES_NUM)) <span class="sc">%&gt;%</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.Date</span>(<span class="fu">paste0</span>(<span class="st">"01-"</span>, MES_NUM, <span class="st">"-"</span>, AÑO), <span class="at">format =</span> <span class="st">"%d-%m-%Y"</span>), <span class="at">y =</span> n_interrumpir, <span class="at">group =</span> <span class="dv">1</span>), <span class="at">color =</span> <span class="st">"green"</span>) <span class="sc">+</span></span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.Date</span>(<span class="fu">paste0</span>(<span class="st">"01-"</span>, MES_NUM, <span class="st">"-"</span>, AÑO), <span class="at">format =</span> <span class="st">"%d-%m-%Y"</span>), <span class="at">y =</span> n_continuar, <span class="at">group =</span> <span class="dv">1</span>), <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_labels =</span> <span class="st">"%b %Y"</span>, <span class="at">date_breaks =</span> <span class="st">"1 month"</span>) <span class="sc">+</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Mes año"</span>, <span class="at">y =</span> <span class="st">"Recuento"</span>) <span class="sc">+</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span><span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>data2 <span class="sc">%&gt;%</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  <span class="co">#filter(HITO2_DECISION_MUJER_IVE %in% c("INTERRUMPIR EL EMBARAZO", "CONTINUAR EL EMBARAZO")) %&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(AÑO, MES_NUM) <span class="sc">%&gt;%</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">n_interrumpir =</span> <span class="fu">sum</span>(HITO2_DECISION_MUJER_IVE <span class="sc">==</span> <span class="st">"INTERRUMPIR EL EMBARAZO"</span>),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">n_continuar =</span> <span class="fu">sum</span>(HITO2_DECISION_MUJER_IVE <span class="sc">==</span> <span class="st">"CONTINUAR EL EMBARAZO"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">rn =</span> <span class="fu">paste0</span>(AÑO, <span class="st">" "</span>, MES_NUM)) <span class="sc">%&gt;%</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.Date</span>(<span class="fu">paste0</span>(<span class="st">"01-"</span>, MES_NUM, <span class="st">"-"</span>, AÑO), <span class="at">format =</span> <span class="st">"%d-%m-%Y"</span>), <span class="at">y =</span> n_interrumpir, <span class="at">group =</span> <span class="dv">1</span>), <span class="at">color =</span> <span class="st">"green"</span>) <span class="sc">+</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">as.Date</span>(<span class="fu">paste0</span>(<span class="st">"01-"</span>, MES_NUM, <span class="st">"-"</span>, AÑO), <span class="at">format =</span> <span class="st">"%d-%m-%Y"</span>), <span class="at">y =</span> n_continuar, <span class="at">group =</span> <span class="dv">1</span>), <span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(<span class="at">date_labels =</span> <span class="st">"%b %Y"</span>, <span class="at">date_breaks =</span> <span class="st">"1 month"</span>) <span class="sc">+</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Mes año"</span>, <span class="at">y =</span> <span class="st">"Recuento"</span>) <span class="sc">+</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span><span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div id="fig-trends" class="quarto-figure quarto-figure-center anchored">
@@ -4182,8 +4210,8 @@ See problems(...) for more details.</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(data2, <span class="at">file =</span> <span class="st">"data2.RData"</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>rio<span class="sc">::</span><span class="fu">export</span>(data2,<span class="st">"lca0.dta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(data2, <span class="at">file =</span> <span class="st">"data2.RData"</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>rio<span class="sc">::</span><span class="fu">export</span>(data2,<span class="st">"lca0.dta"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>

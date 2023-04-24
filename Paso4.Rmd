@@ -529,59 +529,6 @@ as.data.frame.TableOne <- function(x, ...) {capture.output(print(x,
   y}
 ```
 
-```{r model,eval=T, echo=T, paged.print=TRUE, fig.cap="Figure 1. Directed Acyclic Graph"}                                 
-library(DiagrammeR) #⋉
-DiagrammeR::grViz("
-digraph flowchart {
-    fontname='Comic Sans MS'
-
-  # Nodes
-  subgraph samelevel {
-    ANIO [label = 'Año',fontsize=10,shape = box]
-    CAUSAL [label = 'Causal',fontsize=10,shape = box]
-    MUJER_REC [label = 'Sexo\n(mujer)',fontsize=10,shape = box]
-    EDAD_MUJER_REC [label = 'Edad\nmujer',fontsize=10,shape = box]
-    HITO1_EDAD_GEST_SEM_REC [label = 'Edad\nGestacional\nHito 1',fontsize=10,shape = box]
-    MACROZONA [label = 'Macrozona',fontsize=10,shape = box]
-    PAIS_ORIGEN_REC [label = 'País de\norigen',fontsize=10,shape = box]
-    PREV_TRAMO_REC [label = 'Previsión y\ntramo',fontsize=10,shape = box]
-    PUEBLO_ORIGINARIO_REC [label = 'Pueblo\noriginario',fontsize=10,shape = box]
-    
-  {rank=same; rankdir= 'TB'; ANIO CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC PUEBLO_ORIGINARIO_REC}
-  }
-  LCA [shape= circle, style=filled, color=lightgrey]
-  
-  inter [label = 'Interupción\nembarazo',fontsize=10,shape = box, height=.00002] # set the position of the inter node pos='15,100'
-
-  # Nodes
-  subgraph {
-   LCA ->  {ANIO CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC PUEBLO_ORIGINARIO_REC} [rank=same; rankdir= 'TB'] 
-}
-  subgraph {
-   LCA -> inter [minlen=14] #minlen es necesario para correr arrowhead = none; 
-  {rank=same; LCA inter [rankdir='LR']}; #; 
-}
-}")#, width = 1200, height = 900
-#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3733703/
-#Cohort matching on a variable associated with both outcome and censoring
-#Cohort matching on a confounder. We let A denote an exposure, Y denote an outcome, and C denote a confounder and matching variable. The variable S indicates whether an individual in the source population is selected for the matched study (1: selected, 0: not selected). See Section 2-7 for details.
-#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7064555/
-DPI = 1200
-WidthCM = 11
-HeightCM = 8
-
-sysfonts::font_add(family = "Rooney Sans", regular = paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_style/RooneySansRegular.otf"))
-
-showtext::showtext_begin()
-plot_merge_flowchart_after_dates %>%
-  export_svg %>% charToRaw %>% rsvg_pdf(paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_figs/_flowchart_merge3.pdf"))
-plot_merge_flowchart_after_dates %>% export_svg()%>%charToRaw %>% rsvg(width = WidthCM *(DPI/2.54), height = HeightCM *(DPI/2.54)) %>% png::writePNG(paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_figs/_flowchart_merge_wo_fmt3.png"))
-
-htmlwidgets::saveWidget(plot_merge_flowchart_after_dates, paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_figs/_flowchart_merge_222_3.html"))
-webshot::webshot(paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_figs/_flowchart_merge_222_3.html"), paste0(sub("2019 \\(github\\)/SUD_CL","2022 \\(github\\)",path),"/_figs/_flowchart_merge_formatted_3.png"),vwidth = 1200, vheight = 900,
-        zoom = 2)
-```
-
 
 ```{r, echo=FALSE}
 save.image("data2_lca4.RData")

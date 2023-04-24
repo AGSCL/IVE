@@ -677,6 +677,51 @@ as.data.frame.TableOne(tab2) %>% knitr::kable("markdown", caption="Descriptivos 
 ```
 :::
 
+
+::: controlly
+```{r para revision_sacar significancia_est,dpi= 320, message=F, error=T, eval=F, warnings=F}
+#<div class="fold o"> 
+paste0("Con Estamento")
+
+mydata_preds3 %>% 
+    dplyr::select(HITO2_DECISION_MUJER_IVE, c("CAUSAL", "EDAD_MUJER_REC", "PUEBLO_ORIGINARIO_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC")) %>% 
+    tidyr::gather(variable,measure, -HITO2_DECISION_MUJER_IVE) %>% 
+    dplyr::group_by(variable) %>%
+    dplyr::do(chisq.test(.$HITO2_DECISION_MUJER_IVE, .$measure) %>% broom::tidy()) %>%
+    dplyr::mutate(p.value=ifelse(p.value<.001,"<0.001",sprintf("%1.3f",p.value))) %>% 
+    dplyr::mutate(statistic=sprintf("%2.0f",statistic)) %>% 
+    dplyr::mutate(report=paste0("X²(",parameter,", ",nrow(mydata_preds3),")=",statistic,"; p", ifelse(p.value=="<0.001",p.value, paste0("=",p.value)))) %>%
+    dplyr::mutate(report=sub("0\\.","0,",sub("\\.",",",report))) 
+
+# explanatory63 = c("p40_istas_soporte", "p40_cond_trab_istas_10_p40_rec", "ratio_nec_insuf_mask2", "p8_exp_c19_cerca_cont_rec", "p36_cond_trab_reasig_rec", "p26_cond_trab_ent_protec_3_p26_rec", "p45_demo_sexo", "estamento")
+
+fisher_1<-
+fisher.test(table(mydata_preds3$p8_exp_c19_cerca_cont, 
+                  mydata_preds3$HITO2_DECISION_MUJER_IVE), simulate.p.value=T, B=10000)
+
+mydata_preds3 %>% 
+    dplyr::select(HITO2_DECISION_MUJER_IVE, c("CAUSAL", "EDAD_MUJER_REC", "PUEBLO_ORIGINARIO_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC")) %>% 
+    tidyr::gather(variable,measure, -HITO2_DECISION_MUJER_IVE) %>% 
+    dplyr::group_by(variable) %>%
+    dplyr::do(fisher.test(.$HITO2_DECISION_MUJER_IVE, .$measure, workspace = 2e10, simulate.p.value = T, B=1e5) %>% broom::tidy()) 
+# 
+paste0("H(",kruskal.test(p40_istas_soporte ~ estamento, data=mydata_preds3)$parameter,")=",
+       round(kruskal.test(p40_istas_soporte ~ estamento, data=mydata_preds3)$statistic,1), ", p=",
+       round(kruskal.test(p40_istas_soporte ~ estamento, data=mydata_preds3)$p.value,3)) %>%
+  copy_names()
+
+#_#_#_#_#_#_#_#_
+
+paste0("Con sexo")
+
+
+paste0("Wlicoxon test, sexo-soporte ")
+paste0("W= ",round(broom::tidy(wilcox.test(p40_istas_soporte ~ p45_demo_sexo, data=mydata_preds3))$statistic/sqrt(nrow(mydata_preds3)),0),", p= ",round(broom::tidy(wilcox.test(p40_istas_soporte ~ p45_demo_sexo, data=mydata_preds3))$p.value,3))
+  
+```
+:::
+
+
 Así se ven los datos como los usa `poLCA`
 
 Corrimos una versión paralelizada de `poLCA`.
