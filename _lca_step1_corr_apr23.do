@@ -1,7 +1,7 @@
 <<dd_version: 2>>
 <<dd_include: "H:/Mi unidad/Angelica/secreto/IVE/header.txt" >>
 
-# Database (paso 1)
+# Análisis de clases latentes (paso 1)
 
 Fecha creación: <<dd_display: "`c(current_time)' `c(current_date)'">>.
 
@@ -9,10 +9,9 @@ Instalar comandos
 
 ~~~~
 <<dd_do>>
-log using "H:\Mi unidad\Angelica\secreto\IVE\registry_lca1_apr23.smcl", replace
-
 *<< dd_do : noout > >
 clear all
+log using "H:\Mi unidad\Angelica\secreto\IVE\registry_lca1_apr23.smcl", replace
 
 set maxvar 120000, perm
 set adosize 10000, perm
@@ -175,7 +174,7 @@ cap noi rename new`vars' `vars'
 	}	
 }
 
-rename AÑO ANIO
+*rename AÑO ANIO
 /* 
 cap noi decode freq_cons_sus_prin, gen(str_freq_cons_sus_prin)
 cap confirm variable str_freq_cons_sus_prin
@@ -212,21 +211,19 @@ set seed 2125
 	PUEBLO_ORIGINARIO_REC /// 
 	PAIS_ORIGEN_REC ///
 	HITO1_EDAD_GEST_SEM_REC  ///
-	MACROZONA  ///	
-	ANIO ///
+	MACROZONA  ///		// ANIO ///
 	PREV_TRAMO_REC <- , mlogit), lclass(C 1) 
 	//*startvalues(randomid, draws(50)) //* agregado posteriormente 2021-10-08= feasible starting values not found
 	estimates store lca_prueba_c1
 
 set seed 2125
-	forvalues i = 2/8{
+	forvalues i = 2/10{
 	qui noi gsem(CAUSAL ///
 	EDAD_MUJER_REC ///
 	PUEBLO_ORIGINARIO_REC /// 
 	PAIS_ORIGEN_REC ///
 	HITO1_EDAD_GEST_SEM_REC  ///
-	MACROZONA  ///	
-	ANIO ///
+	MACROZONA  ///		// ANIO ///
 	PREV_TRAMO_REC <- , mlogit), lclass(C `i') nocapslatent nonrtolerance iterate($iterate2 ) ///
 	emopts(iterate($iterate ) difficult) ///
 	startvalues(randomid, draws($draws ) seed(2125)) ///
@@ -358,6 +355,10 @@ FORMA DE EXPORTAR LOS DATOS Y EL MARKDOWN
 cap rm "H:/Mi unidad/Angelica/secreto/IVE/lca_step1_corr_apr23.html"
 dyndoc "H:\Mi unidad\Angelica\secreto\IVE\_lca_step1_corr_apr23.do", saving("H:\Mi unidad\Angelica\secreto\IVE\lca_step1_corr_apr23.html") replace nostop 
 copy "H:\Mi unidad\Angelica\secreto\IVE\lca_step1_corr_apr23.html" "H:\Mi unidad\Angelica\secreto\IVE\lca_step1_corr_back.html", replace
+
+cap rm "G:/Mi unidad/Angelica/secreto/IVE/lca_step1_corr_apr23.html"
+dyndoc "G:\Mi unidad\Angelica\secreto\IVE\_lca_step1_corr_apr23.do", saving("G:\Mi unidad\Angelica\secreto\IVE\lca_step1_corr_apr23.html") replace nostop 
+copy "G:\Mi unidad\Angelica\secreto\IVE\lca_step1_corr_apr23.html" "G:\Mi unidad\Angelica\secreto\IVE\lca_step1_corr_back.html", replace
 
 _outputs
 */

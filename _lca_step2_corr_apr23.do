@@ -1,7 +1,7 @@
 <<dd_version: 2>>
 <<dd_include: "H:/Mi unidad/Angelica/secreto/IVE/header.txt" >>
 
-# Database (paso2 2)
+# Análisis de clases latentes (paso 2)
 
 Fecha creación: <<dd_display: "`c(current_time)' `c(current_date)'">>.
 
@@ -9,9 +9,8 @@ Instalar comandos
 
 ~~~~
 <<dd_do>>
-log using "H:\Mi unidad\Angelica\secreto\IVE\registry_lca2_apr23.smcl", replace
-
 clear all
+log using "H:\Mi unidad\Angelica\secreto\IVE\registry_lca2_apr23.smcl", replace
 
 set maxvar 120000, perm
 set adosize 10000, perm
@@ -106,10 +105,10 @@ De acuerdo a los datos, el mejor modelo asumía 5 clases latentes.
 *cap noi estread "./analisis_lcas_tests_prueba.sters"
 cap noi estread "./analisis_lcas_tests_real_apr23.sters"
 
-estimates describe lca_prueba_c5
-estimates replay lca_prueba_c5
-estimates restore lca_prueba_c5
-matrix b5_start= e(b)
+estimates describe lca_prueba_c6
+estimates replay lca_prueba_c6
+estimates restore lca_prueba_c6
+matrix b6_start= e(b)
 <</dd_do>>
 ~~~~
 
@@ -117,24 +116,29 @@ matrix b5_start= e(b)
 
 ~~~~
 <<dd_do>>
+global draws = 80
+global iterate = 80
+global iterate2 = 500
+<</dd_do>>
+~~~~
+
+~~~~
+<<dd_do>>
 *startvalues are computed b randomly assigning observations to initial classes
 set seed 2125
+qui noi gsem(CAUSAL ///
+	EDAD_MUJER_REC ///
+	PUEBLO_ORIGINARIO_REC /// 
+	PAIS_ORIGEN_REC ///
+	HITO1_EDAD_GEST_SEM_REC  ///
+	MACROZONA  ///		// ANIO ///
+	PREV_TRAMO_REC <- , mlogit), lclass(C 6) nocapslatent nonrtolerance from(b6_start, skip) ///
+	emopts(iterate( $iterate ) difficult) ///
+	iterate( $iterate2 ) vce(robust)
+	// startvalues(randomid, draws( $draws ) seed(2125))
+	
 
-
-qui noi gsem(decision_rec ///
-	anio ///
-	nacionalidad_rec_factor /// 
-	region_rec_factor ///
-	prev_tramo2  ///
-	niv_entrada_rec_factor  ///	
-	acps_factor ///
-	edad_mujer ///
-	clas /// //added later, not in R	
-	tpm4 <- , mlogit), lclass(C 5) nocapslatent nonrtolerance iterate(1000) vce(robust) ///
-	startvalues(randomid, draws(80) seed(2125)) emopts(iterate(80) difficult) ///
-	from(b5_start, skip)
-
-estimates store an_lca_c5_220315 //* previous had an invalid name
+estimates store an_lca_c6_230427 //* previous had an invalid name
 
 
 *entropy. functions after getting the model.
@@ -203,22 +207,23 @@ estat lcmean	//takes too many time
 *estimates esample: //* to allow to predict
 
 *cap noi estread "./analisis_lcas_tests_definitivo_prueba.sters"
-cap noi estread "./analisis_lcas_tests_definitivo_apr23.sters"
+cap noi estread "analisis_lcas_tests_definitivo_apr23.sters"
 
 margins, predict(classpr class(1)) ///
 	predict(classpr class(2)) ///
 	predict(classpr class(3)) ///
 	predict(classpr class(4)) ///
-	predict(classpr class(5)) 
+	predict(classpr class(5)) ///
+	predict(classpr class(6)) 
 marginsplot, xtitle("") ytitle("") ///
-	xlabel(1 "Class 1" 2 "Class 2" 3 "Class 3" 4 "Class 4" 5 "Class 5") ///
+	xlabel(1 "Class 1" 2 "Class 2" 3 "Class 3" 4 "Class 4" 5 "Class 5" 6 "Class 6") ///
 	title("Predicted Latent Class Probabilities with 95% CI")
-	cap noi graph save "./plot_predict_probs_apr23.gph"
+	cap noi graph save "plot_predict_probs_apr23.gph"
 	
 <</dd_do>>
 ~~~~
 
-<<dd_graph: saving("./lca.svg") width(800) replace>>
+<<dd_graph: saving("lca_final_apr23.svg") width(800) replace>>
 
 <<dd_display: "Tiempo post-predicciones= `c(current_time)' `c(current_date)'">>
 
@@ -226,14 +231,14 @@ marginsplot, xtitle("") ytitle("") ///
 <<dd_do>>
 
 *predict classprior*, classpr
-predict an_lca_c5_220315*, classposteriorpr
-format %9.4f an_lca_c5_220315*
+predict an_lca_c6_230427*, classposteriorpr
+format %9.4f an_lca_c6_230427*
  *We can determine the expected class for each individual based 
  *on whether the posterior probability is greater than 0.5
  
  forvalues i = 1/4{
-generate exp_an_lca_c5_220315`i' = (an_lca_c5_220315`i'>0.5)
-tab exp_an_lca_c5_220315`i'
+generate exp_an_lca_c6_230427`i' = (an_lca_c6_230427`i'>0.5)
+tab exp_an_lca_c6_230427`i'
 }
 cap noi estwrite _all using "./analisis_lcas_tests_definitivo2_apr23.sters", replace
 
@@ -255,9 +260,14 @@ log close
 /*
 FORMA DE EXPORTAR LOS DATOS Y EL MARKDOWN
 
-cap rm "H:/Mi unidad/Angelica/secreto/IVE/lca_step2_corr.html"
-dyndoc "H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr.do", saving("H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr.html") replace nostop 
-copy "H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr.html" "H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_back.html", replace
+cap rm "H:/Mi unidad/Angelica/secreto/IVE/lca_step2_corr_apr23.html"
+dyndoc "H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr_apr23.do", saving("H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23.html") replace nostop 
+copy "H:\Mi unidad\Angelica\secreto\IVE\lca_step2_apr23_corr.html" "H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23_back.html", replace
+
+cap rm "G:/Mi unidad/Angelica/secreto/IVE/lca_step2_corr_apr23.Gtml"
+dyndoc "G:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr_apr23.do", saving("G:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23.Gtml") replace nostop 
+copy "G:\Mi unidad\Angelica\secreto\IVE\lca_step2_apr23_corr.Gtml" "G:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23_back.Gtml", replace
+
 
 _outputs
 */

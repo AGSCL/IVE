@@ -243,6 +243,11 @@ if(!require(randomForest)){install.packages("randomForest")}
 if(!require(ggcorrplot)){install.packages("ggcorrplot")}
 if(!require(polycor)){install.packages("polycor")}
 if(!require(tableone)){install.packages("tableone")}
+if(!require(DiagrammeR)){install.packages("DiagrammeR")}
+if(!require(rsvg)){install.packages("rsvg")}
+if(!require(DiagrammeRsvg)){install.packages("DiagrammeRsvg")}
+if(!require(webshot)){install.packages("webshot")}
+if(!require(htmlwidgets)){install.packages("htmlwidgets")}
 
 #if(!require(poLCA)){githubinstall::gh_install_packages("poLCA", ref = github_pull("14"))}
 
@@ -530,11 +535,11 @@ as.data.frame.TableOne <- function(x, ...) {capture.output(print(x,
 Definimos ciertas constantes
 
 ```{r}
-clus_iter= 500 #500
+clus_iter= 500#500 #500
 n_thread <- parallel::detectCores()
 nrep <- clus_iter # number of different initial values (could be n_thread too)
 n_class_max <- 12 # maximum number of classes to investigate
-n_bootstrap <- 100 #30 # 50 number of bootstrap samples
+n_bootstrap <- 100#00 #30 # 50 number of bootstrap samples
 print(n_thread)
 ```
 
@@ -542,11 +547,64 @@ print(n_thread)
 
 ## Especificar modelo
 
+
+```{r model,eval=T, echo=T, paged.print=TRUE, fig.cap="Gráfico esquemático", fig.align='center'}                                 
+library(DiagrammeR) #⋉
+gr_lca<-
+DiagrammeR::grViz("
+digraph flowchart {
+    fontname='Comic Sans MS'
+
+  # Nodes
+  subgraph samelevel {
+    ANIO [label = 'Año',fontsize=10,shape = box]
+    CAUSAL [label = 'Causal',fontsize=10,shape = box]
+    MUJER_REC [label = 'Sexo\n(mujer)',fontsize=10,shape = box]
+    EDAD_MUJER_REC [label = 'Edad\nmujer',fontsize=10,shape = box]
+    HITO1_EDAD_GEST_SEM_REC [label = 'Edad\nGestacional\nHito 1',fontsize=10,shape = box]
+    MACROZONA [label = 'Macrozona',fontsize=10,shape = box]
+    PAIS_ORIGEN_REC [label = 'País de\norigen',fontsize=10,shape = box]
+    PREV_TRAMO_REC [label = 'Previsión y\ntramo',fontsize=10,shape = box]
+    PUEBLO_ORIGINARIO_REC [label = 'Pueblo\noriginario',fontsize=10,shape = box]
+    
+  {rank=same; rankdir= 'TB'; ANIO CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC PUEBLO_ORIGINARIO_REC}
+  }
+  LCA [label= 'Seis\nclases\nlatentes', shape= circle, style=filled, color=lightgrey, fontsize=10]
+  
+  inter [label = 'Interupción\nembarazo',fontsize=10,shape = box, height=.00002] # set the position of the inter node pos='15,100'
+
+  # Nodes
+  subgraph {
+   LCA ->  {ANIO CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC PUEBLO_ORIGINARIO_REC} [rank=same; rankdir= 'TB'] 
+}
+  subgraph {
+   LCA -> inter [minlen=14] #minlen es necesario para correr arrowhead = none; 
+  {rank=same; LCA inter [rankdir='LR']}; #; 
+}
+}")#, width = 1200, height = 900
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3733703/
+#Cohort matching on a variable associated with both outcome and censoring
+#Cohort matching on a confounder. We let A denote an exposure, Y denote an outcome, and C denote a confounder and matching variable. The variable S indicates whether an individual in the source population is selected for the matched study (1: selected, 0: not selected). See Section 2-7 for details.
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7064555/
+DPI = 1200
+WidthCM = 21
+HeightCM = 8
+
+gr_lca %>%
+  export_svg %>% charToRaw %>% rsvg_pdf("_flowchart_lca.pdf")
+
+gr_lca %>% export_svg()%>%charToRaw %>% rsvg(width = WidthCM *(DPI/2.54), height = HeightCM *(DPI/2.54)) %>% png::writePNG("_flowchart_lca0.png")
+
+htmlwidgets::saveWidget(gr_lca, "_flowchart_lca.html")
+webshot::webshot("_flowchart_lca.html", "_flowchart_lca.png",vwidth = 1200, vheight = 900,
+        zoom = 2)
+```
+
 Los valores ceros se declararon datos perdidos.
 
 ```{r, setup, echo=FALSE}
 #table(data2$MACROZONA,data2$REGION_RESIDENCIA, exclude=NULL)
-preds <- c("CAUSAL","EDAD_MUJER_REC", "PUEBLO_ORIGINARIO_REC","PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC", "MACROZONA", "AÑO", "PREV_TRAMO_REC")
+preds <- c("CAUSAL","EDAD_MUJER_REC", "PUEBLO_ORIGINARIO_REC","PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC", "MACROZONA", "PREV_TRAMO_REC")
 
 #c("AÑO","MES_NUM",    "HITO3_COMPLICACION_POST_IVE", "HITO3_CONDICION_MUJER_POST_IVE", "HITO3_TIPO_ATENCION",  "HITO3_SERV_SALUD_ESTABLECIMIENTO", "HITO4_MUJER_ACEPTA_ACOM"),
 
@@ -555,11 +613,7 @@ mydata_preds <- data2%>% dplyr::mutate(across(preds, ~ as.numeric(factor(.))+1))
 #comprobar 
 #table(mydata_preds$sus_ini_mod_mvv, data2$sus_ini_mod_mvv, exclude=NULL)
 
-f_preds<-cbind(CAUSAL, EDAD_MUJER_REC, PUEBLO_ORIGINARIO_REC, PAIS_ORIGEN_REC, HITO1_EDAD_GEST_SEM_REC, MACROZONA, AÑO, PREV_TRAMO_REC)~ 1
-f_adj <- cbind(CAUSAL, EDAD_MUJER_REC, PUEBLO_ORIGINARIO_REC, PAIS_ORIGEN_REC, HITO1_EDAD_GEST_SEM_REC, MACROZONA, AÑO, PREV_TRAMO_REC)~ HITO2_DECISION_MUJER_IVE
-
-#qdapTools::mtabulate(mydata_preds)
-#glimpse(mydata_preds) #
+f_preds<-cbind(CAUSAL, EDAD_MUJER_REC, PUEBLO_ORIGINARIO_REC, PAIS_ORIGEN_REC, HITO1_EDAD_GEST_SEM_REC, MACROZONA, PREV_TRAMO_REC)~ 1
 ```
 
 ## Exploración
@@ -724,7 +778,7 @@ paste0("W= ",round(broom::tidy(wilcox.test(p40_istas_soporte ~ p45_demo_sexo, da
 
 Así se ven los datos como los usa `poLCA`
 
-Corrimos una versión paralelizada de `poLCA`.
+Corremos una versión paralelizada de `poLCA`.
 
 ## Análisis
 
@@ -999,7 +1053,7 @@ fig_lca_fit<- tab_ppio %>%
   theme_bw()
 
 fig_lca_fit
-
+ggsave("_fig1_comparison.png",fig_lca_fit, dpi=600)
 #International Journal of Workplace Health Management  (Zhang et al., 2018).
 ```
 
