@@ -254,6 +254,14 @@ if(!require(effects)){install.packages("effects")}
 
 ### Sin resultado distal
 
+```{r}
+set.seed(2125)
+mydata_preds3$nrow<-rbinom(n=nrow(mydata_preds3),size=1,prob=0.3)
+
+rio::export(subset(mydata_preds3, nrow==1), "base_entrenamiento.dta")
+```
+
+
 ::: controlly2
 ```{r paso3-select-best-model,eval=T, echo=T, paged.print=TRUE, eval=T}
 #Si probs.start se establece en NULL (predeterminado) al llamar Polca, a continuación, la función genera los valores de partida al azar en cada ejecución. Esto significa que repite carreras de Polca normalmente producirán resultados con los mismos parámetros estimados (correspondiente a la misma el máximo diario de probabilidad), pero con etiquetas de clase latentes reordenados
@@ -327,6 +335,7 @@ zp1 <- zp1 + theme(axis.text.x = element_text(angle = 30, hjust = 1))
 ggplotly(zp1, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 
 ggsave("_fig3_LCA_distribuciones.png",zp1, dpi= 600)
+lcmodel %>% rio::export("variables_probabilities_in_category.xlsx")
 ```
 
 ```{r paso4-bvr, eval=T, echo=T, error=T, message=TRUE, warning=TRUE, paged.print=TRUE}
@@ -407,6 +416,8 @@ ggplot(aes(outcome, estimate, color = factor(class), group = class)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   theme_bw()+
   theme(legend.position = "bottom")
+
+tidy(LCA_best_model_mod) %>% rio::export("variables_class_estimate.xlsx")
 ```
 
 
@@ -462,6 +473,8 @@ zp2 <- zp2 + theme(axis.text.x = element_text(angle = 30, hjust = 1))
 ggplotly(zp2, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 
 ggsave("_fig3_LCA_distribuciones_adj.png",zp2, dpi= 600)
+
+lcmodel_adj %>% rio::export("variables_probabilities_in_category_adj.xlsx")
 ```
 
 ```{r adj-paso4-bvr, eval=T, echo=T, error=T, message=TRUE, warning=TRUE, paged.print=TRUE}
@@ -531,11 +544,21 @@ ggplot(aes(outcome, estimate, color = factor(class), group = class)) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   theme_bw()+
   theme(legend.position = "bottom")
+
+tidy(LCA_best_model_adj_mod) %>% rio::export("variables_class_estimate_adj.xlsx")
 ```
 
-```{r adj-fig4-regression, echo=T, fig.align='center', fig.pos='H', fig.cap= "Probabilidad predicha de presentar interrupción del embarazo por clase", message=FALSE, error=T, eval=T, fig.height=10}
-
-plot(effects::allEffects(LCA_best_model_adj_mod))
+```{r adj-fig4-regression, echo=T, fig.align='center', fig.pos='H', message=FALSE, error=T, eval=T, fig.height=10}
+# fig.cap= "Probabilidad predicha de presentar interrupción del embarazo por clase",
+cbind(
+    effects::allEffects(LCA_best_model_adj_mod, se=T, confint=T)$outcome$prob, effects::allEffects(LCA_best_model_adj_mod, se=T, confint=T)$outcome$lower.prob,
+    effects::allEffects(LCA_best_model_adj_mod, se=T, confint=T)$outcome$upper.prob) %>% 
+    data.frame() %>% 
+    dplyr::mutate_all(~round(.,2)) %>% 
+    dplyr::mutate(prob_c1= paste0(prob.X1, "(95%CI=",L.prob.X1,",",U.prob.X1,")"),prob_c2= paste0(prob.X2, "(95%CI=",L.prob.X2,",",U.prob.X2,")"), prob_c3= paste0(prob.X3, "(95%CI=",L.prob.X3,",",U.prob.X3,")"),prob_c4= paste0(prob.X4, "(95%CI=",L.prob.X4,",",U.prob.X4,")"),prob_c5= paste0(prob.X5, "(95%CI=",L.prob.X5,",",U.prob.X5,")"),prob_c6= paste0(prob.X6, "(95%CI=",L.prob.X6,",",U.prob.X6,")")) %>% dplyr::select(starts_with("prob_c")) %>% 
+  t() %>% data.table::data.table(keep.rownames=T) %>% 
+  dplyr::mutate(rn=gsub("prob_c","",rn)) %>% 
+  knitr::kable("markdown", caption="Probabilidad de pertenecer a una clase, según interrupción del embarazo", col.names = c("Clase","No interrumpe", "Interrumpe"))
 ```
 
 ```{r paso-6-posterior-serial,eval=T, echo=T, paged.print=TRUE, eval=T}

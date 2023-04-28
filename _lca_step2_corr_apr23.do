@@ -134,10 +134,9 @@ qui noi gsem(CAUSAL ///
 	MACROZONA  ///		// ANIO ///
 	PREV_TRAMO_REC <- , mlogit), lclass(C 6) nocapslatent nonrtolerance from(b6_start, skip) ///
 	emopts(iterate( $iterate ) difficult) ///
-	iterate( $iterate2 ) vce(robust)
-	// startvalues(randomid, draws( $draws ) seed(2125))
+	iterate( $iterate2 ) vce(robust) ///
+	startvalues(randomid, draws( $draws ) seed(2125))
 	
-
 estimates store an_lca_c6_230427 //* previous had an invalid name
 
 

@@ -7,3 +7,4 @@
 *.sters
 *.dta
 *.ipynb
+.Renviron
