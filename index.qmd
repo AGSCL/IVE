@@ -11,7 +11,11 @@ editor: visual
 
 -   [Paso 1. Limpieza, normalización y exploración](Paso1.html)
 -   [Paso 2. Análisis de clases latentes, selección de clases](Paso2.html)
--   [Paso 3. Análisis de clases latentes, modelo definitivo](Paso3.html)
+-   [Paso 2.2. Análisis de clases latentes, selección de clases, con resultado distal](Paso22.html)
+-   [Paso 2.3. Análisis de clases latentes, selección de clases, modelo alternativo](Paso23.html)
+-   [Paso 2.4. Análisis de clases latentes, selección de clases, modelo alternativo, con resultado distal](Paso24.html)
+-   [Paso 3. Análisis de clases latentes, modelos definitivos](Paso3.html)
+-   [Paso 3.2. Análisis de clases latentes, modelos alternativos definitivos](Paso32.html)
 -   [Paso 2 (Stata). Análisis de clases latentes, selección de clases](lca_step1_corr_apr23.html)
 -   [Paso 3 (Stata). Análisis de clases latentes, modelo definitivo](lca_step2_corr_apr23.html)
 -   [Paso 4. Relación de clases con otras variables](Paso4.html)
