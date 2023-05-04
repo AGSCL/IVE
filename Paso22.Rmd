@@ -506,6 +506,8 @@ for (i in 2:n_class_max) {
     mod2$aBIC <- round((-2 * mod2$llik) + (log((mod2$N+2)/24) * mod2$npar), 2) 
     # Conditional AIC
     mod2$cAIC <-  round((-2 * mod2$llik) + (2 * mod2$Nobs * log(mod2$N/mod2$Nobs)), 2)
+    # approximate weight of evidence criterion  #https://jbds.isdsa.org/public/journals/1/html/v2n2/qiu/
+    mod2$awe <-  round((-2 * mod2$llik) + (2 * mod2$npar * log(mod2$Nobs)+1.5), 2)    
     # Gsq: deviance
     mod2$Gsq
     # Likelihood ratio test
@@ -525,7 +527,7 @@ for (i in 2:n_class_max) {
     # Add the model index to the data frame
     mod2$ModelIndex <- i
 
-    tab_ppio2 <- rbind.data.frame(tab_ppio2, t(data.matrix(mod2[c("llik", "Chisq", "Chisq.pvalue", "resid.df", "aic", "bic", "aBIC", "cAIC", "Gsq", "Gsq.pvalue", "RelEnt", "EntR2", "DevChange", "dfChange", "pvalDevChange", "ModelIndex","BLRT", "BLRT.pvalue")])))
+    tab_ppio2 <- rbind.data.frame(tab_ppio2, t(data.matrix(mod2[c("llik", "Chisq", "Chisq.pvalue", "resid.df", "aic", "bic", "aBIC", "cAIC", "awe", "Gsq", "Gsq.pvalue", "RelEnt", "EntR2", "DevChange", "dfChange", "pvalDevChange", "ModelIndex","BLRT", "BLRT.pvalue")])))
 
     #  } else {}
   }
@@ -542,17 +544,17 @@ rownames(tab_ppio2) <- NULL
 
 manualcolors2 <- c('indianred1', 'cornflowerblue', 'gray50', 'darkolivegreen4', 'slateblue2', 
                   'firebrick4', 'goldenrod4')
-levels2 <- c("llik", "Chisq", "Chisq.pvalue", "resid.df", "aic", "bic", "aBIC", "cAIC",
+levels2 <- c("llik", "Chisq", "Chisq.pvalue", "resid.df", "aic", "bic", "aBIC", "cAIC", "awe",
             "Gsq", "Gsq.pvalue", "RelEnt", "EntR2", "DevChange", "dfChange",
             "pvalDevChange", "BLRT", "BLRT.pvalue")
 labels2 <- c('Log-Verosimilitud', 'Chi2', 'valor p Chi2', 'Grados de libertad', 
-            'Criterio de Información\nde Akaike(AIC)', 'Criterio de Información\nBayesiano (BIC)', 'BIC Ajustado (SABIC)', "AIC Corregido",'G-squared/Deviance', 'Valor p G-squared', 'Entropía Relativa', 'Entropía R2', 'Cambio en Deviance\n(con modelo previo)', 'Grados de libertad del cambio', 'valor p cambio deviance', 'BLRT', 'valor p BLRT')
+            'Criterio de Información\nde Akaike(AIC)', 'Criterio de Información\nBayesiano (BIC)', 'BIC Ajustado (SABIC)', "AIC Corregido",'Peso de evidencia aproximado(awe)','G-squared/Deviance', 'Valor p G-squared', 'Entropía Relativa', 'Entropía R2', 'Cambio en Deviance\n(con modelo previo)', 'Grados de libertad del cambio', 'valor p cambio deviance', 'BLRT', 'valor p BLRT')
 fig_lca_fit2<- tab_ppio2 %>%
   dplyr::mutate_if(is.character, as.numeric) %>%  # convert character columns to numeric
   tidyr::pivot_longer(cols = -ModelIndex, #"evryone but index"
                        names_to = "indices", values_to = "value", values_drop_na = F) %>%
-  dplyr::mutate(indices = factor(indices, levels = levels, labels = labels)) %>%
-  dplyr::filter(grepl("(AIC|BIC)",indices, ignore.case=T))%>%
+  dplyr::mutate(indices = factor(indices, levels = levels2, labels = labels2)) %>%
+  dplyr::filter(grepl("(AIC|BIC|awe)",indices, ignore.case=T))%>%
 	dplyr::mutate(ModelIndex= factor(ModelIndex, levels=2:n_class_max)) %>% 
   ggplot(aes(x = ModelIndex, y = value, group = indices, color = indices, linetype = indices)) +
   geom_line(size = 1.5) +
@@ -563,6 +565,8 @@ fig_lca_fit2<- tab_ppio2 %>%
   theme_bw()
 
 fig_lca_fit2
+ggsave("_fig2_comparison_adj.png",fig_lca_fit2, dpi=600)
+
 ```
 
 Luego en una tabla

@@ -11,6 +11,7 @@ Instalar comandos
 <<dd_do>>
 *<< dd_do : noout > >
 clear all
+log using "G:\Mi unidad\Angelica\secreto\IVE\registry_lca1_apr23.smcl", replace
 log using "H:\Mi unidad\Angelica\secreto\IVE\registry_lca1_apr23.smcl", replace
 
 set maxvar 120000, perm

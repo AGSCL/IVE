@@ -557,7 +557,6 @@ digraph flowchart {
 
   # Nodes
   subgraph samelevel {
-    ANIO [label = 'Año',fontsize=10,shape = box]
     CAUSAL [label = 'Causal',fontsize=10,shape = box]
     MUJER_REC [label = 'Sexo\n(mujer)',fontsize=10,shape = box]
     EDAD_MUJER_REC [label = 'Edad\nmujer',fontsize=10,shape = box]
@@ -567,15 +566,15 @@ digraph flowchart {
     PREV_TRAMO_REC [label = 'Previsión y\ntramo',fontsize=10,shape = box]
     PUEBLO_ORIGINARIO_REC [label = 'Pueblo\noriginario',fontsize=10,shape = box]
     
-  {rank=same; rankdir= 'TB'; ANIO CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC PUEBLO_ORIGINARIO_REC}
+  {rank=same; rankdir= 'TB'; CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC PUEBLO_ORIGINARIO_REC}
   }
-  LCA [label= 'Seis\nclases\nlatentes', shape= circle, style=filled, color=lightgrey, fontsize=10]
+  LCA [label= 'Clases\nlatentes', shape= circle, style=filled, color=lightgrey, fontsize=10]
   
   inter [label = 'Interupción\nembarazo',fontsize=10,shape = box, height=.00002] # set the position of the inter node pos='15,100'
 
   # Nodes
   subgraph {
-   LCA ->  {ANIO CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC PUEBLO_ORIGINARIO_REC} [rank=same; rankdir= 'TB'] 
+   LCA ->  {CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC PUEBLO_ORIGINARIO_REC} [rank=same; rankdir= 'TB'] 
 }
   subgraph {
    LCA -> inter [minlen=14] #minlen es necesario para correr arrowhead = none; 
@@ -994,7 +993,9 @@ for (i in 2:n_class_max) {
     mod$aBIC <- round((-2 * mod$llik) + (log((mod$N+2)/24) * mod$npar), 2) 
     # Conditional AIC
     mod$cAIC <-  round((-2 * mod$llik) + (2 * mod$Nobs * log(mod$N/mod$Nobs)), 2)
-    # Gsq: deviance
+    # approximate weight of evidence criterion  #https://jbds.isdsa.org/public/journals/1/html/v2n2/qiu/
+    mod$awe <-  round((-2 * mod$llik) + (2 * mod$npar * log(mod$Nobs)+1.5), 2)    
+    # Gsq: deviance  -2*(fit$llik) + 2*(fit$npar)*(log(fit$Nobs)+1.5)
     mod$Gsq
     # Likelihood ratio test
     mod$Gsq.pvalue <- (1 - pchisq(mod$Gsq, mod$df))
@@ -1015,7 +1016,7 @@ for (i in 2:n_class_max) {
       # Check if the data.frame is empty or has the same number of columns as mod
       #if (nrow(tab_ppio) == 0 || ncol(tab_ppio) == ncol(mod)) {
       # Add the measures to the data frame
-    tab_ppio <- rbind.data.frame(tab_ppio, t(data.matrix(mod[c("llik", "Chisq", "Chisq.pvalue", "resid.df", "aic", "bic", "aBIC", "cAIC", "Gsq", "Gsq.pvalue", "RelEnt", "EntR2", "DevChange", "dfChange", "pvalDevChange", "ModelIndex","BLRT", "BLRT.pvalue")])))
+    tab_ppio <- rbind.data.frame(tab_ppio, t(data.matrix(mod[c("llik", "Chisq", "Chisq.pvalue", "resid.df", "aic", "bic", "aBIC", "cAIC", "awe", "Gsq", "Gsq.pvalue", "RelEnt", "EntR2", "DevChange", "dfChange", "pvalDevChange", "ModelIndex","BLRT", "BLRT.pvalue")])))
 
     #  } else {}
   }
@@ -1032,17 +1033,20 @@ rownames(tab_ppio) <- NULL
 
 manualcolors <- c('indianred1', 'cornflowerblue', 'gray50', 'darkolivegreen4', 'slateblue2', 
                   'firebrick4', 'goldenrod4')
-levels <- c("llik", "Chisq", "Chisq.pvalue", "resid.df", "aic", "bic", "aBIC", "cAIC",
+
+levels <- c("llik", "Chisq", "Chisq.pvalue", "resid.df", "aic", "bic", "aBIC", "cAIC", "awe",
             "Gsq", "Gsq.pvalue", "RelEnt", "EntR2", "DevChange", "dfChange",
             "pvalDevChange", "BLRT", "BLRT.pvalue")
+
 labels <- c('Log-Verosimilitud', 'Chi2', 'valor p Chi2', 'Grados de libertad', 
-            'Criterio de Información\nde Akaike(AIC)', 'Criterio de Información\nBayesiano (BIC)', 'BIC Ajustado (SABIC)', "AIC Corregido",'G-squared/Deviance', 'Valor p G-squared', 'Entropía Relativa', 'Entropía R2', 'Cambio en Deviance\n(con modelo previo)', 'Grados de libertad del cambio', 'valor p cambio deviance', 'BLRT', 'valor p BLRT')
+            'Criterio de Información\nde Akaike(AIC)', 'Criterio de Información\nBayesiano (BIC)', 'BIC Ajustado (SABIC)', "AIC Corregido", 'Peso de evidencia aproximado(awe)','G-squared/Deviance', 'Valor p G-squared', 'Entropía Relativa', 'Entropía R2', 'Cambio en Deviance\n(con modelo previo)', 'Grados de libertad del cambio', 'valor p cambio deviance', 'BLRT', 'valor p BLRT')
+
 fig_lca_fit<- tab_ppio %>%
   dplyr::mutate_if(is.character, as.numeric) %>%  # convert character columns to numeric
   tidyr::pivot_longer(cols = -ModelIndex, #"evryone but index"
                        names_to = "indices", values_to = "value", values_drop_na = F) %>%
   dplyr::mutate(indices = factor(indices, levels = levels, labels = labels)) %>%
-  dplyr::filter(grepl("(AIC|BIC)",indices, ignore.case=T))%>%
+  dplyr::filter(grepl("(AIC|BIC|awe)",indices, ignore.case=T))%>%
 	dplyr::mutate(ModelIndex= factor(ModelIndex, levels=2:n_class_max)) %>% 
   ggplot(aes(x = ModelIndex, y = value, group = indices, color = indices, linetype = indices)) +
   geom_line(size = 1.5) +

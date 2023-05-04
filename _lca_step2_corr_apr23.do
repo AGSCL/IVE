@@ -10,6 +10,7 @@ Instalar comandos
 ~~~~
 <<dd_do>>
 clear all
+log using "G:\Mi unidad\Angelica\secreto\IVE\registry_lca2_apr23.smcl", replace
 log using "H:\Mi unidad\Angelica\secreto\IVE\registry_lca2_apr23.smcl", replace
 
 set maxvar 120000, perm
@@ -235,7 +236,7 @@ format %9.4f an_lca_c6_230427*
  *We can determine the expected class for each individual based 
  *on whether the posterior probability is greater than 0.5
  
- forvalues i = 1/4{
+ forvalues i = 1/6{
 generate exp_an_lca_c6_230427`i' = (an_lca_c6_230427`i'>0.5)
 tab exp_an_lca_c6_230427`i'
 }
@@ -248,7 +249,6 @@ cap noi estwrite _all using "./analisis_lcas_tests_definitivo2_apr23.sters", rep
 
 ~~~~
 <<dd_do>>
-
 cap qui save "./lca_step2_apr23.dta", all replace emptyok
 
 log close
@@ -261,13 +261,10 @@ FORMA DE EXPORTAR LOS DATOS Y EL MARKDOWN
 
 cap rm "H:/Mi unidad/Angelica/secreto/IVE/lca_step2_corr_apr23.html"
 dyndoc "H:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr_apr23.do", saving("H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23.html") replace nostop 
-copy "H:\Mi unidad\Angelica\secreto\IVE\lca_step2_apr23_corr.html" "H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23_back.html", replace
+copy "H:\Mi unidad\Angelica\secreto\IVE\lca_step2_apr23_corr_apr23.html" "H:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23_back.html", replace
 
-cap rm "G:/Mi unidad/Angelica/secreto/IVE/lca_step2_corr_apr23.Gtml"
-dyndoc "G:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr_apr23.do", saving("G:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23.Gtml") replace nostop 
-copy "G:\Mi unidad\Angelica\secreto\IVE\lca_step2_apr23_corr.Gtml" "G:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23_back.Gtml", replace
-
-
-_outputs
-*/
-<</dd_do>>
+cap rm "G:/Mi unidad/Angelica/secreto/IVE/lca_step2_corr_apr23.html"
+dyndoc "G:\Mi unidad\Angelica\secreto\IVE\_lca_step2_corr_apr23.do", saving("G:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23.html") replace nostop 
+copy "G:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23.html" "G:\Mi unidad\Angelica\secreto\IVE\lca_step2_corr_apr23_back.html", replace
+<</dd_do>>  
+~~~~

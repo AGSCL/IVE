@@ -1,0 +1,485 @@
+<head>
+  <link rel="stylesheet" type="text/css" href="stmarkdown.css">
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+</head>
+<head>
+  <link rel="stylesheet" type="text/css" href="stmarkdown.css">
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML">
+</script>
+</head>
+<h1><a href="#análisis-de-clases-latentes-paso-3-con-resultado-distal" id="análisis-de-clases-latentes-paso-3-con-resultado-distal">Análisis de clases latentes (paso 3, con resultado distal)</a></h1>
+<p>Fecha creación: 22:23:02  1 May 2023.</p>
+<p>Instalar comandos</p>
+<pre><code>. *&lt;&lt; dd_do : noout &gt; &gt;
+. clear all
+
+. log using &quot;H:\Mi unidad\Angelica\secreto\IVE\registry_lca3_apr23.smcl&quot;, replace
+(note: file H:\Mi unidad\Angelica\secreto\IVE\registry_lca3_apr23.smcl not found)
+file H:\Mi unidad\Angelica\secreto\IVE\registry_lca3_apr23.smcl could not be opened
+r(603);
+
+. log using &quot;G:\Mi unidad\Angelica\secreto\IVE\registry_lca3_apr23.smcl&quot;, replace
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+      name:  &lt;unnamed&gt;
+       log:  G:\Mi unidad\Angelica\secreto\IVE\registry_lca3_apr23.smcl
+  log type:  smcl
+ opened on:   1 May 2023, 22:23:03
+
+. 
+. set maxvar 120000, perm
+(set maxvar preference recorded)
+
+
+. set adosize 10000, perm
+(set adosize preference recorded)
+
+. set  max_memory ., perm
+(set max_memory preference recorded)
+
+. set niceness 1, perm
+(set niceness preference recorded)
+
+. *https://onlinelibrary.wiley.com/doi/epdf/10.1002/sim.8894
+. *https://pclambert.net/pdf/Stata_Nordic2019_Lambert.pdf
+. *https://slidetodoc.com/automated-reports-using-stata-chuck-huber-ph-d/
+. *~Mi unidad\Alvacast\SISTRAT 2019 (github)\_supp_mstates\stata\12874_2020_1192_MOESM1_ESM.docx
+. *https://opr.princeton.edu/workshops/Downloads/2015May_StataGraphicsKoffman.pdf
+. *http://www.bruunisejs.dk/StataHacks/My%20commands/matprint/matprint_demo/
+. *https://pure.au.dk/portal/files/140882936/ScientificWorkInStataGoneEasy.pdf
+. *https://www.stata.com/meeting/nordic-and-baltic18/slides/nordic-and-baltic18_Bruun.pdf
+. *https://github.com/dvorakt/TIER_exercises/blob/master/dyndoc_debt_growth/debt%20and%20growth%20stata%20dyndoc.do
+. 
+. cap noi which rcsgen
+C:\Users\andre\ado\plus\r\rcsgen.ado
+*! version 1.5.9 13FEB2022
+
+. if _rc==111 {   
+.         ssc install rcsgen
+.         }       
+
+. cap noi which matselrc
+C:\Users\andre\ado\plus\m\matselrc.ado
+*! NJC 1.1.0 20 Apr 2000  (STB-56: dm79)
+
+. if _rc==111 {           
+. cap noi net install dm79, from(&quot;http://www.stata.com/stb/stb56&quot;)
+.         }
+
+. cap noi which tabout
+C:\Users\andre\ado\plus\t\tabout.ado
+*! 2.0.8 Ian Watson 15mar2019
+*! tabout version 3 (beta) available at: http://tabout.net.au
+
+. if _rc==111 {
+.         cap noi ssc install tabout
+.         }
+
+. cap noi which pathutil
+C:\Users\andre\ado\plus\p\pathutil.ado
+*! version 2.2.0 19nov2020 daniel klein
+
+. if _rc==111 {
+.         cap noi net install pathutil, from(&quot;http://fmwww.bc.edu/repec/bocode/p/&quot;) 
+.         }
+
+. cap noi which pathutil
+C:\Users\andre\ado\plus\p\pathutil.ado
+*! version 2.2.0 19nov2020 daniel klein
+
+. if _rc==111 {
+.         ssc install dirtools    
+.         }
+
+. cap noi which project
+C:\Users\andre\ado\plus\p\project.ado
+*! version 1.3.1  22dec2013  picard@netbox.com
+
+. if _rc==111 {   
+.         ssc install project
+.         }
+
+. cap noi which sumat
+command sumat not found as either built-in or ado-file
+
+. if _rc==111 {
+.         cap noi scc install matrixtools
+command scc is unrecognized
+.         }
+
+. cap noi which estwrite
+C:\Users\andre\ado\plus\e\estwrite.ado
+*! version 1.2.5 19jan2022
+*! version 1.0.1 15may2007 (renamed from -eststo- to -estwrite-; -append- added)
+*! version 1.0.0 29apr2005 Ben Jann (ETH Zurich)
+
+. if _rc==111 {
+.         cap noi ssc install estwrite
+.         }
+
+. cap noi which winsor2
+C:\Users\andre\ado\plus\w\winsor2.ado
+*! Inspirit of -winsor-(NJ Cox) and -winsorizeJ-(J Caskey)
+*! Lian Yujun, arlionn@163.com, 2013-12-25
+*! 1.1 2014.12.16
+
+. if _rc==111 {
+.         cap noi ssc install winsor2
+.         }       
+
+. cap noi which matsave
+C:\Users\andre\ado\plus\m\matsave.ado
+*! version 1.1.7  24oct2004  by Marc-Andreas Muendler: muendler@ucsd.edu
+
+. if _rc==111 {
+.         cap noi ssc install matsave
+.         }       
+
+</code></pre>
+<p>Necesitamos obtener el archivo y el directorio de trabajo.</p>
+<pre><code>. 
+. *para sacar LMR 
+.         *https://www.statalist.org/forums/forum/general-stata-discussion/general/1412686-calculating-entropy-for-lca-latent-class-analysis-in-stata-15/page3
+. cap program drop lmrtest
+
+. program lmrtest, rclass
+  1.         version 15.0
+  2.         args estimates_null estimates_alternative
+  3.         tempname n ll_null ll_alt parms_null parms_alt a b classes_null classes_alt lr_test_stat modlr_test_stat p q //*anadi el parametro b
+  4.         noi {
+  5.         scalar drop _all // `n' `ll_null' `ll_alt' `parms_null' `parms_alt' `a' `b' `classes_null' `classes_alt' `lr_test_stat' `modlr_test_stat' `p' `q' `lmrt_p' `__000000' `__00000B' `_
+&gt; _00000A' `__00000D' `__00000C' `__000009' `__000005' `__000003' `__000008' `__000004' `__000002' `__000001'
+  6.         estimates restore `1'
+  7.         scalar `n' = e(N)
+  8.         scalar `ll_null' = e(ll)
+  9.         scalar `parms_null' = e(rank) //* los cambié, originalmente K y cambié por rank
+ 10.         matrix `a' = e(lclass_k_levels)
+ 11.         scalar `classes_null' = `a'[1,1]
+ 12.         estimates restore `2'
+ 13.         scalar `ll_alt' = e(ll)
+ 14.         scalar `parms_alt' = e(rank) //* los cambié, originalmente K y cambié por rank
+ 15.         matrix `b' = e(lclass_k_levels)
+ 16.         scalar `classes_alt' = `b'[1,1]
+ 17.         scalar `p' = (3 * `classes_alt' - 1) //* los cambié, originalmente 3 y cambié por `classes_alt'
+ 18.         scalar `q' = (3 * `classes_null' - 1) //* los cambié, originalmente 3
+ 19.         scalar `lr_test_stat' = -2 * (`ll_null' - `ll_alt')
+ 20.         scalar `modlr_test_stat' = `lr_test_stat' / (1 + ((`p' - `q') * ln(`n')) ^ -1)  
+ 21.         }
+ 22.         dis &quot;LMR LT test statistic:&quot;
+ 23.         di `modlr_test_stat'
+ 24.         return scalar lmrt = `modlr_test_stat'
+ 25.         return scalar lmrt_p = chi2tail(`parms_alt' - `parms_null',`modlr_test_stat')
+ 26.         dis &quot;P value Lo-Mendel:&quot;
+ 27.         dis %18.17f chi2tail(`parms_alt' - `parms_null',`modlr_test_stat')
+ 28.         scalar list
+ 29.         end
+
+</code></pre>
+<p>Fecha de creación: 22:23:03  1 May 2023.</p>
+<p>Acceder a la carpeta</p>
+<pre><code>
+G:\Mi unidad\Angelica\secreto\IVE
+
+
+</code></pre>
+<p>Ubicación= ;</p>
+<p>Timestamp:22:23:03  1 May 2023, considerando un SO Windows OS para el usuario: andre</p>
+<p>El archivo se encuentra en: G:\Mi unidad\Angelica\secreto\IVE/mydata_preds3_2023_04_21.dta</p>
+<p>===================================================================================</p>
+<h2><a href="#consolidación-y-exploración-base-de-datos" id="consolidación-y-exploración-base-de-datos">Consolidación y exploración base de datos</a></h2>
+<p>===================================================================================</p>
+<p>===================================================================================</p>
+<h2><a href="#lca" id="lca">LCA</a></h2>
+<p>===================================================================================</p>
+<p>Formateamos las variables a factor.</p>
+<pre><code>. *codebook con_quien_vive_joel, tab(100)
+. 
+. foreach vars of varlist CAUSAL-PREV_TRAMO_REC {
+  2. cap noi encode `vars', gen(new`vars')
+  3. cap confirm variable new`vars'
+  4.     if !_rc {           
+  5. cap noi drop `vars'
+  6. cap noi rename new`vars' `vars'
+  7.         }       
+  8. }
+not possible with numeric variable
+not possible with numeric variable
+not possible with numeric variable
+not possible with numeric variable
+not possible with numeric variable
+not possible with numeric variable
+not possible with numeric variable
+
+. 
+. *rename AÑO ANIO
+. /* 
+&gt; cap noi decode freq_cons_sus_prin, gen(str_freq_cons_sus_prin)
+&gt; cap confirm variable str_freq_cons_sus_prin
+&gt;     if !_rc {   
+&gt; cap noi drop freq_cons_sus_prin
+&gt; label def freq_cons_sus_prin2 1 &quot;Less than 1 day a week&quot; 2 &quot;1 day a week or more&quot; 3 &quot;2 to 3 days a week&quot; 4 &quot;4 to 6 days a week&quot; 5 &quot;Daily&quot;
+&gt; encode str_freq_cons_sus_prin, gen(freq_cons_sus_prin) label (freq_cons_sus_prin2)
+&gt;         }
+&gt; */
+. 
+. /* 
+&gt; recode freq_cons_sus_prin_rec (1=2 &quot;1 day a week or more&quot;) (2=3 &quot;2 to 3 days a week&quot;) ///
+&gt;  (3=4 &quot;4 to 6 days a week&quot;)(4=5 &quot;Daily&quot;) (5=1 &quot;Less than 1 day a week&quot;), gen(freq_cons_sus_prin_rec_joel)
+&gt; encode numero_de_hijos_mod_joel, generate(numero_de_hijos_mod_joel_rec)
+&gt; */
+</code></pre>
+<p>Time= 22:23:04  1 May 2023</p>
+<pre><code>. global draws = 1 //100 //80
+
+. global iterate = 1 //100 //80
+
+. global iterate2 = 5 //500 //500
+
+. //https://github.com/lindeloev/job
+. //https://rpubs.com/chinedu2301/833708
+. //https://rpubs.com/cyanjiner/889802
+. //https://rpubs.com/liliana/94701
+.        
+. set seed 2125
+
+.         qui noi gsem(CAUSAL ///
+&gt;         EDAD_MUJER_REC ///
+&gt;         PUEBLO_ORIGINARIO_REC /// 
+&gt;         PAIS_ORIGEN_REC ///
+&gt;         HITO1_EDAD_GEST_SEM_REC  ///
+&gt;         MACROZONA  ///          // ANIO ///
+&gt;         PREV_TRAMO_REC &lt;- outcome, mlogit), lclass(C 1) 
+--Break--
+r(1);
+
+.         //*startvalues(randomid, draws(50)) //* agregado posteriormente 2021-10-08= feasible starting values not found
+.         estimates store lca_prueba_c1
+last estimation results not found, nothing to store
+r(301);
+
+. 
+. set seed 2125
+
+.         forvalues i = 2/10{
+  2.         qui noi gsem(CAUSAL ///
+&gt;         EDAD_MUJER_REC ///
+&gt;         PUEBLO_ORIGINARIO_REC /// 
+&gt;         PAIS_ORIGEN_REC ///
+&gt;         HITO1_EDAD_GEST_SEM_REC  ///
+&gt;         MACROZONA  ///          // ANIO ///
+&gt;         PREV_TRAMO_REC &lt;- outcome, mlogit), lclass(C `i') nocapslatent nonrtolerance iterate($iterate2 ) ///
+&gt;         emopts(iterate($iterate ) difficult) ///
+&gt;         startvalues(randomid, draws($draws ) seed(2125)) ///
+&gt;         //*startvalues(randomid, draws(50)) //* agregado posteriormente 2021-10-08= feasible starting values not found
+  3.         estimates store lca_prueba_c`i'
+  4.         matrix b`i' = e(b)
+  5. 
+.         *estimates save lca_prueba_c`i', replace
+.         cap noi estat lcgof
+  6.         
+.         quietly predict classpost* if e(sample) == 1, classposteriorpr
+  7.         unab myvars : classpost*
+  8.         local count : word count `myvars'
+  9.         forvalues k = 1/`count' {       
+ 10.          quietly gen sum_p_lnp_`k' = classpost`k'*ln(classpost`k') if e(sample) == 1
+ 11.          }
+ 12.         quietly egen sum_p_lnp = rowtotal(sum_p_lnp_*) if e(sample) == 1
+ 13.         summ sum_p_lnp, meanonly
+ 14.         local sum = r(sum)
+ 15.         quietly count if !missing(sum_p_lnp) &amp; e(sample) == 1
+ 16.         scalar Entropy_`i' = 1+`sum'/(r(N)*ln(`count'))
+ 17.         cap noi drop classpost*
+ 18.         cap noi drop sum_p_lnp*
+ 19.         cap noi display &quot;Entropy:&quot;
+ 20.         cap noi display Entropy_`i' 
+ 21.         global Entropy__`i' = Entropy_`i'
+ 22.                 cap noi lmrtest lca_prueba_c`=`i'-1' lca_prueba_c`i'
+ 23.                 return list
+ 24.                 global lmrt_`i' = r(lmrt)
+ 25.                 global lmrt_p_`i' =  r(lmrt_p)
+ 26.                 *ll_null        __000001
+.                 *ll_alt __000002 
+.                 *parms_alt'     __000004
+.                 *b       __000006
+.                 *classes_null   __000007
+.                 *p      __000008
+.                 *lr_test_stat   __000009
+.                 *modlr_test_stat        __00000A
+.                 *b      __00000B
+.                 *q      __00000C
+.         }       
+
+Fitting class model:
+
+--Break--
+r(1);
+
+.         
+. *likelihood-ratio statistic is also known as the G2 statistic.
+. *p &gt; chi2: We fail to reject the null hypothesis that our model fits 
+. *as well as the saturated model.
+. 
+. *If you don't get standard errors, that means the model has not converged 
+. *adequately - basically, you aren't sure (because Stata is not sure) 
+. *if you are at a global maximum of the likelihood function. 
+. 
+. matrix entr= (0 \ $Entropy__2 \ $Entropy__3 \ $Entropy__4 \ $Entropy__5 \ $Entropy__6 \ $Entropy__7 \ $Entropy__8 \ $Entropy__9 \ $Entropy__10 )
+0\ not found
+r(111);
+
+. 
+. matrix lmrt_mat = (1 \ $lmrt_2 \ $lmrt_3 \ $lmrt_4 \ $lmrt_5 \ $lmrt_6 \ $lmrt_7 \ $lmrt_8 \ $lmrt_9 \ $lmrt_10 )
+1\ not found
+r(111);
+
+. matrix lmrt_p_mat = (1 \ $lmrt_p_2 \ $lmrt_p_3 \ $lmrt_p_4 \ $lmrt_p_5 \ $lmrt_p_6 \ $lmrt_p_7 \ $lmrt_p_8 \ $lmrt_p_9 \ $lmrt_p_10 )
+1\ not found
+r(111);
+
+. matrix cs = (1 \ 2 \ 3 \ 4 \ 5 \ 6 \ 7 \ 8 \ 9 \ 10)
+
+. 
+. mat lmrt = (cs, entr, lmrt_mat, lmrt_p_mat)
+entr not found
+r(111);
+
+. matrix colnames lmrt  = n_classes Entropy LMRT p-value
+matrix lmrt not found
+r(111);
+
+. 
+. cap noi estwrite _all using &quot;./analisis_lcas_tests_real_covs_apr23.sters&quot;, replace
+(file ./analisis_lcas_tests_real_covs_apr23.sters saved)
+
+. 
+. esttab matrix(lmrt) using &quot;./lmrt_lca_covs.csv&quot;, replace
+matrix lmrt not found
+r(111);
+
+. esttab matrix(lmrt) using &quot;./lmrt_lca_covs.html&quot;, replace
+matrix lmrt not found
+r(111);
+
+</code></pre>
+<table border="0" width="*">
+<tr><td colspan=5><hr></td></tr>
+<tr><td>            </td><td>        lmrt</td><td>            </td><td>            </td><td>            </td></tr>
+<tr><td>            </td><td>   n_classes</td><td>     Entropy</td><td>        LMRT</td><td>     p-value</td></tr>
+<tr><td colspan=5><hr></td></tr>
+<tr><td>r1          </td><td>           1</td><td>           0</td><td>           1</td><td>           1</td></tr>
+<tr><td>r2          </td><td>           2</td><td>    .9371717</td><td>    2700.979</td><td>           0</td></tr>
+<tr><td>r3          </td><td>           3</td><td>    .6914275</td><td>    440.2422</td><td>    6.32e-70</td></tr>
+<tr><td>r4          </td><td>           4</td><td>    .6169146</td><td>   -261.3572</td><td>           .</td></tr>
+<tr><td>r5          </td><td>           5</td><td>    .5901304</td><td>    299.4977</td><td>    6.93e-39</td></tr>
+<tr><td>r6          </td><td>           6</td><td>    .5313681</td><td>    118.2587</td><td>           .</td></tr>
+<tr><td>r7          </td><td>           7</td><td>    .4392421</td><td>   -373.8866</td><td>           .</td></tr>
+<tr><td>r8          </td><td>           8</td><td>    .4688039</td><td>    238.7129</td><td>    2.82e-37</td></tr>
+<tr><td>r9          </td><td>           9</td><td>    .4285839</td><td>   -1165.289</td><td>           .</td></tr>
+<tr><td>r10         </td><td>          10</td><td>      .61952</td><td>   -97.69176</td><td>           1</td></tr>
+<tr><td colspan=5><hr></td></tr>
+</table>
+<p>Luego comparamos los modelos para detectar el número óptimo de clases.</p>
+<pre><code>. estread &quot;./analisis_lcas_tests_real_covs_apr23.sters&quot;
+(no sets restored)
+
+. 
+. estimates stats _all
+
+. matrix stats_lca_ppio= r(S)
+
+. 
+. estimates clear
+
+. ** to order AICs
+. *https://www.statalist.org/forums/forum/general-stata-discussion/general/1665263-sorting-matrix-including-rownames
+. 
+. mata :
+------------------------------------------------- mata (type end to exit) ----------------------------------------------------------------------------------------------------------------------
+: 
+: void st_sort_matrix(
+&gt; //argumento de la matriz
+&gt;     string scalar matname, 
+&gt; //argumento de las columnas
+&gt;     real   rowvector columns
+&gt;     )
+&gt; {
+&gt;     string matrix   rownames
+&gt;     real  colvector sort_order
+&gt; // defino una base      
+&gt;         //Y = st_matrix(matname)
+&gt;         //[.,(1, 2, 3, 4, 6, 5)]
+&gt;  //ordeno las columnas  
+&gt;     rownames = st_matrixrowstripe(matname) //[.,(1, 2, 3, 4, 6, 5)]
+&gt;     sort_order = order(st_matrix(matname),  (columns))
+&gt;     st_replacematrix(matname, st_matrix(matname)[sort_order,.])
+&gt;     st_matrixrowstripe(matname, rownames[sort_order,.])
+&gt; }
+
+: 
+: end
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+. 
+. mata: st_sort_matrix(&quot;stats_lca_ppio&quot;,6)
+                 order():  3300  argument out of range
+        st_sort_matrix():     -  function returned error
+                 &lt;istmt&gt;:     -  function returned error
+r(3300);
+
+. 
+. 
+.  capture program drop getRowName
+
+.  program define getRowName, rclass
+  1.    local thismatrix=&quot;`1'&quot;
+  2.    local rowindex=`2'
+  3.    matrix TWO= `thismatrix', `thismatrix'
+  4.    matrix TEMPORARY=TWO[`rowindex',1..2]
+  5.    local rowname: rownames TEMPORARY
+  6.    return local matrixname=&quot;`thismatrix'&quot;
+  7.    return scalar rowindex=`rowindex'
+  8.    return local rowname = &quot;`rowname'&quot;
+  9. end
+
+. 
+. getRowName stats_lca_ppio 1
+
+. 
+. scalar best_bic = r(rowname)
+
+. esttab matrix(stats_lca_ppio) using &quot;./testreg_bic_lca_covs.csv&quot;, replace
+(output written to ./testreg_bic_lca_covs.csv)
+
+. esttab matrix(stats_lca_ppio) using &quot;./testreg_bic_lca_covs.html&quot;, replace
+(output written to ./testreg_bic_lca_covs.html)
+
+</code></pre>
+<table border="0" width="*">
+<tr><td colspan=2><hr></td></tr>
+<tr><td>            </td><td>stats_lca_ppio</td></tr>
+<tr><td>            </td><td>          c1</td></tr>
+<tr><td colspan=2><hr></td></tr>
+<tr><td>r1          </td><td>           .</td></tr>
+<tr><td colspan=2><hr></td></tr>
+</table>
+<p>Mejor BIC: r1</p>
+<pre><code>. cap qui save &quot;./lca_step3_covs_apr23.dta&quot;, all replace emptyok
+
+. 
+. log close
+      name:  &lt;unnamed&gt;
+       log:  G:\Mi unidad\Angelica\secreto\IVE\registry_lca3_apr23.smcl
+  log type:  smcl
+ closed on:   1 May 2023, 22:23:30
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+</code></pre>
+<p>Tiempo de guardado= 22:23:30  1 May 2023</p>
