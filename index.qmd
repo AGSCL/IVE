@@ -10,12 +10,28 @@ editor: visual
 ## Contenidos
 
 -   [Paso 1. Limpieza, normalización y exploración](Paso1.html)
+
+**Búsqueda de soluciones**
+
 -   [Paso 2. Análisis de clases latentes, selección de clases](Paso2.html)
 -   [Paso 2.2. Análisis de clases latentes, selección de clases, con resultado distal](Paso22.html)
 -   [Paso 2.3. Análisis de clases latentes, selección de clases, modelo alternativo](Paso23.html)
 -   [Paso 2.4. Análisis de clases latentes, selección de clases, modelo alternativo, con resultado distal](Paso24.html)
+-   Paso 2.5. Análisis de clases latentes, selección de clases, modelo alternativo bayesiano
+-   Paso 2.6. Análisis de clases latentes, selección de clases, modelo alternativo bayesiano con resultado distal
+-   [Paso 2.7. Análisis de clases latentes, selección de clases, imputación](Paso27.html)
+-   [Paso 2.8. Análisis de clases latentes, selección de clases, imputación, con resultado distal](Paso28.html)
+-   [Paso 2.9. Análisis de clases latentes, selección de clases, sin pueblo originario](Paso29.html)
+-   [Paso 2.10. Análisis de clases latentes, selección de clases, con resultado distal, sin pueblo originario](Paso210.html)
+-   [Paso 2.11. Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario](Paso211.html)
+-   [Paso 2.12. Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario, con resultado distal](Paso212.html)
+
+**Caracterización**
+
 -   [Paso 3. Análisis de clases latentes, modelos definitivos](Paso3.html)
 -   [Paso 3.2. Análisis de clases latentes, modelos alternativos definitivos](Paso32.html)
+-   [Paso 3.3. Análisis de clases latentes, modelos definitivos, sin pueblo originario](Paso33.html)
+-   [Paso 3.4. Análisis de clases latentes, modelos alternativos definitivos, sin pueblo originario](Paso34.html)
 -   [Paso 2 (Stata). Análisis de clases latentes, selección de clases](lca_step1_corr_apr23.html)
 -   [Paso 3 (Stata). Análisis de clases latentes, modelo definitivo](lca_step2_corr_apr23.html)
 -   [Paso 2.2 (Stata). Análisis de clases latentes, selección de clases, con resultado distal](lca_step3_corr_apr23.html)

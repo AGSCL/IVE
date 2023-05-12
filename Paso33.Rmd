@@ -1,0 +1,608 @@
+---
+title: "Paso 3.3"
+description: |
+    Análisis de clases latentes exploratoria y comparativa sin y con predictores, sin pueblo originario, pero con año y recategorización de edad mujer y semana gestacional hito 1, caracterización de clases y medidas de ajuste
+date: "`r withr::with_locale(new = c('LC_TIME' = 'C'), code =format(Sys.time(),'%B %d, %Y'))`"
+author: "Andrés González Santa Cruz"
+output:
+  distill::distill_article:
+    code_folding: true
+    fig_height: 6
+    fig_width: 8
+    theme: flatly
+    toc: yes
+    toc_depth: 5
+    toc_float: yes
+    output_dir: "docs"
+  toc_float:
+    collapsed: false
+    smooth_scroll: true
+---
+
+```{css zoom-lib-src, echo = FALSE}
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+```
+
+```{js zoom-jquery, echo = FALSE}
+ $(document).ready(function() {
+    $('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+    // onClick function for all plots (img's)
+    $('img:not(.zoomImg)').click(function() {
+      $('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+      $('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+    });
+    // onClick function for zoomImg
+    $('img.zoomImg').click(function() {
+      $('.zoomDiv').css({opacity: '0', width: '0%'}); 
+    });
+  });
+  
+```
+
+```{css hideOutput-lib-src, echo = FALSE}
+<script src="hideOutput.js"></script> 
+```
+
+```{js hideOutput, echo = FALSE}
+$(document).ready(function() {    
+	$chunks = $('.fold');    
+	$chunks.each(function () {      // add button to source code chunks     
+	if ( $(this).hasClass('s') ) {       
+		$('pre.r', this).prepend("<div class=\"showopt\">Show Source</div><br style=\"line-height:22px;\"/>");
+       		$('pre.r', this).children('code').attr('class', 'folded');     
+       		}      // add button to output chunks     
+		if ( $(this).hasClass('o') ) {       
+			$('pre:not(.r)', this).has('code').prepend("<div class=\"showopt\">Show Output</div><br style=\"line-height:22px;\"/>");       
+			$('pre:not(.r)', this).children('code:not(r)').addClass('folded');        // add button to plots       
+			$(this).find('img').wrap('<pre class=\"plot\"></pre>');       
+			$('pre.plot', this).prepend("<div class=\"showopt\">Show Plot</div><br style=\"line-height:22px;\"/>");       
+			$('pre.plot', this).children('img').addClass('folded');      
+			}   
+});    // hide all chunks when document is loaded   
+	$('.folded').css('display', 'none')    // function to toggle the visibility   
+	$('.showopt').click(function() {     
+			var label = $(this).html();     
+			if (label.indexOf("Show") >= 0) {       
+				$(this).html(label.replace("Show", "Hide"));     
+			} else {
+			  $(this).html(label.replace("Hide", "Show"));     
+			}     
+	$(this).siblings('code, img').slideToggle('fast', 'swing');   
+	}); 
+}); 
+
+```
+
+```{=html}
+<style type="text/css">
+.showopt {   
+  background-color: #004c93;   color: #FFFFFF;    width: 100px;   height: 20px;   text-align: center;   vertical-align: middle !important;   float: right;   font-family: sans-serif;   border-radius: 8px; 
+  }
+
+.showopt:hover {     
+        background-color: #dfe4f2;
+        color: #004c93; 
+        }  
+pre.plot {   
+        background-color: white !important; 
+        } 
+.tablelines table, .tablelines td, .tablelines th {
+        border: 1px solid black;
+        }
+
+.centrado {
+    text-align: center;
+}
+
+.table.center {
+    margin-left:auto; 
+    margin-right:auto;
+  }
+
+/* https://vivekjaiskumar.medium.com/css-is-and-not-selector-17c942ec83f :is()*/
+
+/* Applies to outputs that are not code other than R*/
+
+pre {
+  overflow-x: auto !important;
+}
+pre code {
+  word-wrap: normal !important;
+  white-space: pre !important;
+}
+/*
+pre:not(.sourceCode) { 
+  white-space: nowrap !important;
+}
+*/
+.sourceCode { /* Important gives precedence  */
+  font-size: 10px !important;
+  line-height: 50% !important;
+}
+
+body{ /* Normal  */
+      text-align: justify;
+  }
+
+.superbigimage{
+    overflow-y:scroll;
+    height:350px;
+    white-space: nowrap;
+    overflow-x: auto; 
+    width:100%;
+}
+.superbigimage img{
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.message { color:#446C6E; font-family: monospace;font-size: 10px; line-height: 110%; font-weight: bold;}
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 5px; text-align: justify;}
+div.red { background-color:#e6bab1; border-radius: 5px; padding: 5px; text-align: justify;}
+
+.pandoc-table { /* Should add !important; but it seems no necessary  */
+  margin-left:auto; /* To center */
+  margin-right:auto;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 11px;
+  overflow-y: auto;
+  max-height:450px !important;
+  white-space: nowrap;
+  overflow-x: auto; 
+  width:450px;
+}
+
+.pandoc-table th {/* header */
+text-align: center !important;
+font-size: 10px;
+padding: 0px;
+}
+
+.pandoc-table td {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+}
+
+.pandoc-table caption {
+    text-align: left !important;
+    font-size: 11px !important;
+}
+
+.controlly{
+    overflow-y:scroll;
+    height:350px;
+    overflow-x: scroll; 
+}
+
+
+.controlly2{
+    overflow-y:scroll;
+    height:550px;
+    overflow-x: scroll; 
+}
+
+</style>
+```
+```{=html}
+<!-- We gotta do each function to hide code and outputs per section, by every ID, we gotta create a different function -->
+<script>
+function myFunction1() {
+    var x = document.getElementById("myDIV");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+
+<script>
+function myFunction2() {
+    var x = document.getElementById("myDIV2");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+```
+
+
+Cargamos los datos
+
+```{r, echo=FALSE}
+rm(list = ls());gc()
+load("data2_lca2_adj_sin_po_2023_05_11.RData")
+```
+
+Cargamos los paquetes
+
+```{r, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(echo = TRUE)
+
+if(!require(poLCA)){install.packages("poLCA")}
+if(!require(poLCAParallel)){devtools::install_github("QMUL/poLCAParallel@package")}
+if(!require(compareGroups)){install.packages("compareGroups")}
+if(!require(parallel)){install.packages("parallel")}
+if(!require(Hmisc)){install.packages("Hmisc")}
+if(!require(tidyverse)){install.packages("tidyverse")}
+try(if(!require(sjPlot)){install.packages("sjPlot")})
+if(!require(emmeans)){install.packages("emmeans")}
+if(!require(nnet)){install.packages("nnet")}
+if(!require(here)){install.packages("here")}
+if(!require(doParallel)){install.packages("doParallel")}
+if(!require(progress)){install.packages("progress")}
+if(!require(caret)){install.packages("caret")}
+if(!require(rpart)){install.packages("rpart")}
+if(!require(rpart.plot)){install.packages("rpart.plot")}
+if(!require(partykit)){install.packages("partykit")}
+if(!require(randomForest)){install.packages("randomForest")}
+if(!require(ggcorrplot)){install.packages("ggcorrplot")}
+if(!require(polycor)){install.packages("polycor")}
+if(!require(tableone)){install.packages("tableone")}
+if(!require(broom)){install.packages("broom")}
+if(!require(plotly)){install.packages("plotly")}
+if(!require(rsvg)){install.packages("rsvg")}
+if(!require(DiagrammeRsvg)){install.packages("DiagrammeRsvg")}
+if(!require(effects)){install.packages("effects")}
+```
+
+## Seleccionar modelos finales
+
+### Sin resultado distal
+
+```{r}
+set.seed(2125)
+mydata_preds3$nrow<-rbinom(n=nrow(mydata_preds3),size=1,prob=0.3)
+
+rio::export(subset(mydata_preds3, nrow==1), "base_entrenamiento_sin_po.dta")
+```
+
+
+::: controlly2
+```{r paso3-select-best-model,eval=T, echo=T, paged.print=TRUE, eval=T}
+#Si probs.start se establece en NULL (predeterminado) al llamar Polca, a continuación, la función genera los valores de partida al azar en cada ejecución. Esto significa que repite carreras de Polca normalmente producirán resultados con los mismos parámetros estimados (correspondiente a la misma el máximo diario de probabilidad), pero con etiquetas de clase latentes reordenados
+
+#https://drive.google.com/file/d/10njMh5JEcqaBgCnoZdJ1uk3uCEkocDez/view?usp=share_link
+#http://daob.nl/wp-content/uploads/2015/07/ESRA-course-slides.pdf
+#https://docs.google.com/document/d/1LVeDpAP6CfT3n8B6HhHcc_SRnzO0JBoT/edit
+
+#bvr(ppio_newList$lc_entropy_best_model)
+
+#A list of matrices of class-conditional response probabilities to be used as the starting values for the estimation algorithm. Each matrix in the list corresponds to one manifest variable, with one row for each latent class, and one column for each outcome. The default is NULL, producing random starting values. Note that if nrep>1, then any user-specified probs.start values are only used in the first of the nrep attempts.
+
+#The poLCA.reorder function takes as its first argument the list of starting values probs.start, and as its second argument a vector describing the desired reordering of the latent classes.
+new.probs.start <-  poLCA.reorder(LCA_best_model_ppio$probs.start, order(LCA_best_model_ppio$P, decreasing = TRUE))
+#new.probs.start <-poLCA.reorder(probs.start,c(4,1,3,2))
+#A continuación, ejecute PoLCA, una vez más, esta vez utilizando los valores iniciales reordenados en la llamada de función.
+
+#The argument nrep=5 tells the program to repeat nrep times, and keep the fit with the highest likelihood to try to avoid local maxima.
+
+#.maxiter – The maximum number of iterations through which the estimation algorithm will cycle.
+#.nrep - Number of times to estimate the model, using different values of probs.start. (default is one)
+set.seed(2125)
+LCA_best_model_mod<-
+   poLCA(f_preds, mydata_preds3, nclass=length(LCA_best_model_ppio$P), 
+         maxiter=10000,tol=1e-5, na.rm=FALSE,nrep=1e3, verbose=TRUE, calc.se=TRUE,probs.start=new.probs.start) 
+output_LCA_best_model_mod<-capture.output(LCA_best_model_mod)
+glance_LCA_best_model_mod<-glance(LCA_best_model_mod)
+mydata_preds_LCA1 <- augment(LCA_best_model_mod, data = mydata_preds3)
+```
+:::
+
+```{r fig2-Comparison, echo=T, fig.align='center', fig.pos='H', fig.cap= "Selected Model", message=FALSE, error=T, eval=T,layout="l-body-outset"}
+# fig.height=15, 
+## If you are interested in the population-shares of the classes, you can get them like this:
+warning(paste("Probabilidades posteriores: ",
+  paste(round(colMeans(LCA_best_model_mod$posterior)*100,2), collapse=", ")
+  ))
+## or you inspect the estimated class memberships:
+warning(paste("Probabildiades predichas: ",
+  paste(round(prop.table(table(LCA_best_model_mod$predclass)),4)*100, collapse=", ")
+  ))
+
+traductor_cats <- readxl::read_excel("tabla12.xlsx") %>% 
+  dplyr::mutate(level=readr::parse_double(level)) %>% 
+  dplyr::mutate(charactersitic=gsub(" \\(%\\)", "", charactersitic))
+
+
+
+lcmodel <- reshape2::melt(LCA_best_model_mod$probs, level=2)
+lcmodel<- lcmodel %>% 
+  dplyr::mutate(pr=as.numeric(gsub("[^0-9.]+", "", Var2))) %>% 
+  dplyr::left_join(traductor_cats[,c("charactersitic", "level", "CATEGORIA")], by= c("L2"="charactersitic", "pr"="level"))
+
+lcmodel$text_label<-paste0("Categoria:",lcmodel$CATEGORIA,"<br>%: ",scales::percent(lcmodel$value))
+
+
+zp1 <- ggplot(lcmodel,aes(x = L2, y = value, fill = Var2, label=text_label))
+zp1 <- zp1 + geom_bar(stat = "identity", position = "stack")
+zp1 <- zp1 + facet_grid(Var1 ~ .) 
+zp1 <- zp1 + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
+zp1 <- zp1 + labs(y = "Porcentaje de probabilidad de respuesta", 
+                  x = "",
+                  fill ="Cateorías de\nRespuesta")
+zp1 <- zp1 + theme( axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank(),                    
+                    panel.grid.major.y=element_blank())
+zp1 <- zp1 + guides(fill = guide_legend(reverse=TRUE))
+zp1 <- zp1 + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+#print(zp1)
+
+ggplotly(zp1, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+
+ggsave("_fig3_LCA_distribuciones_sin_po.png",zp1, dpi= 600)
+lcmodel %>% rio::export("variables_probabilities_in_category_sin_po.xlsx")
+```
+
+```{r paso4-bvr, eval=T, echo=T, error=T, message=TRUE, warning=TRUE, paged.print=TRUE}
+#In this case, residuals are actual cell counts vs. expected cell counts. 
+bvr_LCA_best_model_mod<-bvr(LCA_best_model_mod)
+
+#conditional probabilities
+#Pr(B1=1|Class 3)
+posteriors <- data.frame(LCA_best_model_mod$posterior, predclass=LCA_best_model_mod$predclass) 
+
+classification_table <- plyr::ddply(posteriors, "predclass", function(x) colSums(x[,1:length(LCA_best_model_ppio$P)]))
+clasification_errors<- 1 - sum(diag(as.matrix(classification_table[,2:(length(LCA_best_model_ppio$P)+1)]))) / sum(classification_table[,2:(length(LCA_best_model_ppio$P)+1)]) 
+
+warning(paste("Error de clasificación: ", round(clasification_errors,2)))
+
+
+entropy_alt <- function(p) sum(-p * log(p))
+error_prior <- entropy_alt(LCA_best_model_mod$P) # Class proportions
+error_post <- mean(apply(LCA_best_model_mod$posterior, 1, entropy_alt),na.rm=T)
+R2_entropy_alt <- (error_prior - error_post) / error_prior
+warning(paste("Entropía: ", round(R2_entropy_alt,2)))
+
+
+#https://stackoverflow.com/questions/72783185/entropy-calculation-gives-nan-is-applying-na-omit-a-valid-tweak
+entropy.safe <- function (p) {
+  if (any(p > 1 | p < 0)) stop("probability must be between 0 and 1")
+  log.p <- numeric(length(p))
+  safe <- p != 0
+  log.p[safe] <- log(p[safe])
+  sum(-p * log.p)
+}
+
+error_prior2 <- entropy.safe(LCA_best_model_mod$P) # Class proportions
+error_post2 <- mean(apply(LCA_best_model_mod$posterior, 1, entropy.safe),na.rm=T)
+R2_entropy_safe <- (error_prior2 - error_post2) / error_prior2
+warning(paste("Entropía segura: ", round(R2_entropy_safe,2)))
+
+entropy.brutal <- function (p) {
+  if (any(p > 1 | p < 0)) stop("probability must be between 0 and 1")
+  log.p <- log(p)
+  ## as same as sum(na.omit(-p * log.p))
+  sum(-p * log.p, na.rm = TRUE)
+}
+
+error_prior3 <- entropy.brutal(LCA_best_model_mod$P) # Class proportions
+error_post3 <- mean(apply(LCA_best_model_mod$posterior, 1, entropy.brutal),na.rm=T)
+R2_entropy_brutal <- (error_prior3 - error_post3) / error_prior3
+warning(paste("Entropía brutal: ", round(R2_entropy_brutal,2)))
+
+#https://gist.github.com/daob/c2b6d83815ddd57cde3cebfdc2c267b3
+warning(paste("Entropía (solución Oberski): ", round(entropy.R2(LCA_best_model_mod),2)))
+
+#\#minimum average posterior robability of cluster membership (\>0.7), interpretability (classes are clearly distinguishable), and parsimony (each class has a sufficient sample size for further analysis; n≥50).
+```
+
+<br>
+
+Ver si la exclusión de casos que no calzan en alguna clase tiene consecuencias.
+
+<br>
+
+```{r fig3-Comparison, echo=T, fig.align='center', fig.pos='H', fig.cap= "Modelo seleccionado", message=FALSE, error=T, eval=T, fig.height=10}
+#To evaluate whether the exclusion of cases would bias the LCA results, a sensitivity analysis was carried out. We conducted T-Tests and Wilcoxon–Mann–Whitney tests (for non-parametric data) to compare included and excluded records in terms of demographic and clinical background characteristics and baseline pain scores (all 638 patients completed pain intensity, frequency and impairment scales).
+tidy(LCA_best_model_mod) %>% 
+  # dplyr::mutate(variable= dplyr::case_when(variable=="naq1"~"naq01",
+  #                              variable=="naq2"~"naq02",
+  #                              variable=="naq3"~"naq03",
+  #                              variable=="naq4"~"naq04",
+  #                              variable=="naq5"~"naq05",
+  #                              variable=="naq6"~"naq06",
+  #                              variable=="naq7"~"naq07",
+  #                              variable=="naq8"~"naq08",
+  #                              variable=="naq9"~"naq09",
+  #                              TRUE~variable)) %>% 
+ggplot(aes(outcome, estimate, color = factor(class), group = class)) +
+  geom_line() +
+  facet_wrap(~variable, nrow = 4) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme_bw()+
+  theme(legend.position = "bottom")
+
+tidy(LCA_best_model_mod) %>% rio::export("variables_class_estimate_sin_po.xlsx")
+```
+
+
+### Con resultado distal
+
+`r warning("No es confiable la estimación. Es inestable")`.
+
+::: controlly2
+```{r adj-paso3-select-best-model,eval=T, echo=T, paged.print=TRUE, eval=T}
+new.probs.start_adj <-  poLCA.reorder(LCA_best_model_adj_ppio$probs.start, 
+                                      order(LCA_best_model_adj_ppio$P, decreasing = TRUE))
+set.seed(2125)
+LCA_best_model_adj_mod<-
+   poLCA(f_adj, mydata_preds3, nclass=length(LCA_best_model_adj_ppio$P), 
+         maxiter=10000,tol=1e-5, na.rm=FALSE,nrep=1e3, verbose=TRUE, calc.se=TRUE,probs.start=new.probs.start_adj) 
+output_LCA_best_model_adj_mod<-capture.output(LCA_best_model_adj_mod)
+glance_LCA_best_model_adj_mod<-glance(LCA_best_model_adj_mod)
+mydata_preds_LCA2 <- augment(LCA_best_model_adj_mod, data = mydata_preds3)
+```
+:::
+
+```{r adj-fig2-Comparison, echo=T, fig.align='center', fig.pos='H', fig.cap= "Selected Model", message=FALSE, error=T, eval=T,layout="l-body-outset"}
+# fig.height=15, 
+## If you are interested in the population-shares of the classes, you can get them like this:
+warning(paste("Probabilidades posteriores: ",
+  paste(round(colMeans(LCA_best_model_adj_mod$posterior)*100,2), collapse=", ")
+  ))
+## or you inspect the estimated class memberships:
+warning(paste("Probabildiades predichas: ",
+  paste(round(prop.table(table(LCA_best_model_adj_mod$predclass)),4)*100, collapse=", ")
+  ))
+
+lcmodel_adj <- reshape2::melt(LCA_best_model_adj_mod$probs, level=2)
+lcmodel_adj<- lcmodel_adj %>% 
+  dplyr::mutate(pr=as.numeric(gsub("[^0-9.]+", "", Var2))) %>% 
+  dplyr::left_join(traductor_cats[,c("charactersitic", "level", "CATEGORIA")], by= c("L2"="charactersitic", "pr"="level"))
+
+lcmodel_adj$text_label<-paste0("Categoria:",lcmodel_adj$CATEGORIA,"<br>%: ",scales::percent(lcmodel_adj$value))
+
+
+zp2 <- ggplot(lcmodel_adj,aes(x = L2, y = value, fill = Var2, label=text_label))
+zp2 <- zp2 + geom_bar(stat = "identity", position = "stack")
+zp2 <- zp2 + facet_grid(Var1 ~ .) 
+zp2 <- zp2 + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
+zp2 <- zp2 + labs(y = "Porcentaje de probabilidad de respuesta", 
+                  x = "",
+                  fill ="Cateorías de\nRespuesta")
+zp2 <- zp2 + theme( axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank(),                    
+                    panel.grid.major.y=element_blank())
+zp2 <- zp2 + guides(fill = guide_legend(reverse=TRUE))
+zp2 <- zp2 + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+#print(zp1)
+
+ggplotly(zp2, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+
+ggsave("_fig3_LCA_distribuciones_adj.png",zp2, dpi= 600)
+
+lcmodel_adj %>% rio::export("variables_probabilities_in_category_adj_sin_po.xlsx")
+```
+
+```{r adj-paso4-bvr, eval=T, echo=T, error=T, message=TRUE, warning=TRUE, paged.print=TRUE}
+#In this case, residuals are actual cell counts vs. expected cell counts. 
+bvr_LCA_best_model_adj_mod<-bvr(LCA_best_model_adj_mod)
+
+#conditional probabilities
+#Pr(B1=1|Class 3)
+posteriors_adj <- data.frame(LCA_best_model_adj_mod$posterior, 
+                             predclass=LCA_best_model_adj_mod$predclass) 
+
+classification_table_adj <- plyr::ddply(posteriors, "predclass", function(x) colSums(x[,1:length(LCA_best_model_adj_mod$P)]))
+clasification_errors_adj<- 1 - sum(diag(as.matrix(classification_table_adj[,2:(length(LCA_best_model_adj_mod$P)+1)]))) / sum(classification_table_adj[,2:(length(LCA_best_model_adj_mod$P)+1)]) 
+
+warning(paste("Error de clasificación: ", round(clasification_errors_adj,2)))
+
+
+entropy_alt <- function(p) sum(-p * log(p))
+error_prior_adj <- entropy_alt(LCA_best_model_adj_mod$P) # Class proportions
+error_post_adj <- mean(apply(LCA_best_model_adj_mod$posterior, 1, entropy_alt),na.rm=T)
+R2_entropy_alt_adj <- (error_prior_adj - error_post_adj) / error_prior_adj
+warning(paste("Entropía: ", round(R2_entropy_alt_adj,2)))
+
+
+#https://stackoverflow.com/questions/72783185/entropy-calculation-gives-nan-is-applying-na-omit-a-valid-tweak
+entropy.safe <- function (p) {
+  if (any(p > 1 | p < 0)) stop("probability must be between 0 and 1")
+  log.p <- numeric(length(p))
+  safe <- p != 0
+  log.p[safe] <- log(p[safe])
+  sum(-p * log.p)
+}
+
+error_prior2_adj <- entropy.safe(LCA_best_model_adj_mod$P) # Class proportions
+error_post2_adj <- mean(apply(LCA_best_model_adj_mod$posterior, 1, entropy.safe),na.rm=T)
+R2_entropy_safe_adj <- (error_prior2_adj - error_post2_adj) / error_prior2_adj
+warning(paste("Entropía segura: ", round(R2_entropy_safe,2)))
+
+#https://gist.github.com/daob/c2b6d83815ddd57cde3cebfdc2c267b3
+warning(paste("Entropía (solución Oberski): ", round(entropy.R2(LCA_best_model_adj_mod),2)))
+
+#\#minimum average posterior robability of cluster membership (\>0.7), interpretability (classes are clearly distinguishable), and parsimony (each class has a sufficient sample size for further analysis; n≥50).
+```
+
+<br>
+
+Ver si la exclusión de casos que no calzan en alguna clase tiene consecuencias.
+
+<br>
+
+```{r adj-fig3-Comparison, echo=T, fig.align='center', fig.pos='H', fig.cap= "Modelo seleccionado", message=FALSE, error=T, eval=T, fig.height=10}
+#To evaluate whether the exclusion of cases would bias the LCA results, a sensitivity analysis was carried out. We conducted T-Tests and Wilcoxon–Mann–Whitney tests (for non-parametric data) to compare included and excluded records in terms of demographic and clinical background characteristics and baseline pain scores (all 638 patients completed pain intensity, frequency and impairment scales).
+tidy(LCA_best_model_adj_mod) %>% 
+  # dplyr::mutate(variable= dplyr::case_when(variable=="naq1"~"naq01",
+  #                              variable=="naq2"~"naq02",
+  #                              variable=="naq3"~"naq03",
+  #                              variable=="naq4"~"naq04",
+  #                              variable=="naq5"~"naq05",
+  #                              variable=="naq6"~"naq06",
+  #                              variable=="naq7"~"naq07",
+  #                              variable=="naq8"~"naq08",
+  #                              variable=="naq9"~"naq09",
+  #                              TRUE~variable)) %>% 
+ggplot(aes(outcome, estimate, color = factor(class), group = class)) +
+  geom_line() +
+  facet_wrap(~variable, nrow = 4) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  theme_bw()+
+  theme(legend.position = "bottom")
+
+tidy(LCA_best_model_adj_mod) %>% rio::export("variables_class_estimate_adj_sin_po.xlsx")
+```
+
+```{r adj-fig4-regression, echo=T, fig.align='center', fig.pos='H', message=FALSE, error=T, eval=T, fig.height=10}
+# fig.cap= "Probabilidad predicha de presentar interrupción del embarazo por clase",
+cbind(
+    effects::allEffects(LCA_best_model_adj_mod, se=T, confint=T)$outcome$prob, effects::allEffects(LCA_best_model_adj_mod, se=T, confint=T)$outcome$lower.prob,
+    effects::allEffects(LCA_best_model_adj_mod, se=T, confint=T)$outcome$upper.prob) %>% 
+    data.frame() %>% 
+    dplyr::mutate_all(~round(.,2)) %>% 
+    dplyr::mutate(prob_c1= paste0(prob.X1, "(95%CI=",L.prob.X1,",",U.prob.X1,")"),prob_c2= paste0(prob.X2, "(95%CI=",L.prob.X2,",",U.prob.X2,")"), prob_c3= paste0(prob.X3, "(95%CI=",L.prob.X3,",",U.prob.X3,")"),prob_c4= paste0(prob.X4, "(95%CI=",L.prob.X4,",",U.prob.X4,")"),prob_c5= paste0(prob.X5, "(95%CI=",L.prob.X5,",",U.prob.X5,")"),prob_c6= paste0(prob.X6, "(95%CI=",L.prob.X6,",",U.prob.X6,")")) %>% dplyr::select(starts_with("prob_c")) %>% 
+  t() %>% data.table::data.table(keep.rownames=T) %>% 
+  dplyr::mutate(rn=gsub("prob_c","",rn)) %>% 
+  knitr::kable("markdown", caption="Probabilidad de pertenecer a una clase, según interrupción del embarazo", col.names = c("Clase","No interrumpe", "Interrumpe"))
+```
+
+```{r paso-6-posterior-serial,eval=T, echo=T, paged.print=TRUE, eval=T}
+#########################################################
+#########################################################
+### Posterior probability calculation                 ###
+### Assign class based on maximum probability         ###
+###   Note: additional prep for Table1 package        ###
+###         1) Convert all categorical variables to   ###
+###            factors                                ###
+###         2) Continuous variables as numeric        ###
+###         3) Pull out number from census strings    ###
+#########################################################
+#########################################################
+```
+
+```{r, echo=FALSE}
+save.image("data2_lca3_sin_po.RData")
+```
+
+```{r, echo=FALSE}
+require(tidyverse)
+sesion_info <- devtools::session_info()
+dplyr::select(
+  tibble::as_tibble(sesion_info$packages),
+  c(package, loadedversion, source)
+) %>% 
+  DT::datatable(filter = 'top', colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
+              caption = htmltools::tags$caption(
+        style = 'caption-side: top; text-align: left;',
+        '', htmltools::em('Packages')),
+      options=list(
+initComplete = htmlwidgets::JS(
+        "function(settings, json) {",
+        "$(this.api().tables().body()).css({
+            'font-family': 'Helvetica Neue',
+            'font-size': '50%', 
+            'code-inline-font-size': '15%', 
+            'white-space': 'nowrap',
+            'line-height': '0.75em',
+            'min-height': '0.5em'
+            });",#;
+        "}")))
+```
+

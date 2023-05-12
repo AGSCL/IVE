@@ -215,6 +215,7 @@ Cargamos los datos
 
 ```{r, echo=FALSE}
 rm(list = ls());gc()
+print(Sys.time())
 load("data2_lca2_2023_04_26.RData")
 ```
 
@@ -362,7 +363,7 @@ for (k in 1:n_class_max) {
       set.seed(seed)
       mod <- poLCAParallel::poLCA(
         f_adj, 
-        mydata_preds3,
+        mydata_preds3 %>% dplyr::mutate(outcome=ifelse(outcome==1,1,0)), # %>% janitor::tabyl(outcome)
         nclass = k, 
         nrep = nrep_int, 
         maxiter = 1e4,
@@ -590,6 +591,7 @@ print(LCA_best_model_adj_ppio) #
 
 
 ```{r, echo=FALSE}
+print(Sys.time())
 save.image("data2_lca2_adj.RData")
 ```
 

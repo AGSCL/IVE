@@ -1,0 +1,459 @@
+---
+title: "Paso 3.4"
+description: |
+  Análisis de clases latentes: modelos seleccionados, sin pueblo originario, pero con año y recategorización de edad mujer y semana gestacional hito 1, caracterización de clases y medidas de ajuste (glca)   
+date: "`r withr::with_locale(new = c('LC_TIME' = 'C'), code =format(Sys.time(),'%B %d, %Y'))`"
+author: "Andrés González Santa Cruz"
+output:
+  distill::distill_article:
+    code_folding: true
+    fig_height: 6
+    fig_width: 8
+    theme: flatly
+    toc: yes
+    toc_depth: 5
+    toc_float: yes
+    output_dir: "docs"
+  toc_float:
+    collapsed: false
+    smooth_scroll: true
+---
+
+```{css zoom-lib-src, echo = FALSE}
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+```
+
+```{js zoom-jquery, echo = FALSE}
+ $(document).ready(function() {
+    $('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+    // onClick function for all plots (img's)
+    $('img:not(.zoomImg)').click(function() {
+      $('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+      $('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+    });
+    // onClick function for zoomImg
+    $('img.zoomImg').click(function() {
+      $('.zoomDiv').css({opacity: '0', width: '0%'}); 
+    });
+  });
+  
+```
+
+```{css hideOutput-lib-src, echo = FALSE}
+<script src="hideOutput.js"></script> 
+```
+
+```{js hideOutput, echo = FALSE}
+$(document).ready(function() {    
+	$chunks = $('.fold');    
+	$chunks.each(function () {      // add button to source code chunks     
+	if ( $(this).hasClass('s') ) {       
+		$('pre.r', this).prepend("<div class=\"showopt\">Show Source</div><br style=\"line-height:22px;\"/>");
+       		$('pre.r', this).children('code').attr('class', 'folded');     
+       		}      // add button to output chunks     
+		if ( $(this).hasClass('o') ) {       
+			$('pre:not(.r)', this).has('code').prepend("<div class=\"showopt\">Show Output</div><br style=\"line-height:22px;\"/>");       
+			$('pre:not(.r)', this).children('code:not(r)').addClass('folded');        // add button to plots       
+			$(this).find('img').wrap('<pre class=\"plot\"></pre>');       
+			$('pre.plot', this).prepend("<div class=\"showopt\">Show Plot</div><br style=\"line-height:22px;\"/>");       
+			$('pre.plot', this).children('img').addClass('folded');      
+			}   
+});    // hide all chunks when document is loaded   
+	$('.folded').css('display', 'none')    // function to toggle the visibility   
+	$('.showopt').click(function() {     
+			var label = $(this).html();     
+			if (label.indexOf("Show") >= 0) {       
+				$(this).html(label.replace("Show", "Hide"));     
+			} else {
+			  $(this).html(label.replace("Hide", "Show"));     
+			}     
+	$(this).siblings('code, img').slideToggle('fast', 'swing');   
+	}); 
+}); 
+
+```
+
+```{=html}
+<style type="text/css">
+.showopt {   
+  background-color: #004c93;   color: #FFFFFF;    width: 100px;   height: 20px;   text-align: center;   vertical-align: middle !important;   float: right;   font-family: sans-serif;   border-radius: 8px; 
+  }
+
+.showopt:hover {     
+        background-color: #dfe4f2;
+        color: #004c93; 
+        }  
+pre.plot {   
+        background-color: white !important; 
+        } 
+.tablelines table, .tablelines td, .tablelines th {
+        border: 1px solid black;
+        }
+
+.centrado {
+    text-align: center;
+}
+
+.table.center {
+    margin-left:auto; 
+    margin-right:auto;
+  }
+
+/* https://vivekjaiskumar.medium.com/css-is-and-not-selector-17c942ec83f :is()*/
+
+/* Applies to outputs that are not code other than R*/
+
+pre {
+  overflow-x: auto !important;
+}
+pre code {
+  word-wrap: normal !important;
+  white-space: pre !important;
+}
+/*
+pre:not(.sourceCode) { 
+  white-space: nowrap !important;
+}
+*/
+.sourceCode { /* Important gives precedence  */
+  font-size: 10px !important;
+  line-height: 50% !important;
+}
+
+body{ /* Normal  */
+      text-align: justify;
+  }
+
+.superbigimage{
+    overflow-y:scroll;
+    height:350px;
+    white-space: nowrap;
+    overflow-x: auto; 
+    width:100%;
+}
+.superbigimage img{
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.message { color:#446C6E; font-family: monospace;font-size: 10px; line-height: 110%; font-weight: bold;}
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 5px; text-align: justify;}
+div.red { background-color:#e6bab1; border-radius: 5px; padding: 5px; text-align: justify;}
+
+.pandoc-table { /* Should add !important; but it seems no necessary  */
+  margin-left:auto; /* To center */
+  margin-right:auto;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 11px;
+  overflow-y: auto;
+  max-height:450px !important;
+  white-space: nowrap;
+  overflow-x: auto; 
+  width:450px;
+}
+
+.pandoc-table th {/* header */
+text-align: center !important;
+font-size: 10px;
+padding: 0px;
+}
+
+.pandoc-table td {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+}
+
+.pandoc-table caption {
+    text-align: left !important;
+    font-size: 11px !important;
+}
+
+.controlly{
+    overflow-y:scroll;
+    height:350px;
+    overflow-x: scroll; 
+}
+
+
+.controlly2{
+    overflow-y:scroll;
+    height:550px;
+    overflow-x: scroll; 
+}
+
+</style>
+```
+```{=html}
+<!-- We gotta do each function to hide code and outputs per section, by every ID, we gotta create a different function -->
+<script>
+function myFunction1() {
+    var x = document.getElementById("myDIV");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+
+<script>
+function myFunction2() {
+    var x = document.getElementById("myDIV2");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+```
+
+
+Cargamos los datos
+
+```{r, echo=FALSE}
+rm(list = ls());gc()
+#cargar glca con y sin resultado distal
+load("data2_lca2_adj4_alt_sin_po_2023_05_12.RData")
+```
+
+Cargamos los paquetes
+
+```{r, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(echo = TRUE)
+
+if(!require(poLCA)){install.packages("poLCA")}
+if(!require(poLCAParallel)){devtools::install_github("QMUL/poLCAParallel@package")}
+if(!require(compareGroups)){install.packages("compareGroups")}
+if(!require(parallel)){install.packages("parallel")}
+if(!require(Hmisc)){install.packages("Hmisc")}
+if(!require(tidyverse)){install.packages("tidyverse")}
+try(if(!require(sjPlot)){install.packages("sjPlot")})
+if(!require(emmeans)){install.packages("emmeans")}
+if(!require(nnet)){install.packages("nnet")}
+if(!require(here)){install.packages("here")}
+if(!require(doParallel)){install.packages("doParallel")}
+if(!require(progress)){install.packages("progress")}
+if(!require(caret)){install.packages("caret")}
+if(!require(rpart)){install.packages("rpart")}
+if(!require(rpart.plot)){install.packages("rpart.plot")}
+if(!require(partykit)){install.packages("partykit")}
+if(!require(randomForest)){install.packages("randomForest")}
+if(!require(ggcorrplot)){install.packages("ggcorrplot")}
+if(!require(polycor)){install.packages("polycor")}
+if(!require(tableone)){install.packages("tableone")}
+if(!require(broom)){install.packages("broom")}
+if(!require(plotly)){install.packages("plotly")}
+if(!require(rsvg)){install.packages("rsvg")}
+if(!require(DiagrammeRsvg)){install.packages("DiagrammeRsvg")}
+if(!require(effects)){install.packages("effects")}
+if(!require(glca)){install.packages("glca")}
+```
+
+## Seleccionar modelos finales
+
+### Sin resultado distal
+
+::: controlly2
+```{r paso3-select-best-model,eval=T, echo=T, paged.print=TRUE, eval=T}
+best_model_glca<- eval(parse(text = paste0("lca",best_model))) 
+summary(best_model_glca)
+#https://rdrr.io/cran/glca/src/R/summary.glca.R
+#Class prevalence by group mean(best_model_glca_w_distal_outcome$posterior$ALL$`Class 1`)
+#Item-response probabilities (most likely response)  print(sapply(best_model_glca_w_distal_outcome$param$rho[[1]],
+#print(sapply(best_model_glca_w_distal_outcome$param$rho$ALL, function(m) apply(m, 1, which.max)))
+#function(m) apply(m, 1, which.max)))
+```
+:::
+
+::: controlly2
+```{r fig1-details, echo=T, fig.align='center', fig.pos='H', fig.cap= "Selected Model", message=FALSE, error=T, eval=T,layout="l-body-outset"}
+#https://rdrr.io/cran/glca/src/R/plot.glca.R
+plot(eval(parse(text = paste0("lca",best_model))), ask=F)
+```
+:::
+
+```{r fig2-Comparison, echo=T, fig.align='center', fig.pos='H', fig.cap= "Selected Model", message=FALSE, error=T, eval=T,layout="l-body-outset"}
+rho_glca<- 
+do.call("bind_rows",best_model_glca$param$rho$ALL) %>% 
+  t() %>% 
+  round(2) %>% 
+  data.table::data.table(keep.rownames = T) %>% 
+  magrittr::set_colnames(c("variables", paste0("Class",1:7))) %>% 
+  tidyr::separate(variables, into=c("var", "prob"), sep=".Y =")
+
+lcmodel_glca <- reshape2::melt(rho_glca, level=2) %>% dplyr::rename("class"="variable")
+
+traductor_cats <- readxl::read_excel("tabla12.xlsx") %>% 
+  dplyr::mutate(level=readr::parse_double(level)) %>% 
+  dplyr::mutate(level= dplyr::case_when(grepl("CAUSAL",charactersitic)~ level-1,T~level)) %>% 
+  dplyr::mutate(charactersitic=gsub(" \\(%\\)", "", charactersitic))
+
+
+
+lcmodel_glca<- lcmodel_glca %>% 
+  dplyr::mutate(pr=as.numeric(gsub("[^0-9.]+", "", prob))) %>% 
+  dplyr::left_join(traductor_cats[,c("charactersitic", "level", "CATEGORIA")], by= c("var"="charactersitic", "pr"="level")) %>% 
+  dplyr::mutate(CATEGORIA= dplyr::case_when(var=="AÑO" & prob==" 1"~"Perdidos", T~CATEGORIA))
+
+lcmodel_glca$text_label<-paste0("Categoria:",lcmodel_glca$CATEGORIA,"<br>%: ",scales::percent(lcmodel_glca$value))
+
+zp3 <- ggplot(lcmodel_glca,aes(x = var, y = value, fill = factor(pr), label=text_label))
+zp3 <- zp3 + geom_bar(stat = "identity", position = "stack")
+zp3 <- zp3 + facet_grid(class ~ .) 
+zp3 <- zp3 + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
+zp3 <- zp3 + labs(y = "Porcentaje de probabilidad de respuesta", 
+                  x = "",
+                  fill ="Cateorías de\nRespuesta")
+zp3 <- zp3 + theme( axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank(),                    
+                    panel.grid.major.y=element_blank())
+zp3 <- zp3 + guides(fill = guide_legend(reverse=TRUE))
+zp3 <- zp3 + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+#print(zp1)
+
+ggplotly(zp3, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+
+ggsave("_fig3_LCA_distribuciones_glca_sin_po.png",zp3, dpi= 600)
+
+lcmodel_glca %>% rio::export("variables_probabilities_in_category_glca_sin_po.xlsx")
+```
+
+<br>
+
+### Con resultado distal
+
+::: controlly2
+```{r adj-paso3-select-best-model,eval=T, echo=T, paged.print=TRUE, eval=T}
+best_model_glca_w_distal_outcome<- eval(parse(text = paste0("lca2",best_model2)))
+
+summary(best_model_glca_w_distal_outcome)
+```
+:::
+
+```{r adj-fig2-Comparison, echo=T, fig.align='center', fig.pos='H', fig.cap= "Selected Model", message=FALSE, error=T, eval=T,layout="l-body-outset"}
+rho_glca_adj<- 
+do.call("bind_rows",best_model_glca_w_distal_outcome$param$rho$ALL) %>% 
+  t() %>% 
+  round(2) %>% 
+  data.table::data.table(keep.rownames = T) %>% 
+  magrittr::set_colnames(c("variables", paste0("Class",1:7))) %>% 
+  tidyr::separate(variables, into=c("var", "prob"), sep=".Y =")
+
+lcmodel_glca_adj <- reshape2::melt(rho_glca_adj, level=2) %>% dplyr::rename("class"="variable")
+
+lcmodel_glca_adj<- lcmodel_glca_adj %>% 
+  dplyr::mutate(pr=as.numeric(gsub("[^0-9.]+", "", prob))) %>% 
+  dplyr::left_join(traductor_cats[,c("charactersitic", "level", "CATEGORIA")], by= c("var"="charactersitic", "pr"="level")) %>% 
+  dplyr::mutate(CATEGORIA= dplyr::case_when(var=="AÑO" & prob==" 1"~"Perdidos", T~CATEGORIA))
+
+lcmodel_glca_adj$text_label<-paste0("Categoria:",lcmodel_glca_adj$CATEGORIA,"<br>%: ",scales::percent(lcmodel_glca_adj$value))
+
+zp4 <- ggplot(lcmodel_glca_adj,aes(x = var, y = value, fill = factor(pr), label=text_label))
+zp4 <- zp4 + geom_bar(stat = "identity", position = "stack")
+zp4 <- zp4 + facet_grid(class ~ .) 
+zp4 <- zp4 + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
+zp4 <- zp4 + labs(y = "Porcentaje de probabilidad de respuesta", 
+                  x = "",
+                  fill ="Cateorías de\nRespuesta")
+zp4 <- zp4 + theme( axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank(),                    
+                    panel.grid.major.y=element_blank())
+zp4 <- zp4 + guides(fill = guide_legend(reverse=TRUE))
+zp4 <- zp4 + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+#print(zp1)
+
+ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+
+ggsave("_fig4_LCA_distribuciones_glca_adj_sin_po.png",zp4, dpi= 600)
+
+lcmodel_glca %>% rio::export("variables_probabilities_in_category_glca_adj_sin_po.xlsx")
+```
+
+::: controlly2
+```{r adj-fig1-details, echo=T, fig.align='center', fig.pos='H', fig.cap= "Selected Model", message=FALSE, error=T, eval=T,layout="l-body-outset"}
+#https://rdrr.io/cran/glca/src/R/plot.glca.R
+plot(eval(parse(text = paste0("lca2",best_model2))), ask=F)
+```
+:::
+
+```{r adj-paso4-bvr, eval=F, echo=T, error=T, message=TRUE, warning=TRUE, paged.print=TRUE}
+glca_gam_dist_outcome<- best_model_glca_w_distal_outcome$param$gamma[[1]]
+glca_gam_dist_outcome<-colnames(paste0("Class",1:7))
+#conditional probabilities
+#Pr(B1=1|Class 3)
+posteriors_glca_adj <- data.frame(best_model_glca_w_distal_outcome$posterior, 
+                             predclass=best_model_glca_w_distal_outcome$param$gamma) 
+
+classification_table_adj <- plyr::ddply(posteriors, "predclass", function(x) colSums(x[,1:length(LCA_best_model_adj_mod$P)]))
+clasification_errors_adj<- 1 - sum(diag(as.matrix(classification_table_adj[,2:(length(LCA_best_model_adj_mod$P)+1)]))) / sum(classification_table_adj[,2:(length(LCA_best_model_adj_mod$P)+1)]) 
+
+warning(paste("Error de clasificación: ", round(clasification_errors_adj,2)))
+
+
+entropy_alt <- function(p) sum(-p * log(p))
+error_prior_adj <- entropy_alt(LCA_best_model_adj_mod$P) # Class proportions
+error_post_adj <- mean(apply(LCA_best_model_adj_mod$posterior, 1, entropy_alt),na.rm=T)
+R2_entropy_alt_adj <- (error_prior_adj - error_post_adj) / error_prior_adj
+warning(paste("Entropía: ", round(R2_entropy_alt_adj,2)))
+
+
+#https://stackoverflow.com/questions/72783185/entropy-calculation-gives-nan-is-applying-na-omit-a-valid-tweak
+entropy.safe <- function (p) {
+  if (any(p > 1 | p < 0)) stop("probability must be between 0 and 1")
+  log.p <- numeric(length(p))
+  safe <- p != 0
+  log.p[safe] <- log(p[safe])
+  sum(-p * log.p)
+}
+
+error_prior2_adj <- entropy.safe(LCA_best_model_adj_mod$P) # Class proportions
+error_post2_adj <- mean(apply(LCA_best_model_adj_mod$posterior, 1, entropy.safe),na.rm=T)
+R2_entropy_safe_adj <- (error_prior2_adj - error_post2_adj) / error_prior2_adj
+warning(paste("Entropía segura: ", round(R2_entropy_safe,2)))
+
+#https://gist.github.com/daob/c2b6d83815ddd57cde3cebfdc2c267b3
+warning(paste("Entropía (solución Oberski): ", round(entropy.R2(LCA_best_model_adj_mod),2)))
+
+#\#minimum average posterior robability of cluster membership (\>0.7), interpretability (classes are clearly distinguishable), and parsimony (each class has a sufficient sample size for further analysis; n≥50).
+```
+
+<br>
+
+::: controlly
+```{r adj-fig4-regression, echo=T, fig.align='center', fig.pos='H', message=FALSE, error=T, eval=T, fig.height=10}
+coef(eval(parse(text = paste0("lca2",best_model2))))
+```
+:::
+
+```{r, echo=FALSE}
+save.image("data2_lca3_glca_sin_po.RData")
+```
+
+```{r, echo=FALSE}
+require(tidyverse)
+sesion_info <- devtools::session_info()
+dplyr::select(
+  tibble::as_tibble(sesion_info$packages),
+  c(package, loadedversion, source)
+) %>% 
+  DT::datatable(filter = 'top', colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
+              caption = htmltools::tags$caption(
+        style = 'caption-side: top; text-align: left;',
+        '', htmltools::em('Packages')),
+      options=list(
+initComplete = htmlwidgets::JS(
+        "function(settings, json) {",
+        "$(this.api().tables().body()).css({
+            'font-family': 'Helvetica Neue',
+            'font-size': '50%', 
+            'code-inline-font-size': '15%', 
+            'white-space': 'nowrap',
+            'line-height': '0.75em',
+            'min-height': '0.5em'
+            });",#;
+        "}")))
+```
+

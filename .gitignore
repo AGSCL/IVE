@@ -8,3 +8,4 @@
 *.dta
 *.ipynb
 .Renviron
+*.pdf

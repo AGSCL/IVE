@@ -215,6 +215,7 @@ Cargamos los datos
 
 ```{r, echo=FALSE}
 rm(list = ls());gc()
+print(Sys.time())
 load("data2.RData")
 ```
 
@@ -621,8 +622,10 @@ Uno de los supuestos del análisis de clase latentes es que hay separación entr
 
 ```{r, echo=FALSE}
 #glimpse(mydata_preds[,preds])
+mydata_preds_cat <- data.table::data.table(mydata_preds[,preds]) %>% dplyr::mutate_all(~as.character(.))
+
 tiempo_antes_hetcor<-Sys.time()
-hetcor_mat<-polycor::hetcor(data.table::data.table(mydata_preds[,preds]), ML = T, std.err =T, use="pairwise.complete.obs", bins=5, pd=TRUE)
+hetcor_mat<-polycor::hetcor(mydata_preds_cat, ML = T, std.err =T, use="pairwise.complete.obs", bins=5, pd=TRUE)
 tiempo_despues_hetcor<-Sys.time()
 tiempo_hetcor<-tiempo_despues_hetcor-tiempo_antes_hetcor
 
@@ -658,6 +661,21 @@ ggcorrplot
 #      font=list(size=11, color="darkblue"))
 # )
 ```
+
+```{r, eval=F}
+invisible("EXPORTAR TABLA DE CORRELACIÓN POLICÓRICA")
+hetcor_df<-
+reshape2::melt(hetcor_mat$correlations) %>% 
+  dplyr::left_join(reshape2::melt(hetcor_mat$tests), by= c("Var1", "Var2")) %>% 
+  dplyr::filter(Var1!=Var2) %>% 
+  dplyr::rename("Polychoric Correlation"="value.x", "p value"="value.y") %>% 
+  dplyr::mutate(`p value`= sprintf("%0.4f",`p value`), `Polychoric Correlation`= sprintf("%2.2f",`Polychoric Correlation`),  ya= abs(parse_number(`Polychoric Correlation`)))%>% 
+  dplyr::arrange(desc(ya)) %>% 
+  dplyr::select(-ya) 
+
+hetcor_df %>% rio::export("_tab_poly_corr.xlsx")
+```
+
 
 Modificamos la base de datos para incluir la variable resultado.
 
@@ -1081,6 +1099,7 @@ print(model_array_ppio[best_model_index]) #
 :::
 
 ```{r, echo=FALSE}
+print(Sys.time())
 save.image("data2_lca2.RData")
 ```
 
