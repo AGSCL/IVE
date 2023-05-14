@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.2.335">
+<meta name="generator" content="quarto-1.1.189">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -66,7 +66,6 @@ ul.task-list li input[type="checkbox"] {
           </div>
   </div>
     
-  
     
   </div>
   
@@ -92,6 +91,10 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="Paso210.html">Paso 2.10. Análisis de clases latentes, selección de clases, con resultado distal, sin pueblo originario</a></li>
 <li><a href="Paso211.html">Paso 2.11. Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario</a></li>
 <li><a href="Paso212.html">Paso 2.12. Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario, con resultado distal</a></li>
+<li><a href="Paso213.html">Paso 2.13. Análisis de clases latentes, selección de clases, sin pueblo originario y año</a></li>
+<li><a href="Paso214.html">Paso 2.14. Análisis de clases latentes, selección de clases, sin pueblo originario y año, con resultado distal</a></li>
+<li><a href="Paso215.html">Paso 2.15. Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario y año</a></li>
+<li><a href="Paso216.html">Paso 2.16. Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario y año, con resultado distal</a></li>
 </ul>
 <p><strong>Caracterización</strong></p>
 <ul>
@@ -99,6 +102,7 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="Paso32.html">Paso 3.2. Análisis de clases latentes, modelos alternativos definitivos</a></li>
 <li><a href="Paso33.html">Paso 3.3. Análisis de clases latentes, modelos definitivos, sin pueblo originario</a></li>
 <li><a href="Paso34.html">Paso 3.4. Análisis de clases latentes, modelos alternativos definitivos, sin pueblo originario</a></li>
+<li><a href="Paso35.html">Paso 3.5. Análisis de clases latentes, modelos alternativos definitivos, sin pueblo originario y año</a></li>
 <li><a href="lca_step1_corr_apr23.html">Paso 2 (Stata). Análisis de clases latentes, selección de clases</a></li>
 <li><a href="lca_step2_corr_apr23.html">Paso 3 (Stata). Análisis de clases latentes, modelo definitivo</a></li>
 <li><a href="lca_step3_corr_apr23.html">Paso 2.2 (Stata). Análisis de clases latentes, selección de clases, con resultado distal</a></li>
@@ -151,24 +155,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
     button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
     setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
-      }
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
     }, 1000);
@@ -204,42 +191,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
   var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
   for (var i=0; i<bibliorefs.length; i++) {
     const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
       });
-    }
+      return popup.innerHTML;
+    });
   }
 });
 </script>

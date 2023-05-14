@@ -556,11 +556,8 @@ preds <- c("AÑO","CAUSAL","EDAD_MUJER_REC", "PUEBLO_ORIGINARIO_REC","PAIS_ORIGE
 
 #c("AÑO","MES_NUM",    "HITO3_COMPLICACION_POST_IVE", "HITO3_CONDICION_MUJER_POST_IVE", "HITO3_TIPO_ATENCION",  "HITO3_SERV_SALUD_ESTABLECIMIENTO", "HITO4_MUJER_ACEPTA_ACOM"),
 
-mydata_preds <- data2%>% 
-  #18-24 es el 18%, entre 25 y 35 es el 42% y el resto q es 30% som los mayores a 35
-  #  NA=1;  >=4 & <14 =2; >=14 & <28=2; >=28=3 ???
-  dplyr::mutate(EDAD_MUJER_REC= dplyr::case_when(EDAD_MUJER<18~"1.<18", EDAD_MUJER<17 & EDAD_MUJER<25~"2.18-24", EDAD_MUJER<24 & EDAD_MUJER<=35~"3.25-35",EDAD_MUJER>35~"4.>35"), HITO1_EDAD_GESTACIONAL_SEMANAS= dplyr::case_when(HITO1_EDAD_GESTACIONAL_SEMANAS>=4 & HITO1_EDAD_GESTACIONAL_SEMANAS<14~"1.4-13 semanas", HITO1_EDAD_GESTACIONAL_SEMANAS>=14 & HITO1_EDAD_GESTACIONAL_SEMANAS<28~"2.14-27 semanas", HITO1_EDAD_GESTACIONAL_SEMANAS>=28~ "3.>28 semanas"))%>% 
-  dplyr::mutate(across(preds, ~ as.numeric(factor(.))+1))%>% dplyr::mutate(across(preds, ~ dplyr::case_when(is.na(.)~ 1, T~ .))) 
+mydata_preds <- data2
+
 
 #comprobar 
 #table(mydata_preds$sus_ini_mod_mvv, data2$sus_ini_mod_mvv, exclude=NULL)
@@ -578,7 +575,9 @@ Modificamos la base de datos para incluir la variable resultado.
 preds2 <-c(setdiff(preds,""),"HITO2_DECISION_MUJER_IVE")  
 
 mydata_preds2 <- data2%>% 
-dplyr::mutate(across(preds, ~ as.numeric(factor(.))+1))%>% dplyr::mutate(across(preds, ~ dplyr::case_when(is.na(.)~ 1, T~ .)))  %>% dplyr::select(any_of(preds2)) %>% dplyr::mutate(outcome= factor(as.numeric(grepl('INTERRUMPIR', HITO2_DECISION_MUJER_IVE)))) 
+  #18-24 es el 18%, entre 25 y 35 es el 42% y el resto q es 30% som los mayores a 35
+  #  NA=1;  >=4 & <14 =2; >=14 & <28=2; >=28=3 ???
+dplyr::mutate(EDAD_MUJER_REC= factor(dplyr::case_when(EDAD_MUJER<18~"1.<18", EDAD_MUJER>=18 & EDAD_MUJER<25~"2.18-24", EDAD_MUJER<24 & EDAD_MUJER<=35~"3.25-35",EDAD_MUJER>35~"4.>35")), HITO1_EDAD_GEST_SEM_REC= factor(dplyr::case_when(HITO1_EDAD_GESTACIONAL_SEMANAS>=4 & HITO1_EDAD_GESTACIONAL_SEMANAS<14~"1.4-13 semanas", HITO1_EDAD_GESTACIONAL_SEMANAS>=14 & HITO1_EDAD_GESTACIONAL_SEMANAS<28~"2.14-27 semanas", HITO1_EDAD_GESTACIONAL_SEMANAS>=28~ "3.>=28 semanas")))%>% dplyr::mutate(across(preds, ~ as.numeric(factor(.))+1))%>% dplyr::mutate(across(preds, ~ dplyr::case_when(is.na(.)~ 1, T~ .)))  %>% dplyr::select(any_of(preds2)) %>% dplyr::mutate(outcome= factor(as.numeric(grepl('INTERRUMPIR', HITO2_DECISION_MUJER_IVE)))) 
 
 #data.table::data.table(.)
 #

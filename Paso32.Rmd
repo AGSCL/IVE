@@ -293,6 +293,7 @@ lcmodel_glca <- reshape2::melt(rho_glca, level=2) %>% dplyr::rename("class"="var
 traductor_cats <- readxl::read_excel("tabla12.xlsx") %>% 
   dplyr::mutate(level=readr::parse_double(level)) %>% 
   dplyr::mutate(level= dplyr::case_when(grepl("CAUSAL",charactersitic)~ level-1,T~level)) %>% 
+  dplyr::mutate(level= dplyr::case_when(grepl("AÑO",charactersitic)~ level-1,T~level)) %>% 
   dplyr::mutate(charactersitic=gsub(" \\(%\\)", "", charactersitic))
 
 

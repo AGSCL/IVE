@@ -1,0 +1,637 @@
+---
+title: "Paso 2.14"
+description: |
+  Análisis de clases latentes exploratoria y comparativa con predictores, sin pueblo originario, sin año y recategorización de edad mujer y semana gestacional hito 1
+date: "`r withr::with_locale(new = c('LC_TIME' = 'C'), code =format(Sys.time(),'%B %d, %Y'))`"
+author: "Andrés González Santa Cruz"
+output:
+  distill::distill_article:
+    code_folding: true
+    fig_height: 6
+    fig_width: 8
+    theme: flatly
+    toc: yes
+    toc_depth: 5
+    toc_float: yes
+    output_dir: "docs"
+  toc_float:
+    collapsed: false
+    smooth_scroll: true
+---
+
+```{css zoom-lib-src, echo = FALSE}
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+```
+
+```{js zoom-jquery, echo = FALSE}
+ $(document).ready(function() {
+    $('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+    // onClick function for all plots (img's)
+    $('img:not(.zoomImg)').click(function() {
+      $('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+      $('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+    });
+    // onClick function for zoomImg
+    $('img.zoomImg').click(function() {
+      $('.zoomDiv').css({opacity: '0', width: '0%'}); 
+    });
+  });
+  
+```
+
+```{css hideOutput-lib-src, echo = FALSE}
+<script src="hideOutput.js"></script> 
+```
+
+```{js hideOutput, echo = FALSE}
+$(document).ready(function() {    
+	$chunks = $('.fold');    
+	$chunks.each(function () {      // add button to source code chunks     
+	if ( $(this).hasClass('s') ) {       
+		$('pre.r', this).prepend("<div class=\"showopt\">Show Source</div><br style=\"line-height:22px;\"/>");
+       		$('pre.r', this).children('code').attr('class', 'folded');     
+       		}      // add button to output chunks     
+		if ( $(this).hasClass('o') ) {       
+			$('pre:not(.r)', this).has('code').prepend("<div class=\"showopt\">Show Output</div><br style=\"line-height:22px;\"/>");       
+			$('pre:not(.r)', this).children('code:not(r)').addClass('folded');        // add button to plots       
+			$(this).find('img').wrap('<pre class=\"plot\"></pre>');       
+			$('pre.plot', this).prepend("<div class=\"showopt\">Show Plot</div><br style=\"line-height:22px;\"/>");       
+			$('pre.plot', this).children('img').addClass('folded');      
+			}   
+});    // hide all chunks when document is loaded   
+	$('.folded').css('display', 'none')    // function to toggle the visibility   
+	$('.showopt').click(function() {     
+			var label = $(this).html();     
+			if (label.indexOf("Show") >= 0) {       
+				$(this).html(label.replace("Show", "Hide"));     
+			} else {
+			  $(this).html(label.replace("Hide", "Show"));     
+			}     
+	$(this).siblings('code, img').slideToggle('fast', 'swing');   
+	}); 
+}); 
+
+```
+
+```{=html}
+<style type="text/css">
+.showopt {   
+  background-color: #004c93;   color: #FFFFFF;    width: 100px;   height: 20px;   text-align: center;   vertical-align: middle !important;   float: right;   font-family: sans-serif;   border-radius: 8px; 
+  }
+
+.showopt:hover {     
+        background-color: #dfe4f2;
+        color: #004c93; 
+        }  
+pre.plot {   
+        background-color: white !important; 
+        } 
+.tablelines table, .tablelines td, .tablelines th {
+        border: 1px solid black;
+        }
+
+.centrado {
+    text-align: center;
+}
+
+.table.center {
+    margin-left:auto; 
+    margin-right:auto;
+  }
+
+/* https://vivekjaiskumar.medium.com/css-is-and-not-selector-17c942ec83f :is()*/
+
+/* Applies to outputs that are not code other than R*/
+
+pre {
+  overflow-x: auto !important;
+}
+pre code {
+  word-wrap: normal !important;
+  white-space: pre !important;
+}
+/*
+pre:not(.sourceCode) { 
+  white-space: nowrap !important;
+}
+*/
+.sourceCode { /* Important gives precedence  */
+  font-size: 10px !important;
+  line-height: 50% !important;
+}
+
+body{ /* Normal  */
+      text-align: justify;
+  }
+
+.superbigimage{
+    overflow-y:scroll;
+    height:350px;
+    white-space: nowrap;
+    overflow-x: auto; 
+    width:100%;
+}
+.superbigimage img{
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.message { color:#446C6E; font-family: monospace;font-size: 10px; line-height: 110%; font-weight: bold;}
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 5px; text-align: justify;}
+div.red { background-color:#e6bab1; border-radius: 5px; padding: 5px; text-align: justify;}
+
+.pandoc-table { /* Should add !important; but it seems no necessary  */
+  margin-left:auto; /* To center */
+  margin-right:auto;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 11px;
+  overflow-y: auto;
+  max-height:450px !important;
+  white-space: nowrap;
+  overflow-x: auto; 
+  width:450px;
+}
+
+.pandoc-table th {/* header */
+text-align: center !important;
+font-size: 10px;
+padding: 0px;
+}
+
+.pandoc-table td {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+}
+
+.pandoc-table caption {
+    text-align: left !important;
+    font-size: 11px !important;
+}
+
+.controlly{
+    overflow-y:scroll;
+    height:350px;
+    overflow-x: scroll; 
+}
+
+
+.controlly2{
+    overflow-y:scroll;
+    height:550px;
+    overflow-x: scroll; 
+}
+
+</style>
+```
+```{=html}
+<!-- We gotta do each function to hide code and outputs per section, by every ID, we gotta create a different function -->
+<script>
+function myFunction1() {
+    var x = document.getElementById("myDIV");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+
+<script>
+function myFunction2() {
+    var x = document.getElementById("myDIV2");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+```
+
+
+Cargamos los datos
+
+```{r, echo=FALSE}
+rm(list = ls());gc()
+print(Sys.time())
+load("data2_lca2_sin_po_ano_2023_05_13.RData")
+```
+
+Cargamos los paquetes
+
+```{r, echo=FALSE, results="hide", error=T}
+knitr::opts_chunk$set(echo = TRUE)
+pacman::p_unlock()
+if(!require(distill)){install.packages("distill")}
+if(!require(poLCA)){install.packages("poLCA")}
+if(!require(devtools)){install.packages("devtools")}
+if(!require(poLCAParallel)){devtools::install_github("QMUL/poLCAParallel@package")}
+if(!require(compareGroups)){install.packages("compareGroups")}
+if(!require(parallel)){install.packages("parallel")}
+if(!require(Hmisc)){install.packages("Hmisc")}
+if(!require(tidyverse)){install.packages("tidyverse")}
+try(if(!require(sjPlot)){install.packages("sjPlot")})
+if(!require(emmeans)){install.packages("emmeans")}
+if(!require(nnet)){install.packages("nnet")}
+if(!require(here)){install.packages("here")}
+if(!require(doParallel)){install.packages("doParallel")}
+if(!require(progress)){install.packages("progress")}
+if(!require(caret)){install.packages("caret")}
+if(!require(rpart)){install.packages("rpart")}
+if(!require(rpart.plot)){install.packages("rpart.plot")}
+if(!require(partykit)){install.packages("partykit")}
+if(!require(randomForest)){install.packages("randomForest")}
+if(!require(ggcorrplot)){install.packages("ggcorrplot")}
+if(!require(polycor)){install.packages("polycor")}
+if(!require(tableone)){install.packages("tableone")}
+if(!require(broom)){install.packages("broom")}
+if(!require(plotly)){install.packages("plotly")}
+if(!require(rsvg)){install.packages("rsvg")}
+if(!require(janitor)){install.packages("janitor")}
+if(!require(job)){install.packages("job")}
+if(!require(missForest)){install.packages("missForest")}
+if(!require(DT)){install.packages("DT")}
+if(!require(DiagrammeR)){install.packages("DiagrammeR")}
+if(!require(broom.mixed)){install.packages("broom.mixed")}
+if(!require(corrplot)){install.packages("corrplot")}
+if(!require(dlookr)){install.packages("dlookr")}
+#if(!require(lcra)){install.packages("lcra")} #jags problem
+if(!require(effects)){install.packages("effects")}
+if(!require(missRanger)){install.packages("missRanger")}
+if(!require(effects)){install.packages("effects")}
+if(!require(fidelius)){install.packages("fidelius")}
+if(!require(finalfit)){install.packages("finalfit")}
+if(!require(glca)){install.packages("glca")}
+if(!require(rio)){install.packages("rio")}
+if(!require(DiagrammeRsvg)){install.packages("DiagrammeRsvg")}
+
+#if(!require(poLCA)){githubinstall::gh_install_packages("poLCA", ref = github_pull("14"))}
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+```
+
+Definimos ciertas constantes
+
+```{r}
+clus_iter= 500 #500
+n_thread <- parallel::detectCores()
+nrep <- clus_iter # number of different initial values (could be n_thread too)
+n_class_max <- 10 # maximum number of classes to investigate
+n_bootstrap <- 1#100 #30 # 50 number of bootstrap samples
+print(n_thread)
+```
+
+# Análisis de clases latentes
+
+```{r model,eval=T, echo=T, paged.print=TRUE, fig.cap="Gráfico esquemático", fig.align='center'}                                 
+library(DiagrammeR) #⋉
+gr_lca2<-
+DiagrammeR::grViz("
+digraph flowchart {
+    fontname='Comic Sans MS'
+
+  # Nodes
+  subgraph samelevel {
+    CAUSAL [label = 'Causal',fontsize=10,shape = box]
+    MUJER_REC [label = 'Sexo\n(mujer)',fontsize=10,shape = box]
+    EDAD_MUJER_REC [label = 'Edad\nmujer',fontsize=10,shape = box]
+    HITO1_EDAD_GEST_SEM_REC [label = 'Edad\nGestacional\nHito 1',fontsize=10,shape = box]
+    MACROZONA [label = 'Macrozona',fontsize=10,shape = box]
+    PAIS_ORIGEN_REC [label = 'País de\norigen',fontsize=10,shape = box]
+    PREV_TRAMO_REC [label = 'Previsión y\ntramo',fontsize=10,shape = box]
+    
+  {rank=same; rankdir= 'TB'; CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC }
+  }
+  LCA [label= 'Clases\nlatentes', shape= circle, style=filled, color=lightgrey, fontsize=10]
+  
+  inter [label = 'Interupción\nembarazo',fontsize=10,shape = box, height=.00002] # set the position of the inter node pos='15,100'
+
+  # Nodes
+  subgraph {
+   LCA ->  {CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC } [rank=same; rankdir= 'TB'] 
+}
+  subgraph {
+   LCA -> inter [minlen=14] #minlen es necesario para correr arrowhead = none; 
+  {rank=same; LCA inter [rankdir='LR']}; #; 
+}
+}")#, width = 1200, height = 900
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3733703/
+#Cohort matching on a variable associated with both outcome and censoring
+#Cohort matching on a confounder. We let A denote an exposure, Y denote an outcome, and C denote a confounder and matching variable. The variable S indicates whether an individual in the source population is selected for the matched study (1: selected, 0: not selected). See Section 2-7 for details.
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7064555/
+DPI = 1200
+WidthCM = 21
+HeightCM = 8
+
+gr_lca2 %>%
+  export_svg %>% charToRaw %>% rsvg_pdf("_flowchart_lca_adj_sin_po_ano.pdf")
+
+gr_lca2 %>% export_svg()%>%charToRaw %>% rsvg(width = WidthCM *(DPI/2.54), height = HeightCM *(DPI/2.54)) %>% png::writePNG("_flowchart_lca0_adj_sin_po.png")
+
+htmlwidgets::saveWidget(gr_lca2, "_flowchart_lca_adj_sin_po_ano.html")
+webshot::webshot("_flowchart_lca_adj_ano.html", "_flowchart_lca_adj_sin_po_ano.png",vwidth = 1200, vheight = 900, zoom = 2)
+```
+
+
+## Modelo alternativo
+
+
+### Análisis ACL alt
+
+```{r, lca-get, echo=FALSE}
+#Biemer, P. P., & Wiesen, C. (2002). Measurement error evaluation of self-reported drug use: a latent class analysis of the US National Household Survey on Drug Abuse. Journal of the Royal Statistical Society: Series A (Statistics in Society), 165(1), 97–119. doi:10.1111/1467-985x.00612  
+#lca_entropia(x="ppio", seed= 2125, k= 8, f= f_preds, dat= mydata_preds, nbr_repet= 30, na_rm= T)
+#3
+#<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%">
+# f is the selected variables
+# dat is the data
+# nb_var is the number of selected variables
+# k is the number of latent class generated
+# nbr_repet is the number of repetition to  
+# reach the convergence of EM algorithm
+# x es el código para las variables de los modelos
+#seed es el numero random para las semillas. ej: 4345.
+#Modo de calcular el mejor modelo.
+#z_ # 
+#2023-01-20
+#https://github.com/QMUL/poLCAParallel/blob/master/exec/3_blrt.R
+#0h s
+f_adj<-cbind(CAUSAL, EDAD_MUJER_REC, PAIS_ORIGEN_REC, HITO1_EDAD_GEST_SEM_REC, MACROZONA, PREV_TRAMO_REC)~ outcome
+
+seed<-2125
+old <- Sys.time()
+
+require(progress)
+
+set.seed(seed)
+model_array_adj <- list()  # Initialize an empty list to store the results
+pb <- progress_bar$new(total = n_class_max, message_class = "Running poLCA")
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+for (k in 1:n_class_max) {
+  nrep_int <- nrep  # Initialize nrep to a reasonable value
+  while (nrep_int >= 1) {  # Try running poLCA with decreasing nrep until nrep reaches 1
+    tryCatch({
+      set.seed(seed)
+      mod <- poLCAParallel::poLCA(
+        f_adj, 
+        mydata_preds3 %>% dplyr::mutate(outcome=ifelse(outcome==1,1,0)), # %>% janitor::tabyl(outcome)
+        nclass = k, 
+        nrep = nrep_int, 
+        maxiter = 1e4,
+        n.thread = 12,
+        verbose = FALSE
+      )
+      model_array_adj[[k]] <- mod  # Store the result if no error occurs
+      break  # Exit the loop if poLCA succeeds
+    }, error = function(e) {
+      message(paste("Error in poLCA for k =", k, ", nrep =", nrep_int, ":", conditionMessage(e)))
+      nrep_int <- nrep_int / 2  # Reduce nrep by half if poLCA fails
+    })
+  }
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_  
+  pb$tick()  # Increment the progress bar
+  cat(sprintf("\r%d%% completed", round(k/n_class_max*100)))  # Print progress percentage
+  Sys.sleep(.05)
+}
+
+pb$terminate()  # Close the progress bar
+cat(': Done')  # Print "Done" message  
+                    
+model_array_adj_ppio<-model_array_adj
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#BOOTSTRAP#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+new_med<-(Sys.time())
+paste0("The model took ",round(new_med-old,2)," until every LCA was computed")
+```
+
+Luego calculamos la razón de verosimilitud mediante remuestreo bootstrap (BLRT) entre los distintos modelos con el que asume una clase menos.
+
+```{r,blrt, echo=FALSE}
+# store p values for each nclass, 1 to n_class_max
+# store 0 for 1 number of class, ie this says you cannot have zero number of
+# classes
+p_value_array_adj <- c(0)
+# for all number of classes investigated:
+#   - store the log likelihood ratio
+#   - store all bootstrap samples log likelihoods ratios
+fitted_log_ratio_array_adj <- rep(NaN, n_class_max)
+bootstrap_log_ratio_array_adj <- list()
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+# do the bootstrap likelihood ratio test for each number of classes
+for (nclass in 2:n_class_max) {
+
+  # get the null and alt models
+  # these are models with one number of class differences
+  null_model_adj <- model_array_adj_ppio[[nclass - 1]]
+  alt_model_adj <- model_array_adj_ppio[[nclass]]
+
+  # for each bootstrap sample, store the log likelihood ratio here
+  bootstrap_results_adj <- poLCAParallel::blrt(
+    null_model_adj, alt_model_adj,
+    n_bootstrap, n_thread, nrep
+  )
+
+  # log likelihood ratio to compare the two models
+  fitted_log_ratio_array_adj[nclass] <- bootstrap_results_adj[["fitted_log_ratio"]]
+  # store the log likelihoods ratios for all bootstrap samples
+  bootstrap_log_ratio_array_adj[[nclass]] <-
+    bootstrap_results_adj[["bootstrap_log_ratio"]]
+  # store the p value for this nclass
+  p_value_array_adj <- c(p_value_array_adj, bootstrap_results_adj[["p_value"]])
+  
+  #progress bar
+  cat(paste0(round(nclass / n_class_max * 100), '% completed'))
+  Sys.sleep(.05)
+  if (nclass == n_class_max) cat(': Done')
+  else cat('\014')
+}
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+new<-(Sys.time())
+time_diff <- (Sys.time() - old)/60
+paste0("The model took ",round(new-old,2)," minutes")
+
+model_array_ppio2 <- model_array_adj
+fitted_log_ratio_array_adj_ppio <- fitted_log_ratio_array_adj
+bootstrap_log_ratio_array_adj_ppio <- bootstrap_log_ratio_array_adj
+bootstrap_results_adj_ppio <- bootstrap_results_adj
+p_value_array_adj_ppio <- p_value_array_adj
+
+# Get the BIC values for all models in model_array_ppio2
+bic_values_adj <- sapply(model_array_ppio2, function(model) model$bic)
+
+# Identify the index of the model with the lowest BIC
+best_model_index_adj <- which.min(bic_values_adj)
+
+# Select the best model
+LCA_best_model_adj_ppio <- model_array_ppio2[[best_model_index_adj]]
+#####################################################################################################################################################################
+#Within poLCA, parameter estimates are obtained by a procedure that repeatedly improves estimates.
+#This is stopped when no further improvements are obtained, or until a maximum number of iterations is reached. The starting values are the values at which such repetitions were started. Increasing the number 4 R. ACHTERHOF ET AL.of iterations (cycles within each estimation) and setting more different starting values for each repetition results in a greater likelihood that the global (rather than local) maximum of the log-likelihood function (and thus, the best possible solution) is reached. The maximum number of iterations was chosen as 10.000, and 500 different sets of starting values were used (thus going beyond the recommendations by Linzer & Lewis, 2011; Oberski, 2016). As such, the influence of chance was minimized while the reproducibility of the results was maximized# 
+                     
+```
+
+
+
+### Resultados ACL alt
+
+Hicimos un gráfico de los resultados
+
+```{r, echo=FALSE}
+
+# Initialize an empty data frame
+tab_ppio2 <- data.frame()##
+
+# Loop through each model
+for (i in 2:n_class_max) {
+  skip_to_next <- FALSE
+
+  # Get the model and the previous model
+  mod2 <- model_array_ppio2[[i]]
+  mod2_min1 <- model_array_ppio2[[(i-1)]]
+
+  # Check if the model has valid predictions
+  if (is.null(mod2$predclass)) {
+    skip_to_next <- TRUE
+  }
+
+  # If the model has valid predictions, calculate the measures and add them to the data frame
+  if (!skip_to_next) {
+    # Number of latent classes
+    mod2$C <- max(t(matrix(apply(mod2$y, 2, max))))
+    # Number of manifest variables
+    mod2$J <- ncol(mod2$y)
+    # Total number of items
+    mod2$I <- mod2$J * mod2$C
+    # Degrees of freedom
+    mod2$df <- mod2$C^mod2$I - mod2$npar - 1
+    # Chi-square test
+    mod2$Chisq.pvalue <- (1 - pchisq(mod2$Chisq, mod2$df))
+    # AIC
+    mod2$aic <- round(mod2$aic, 2)
+    # BIC
+    mod2$bic <- round(mod2$bic, 2)
+    # Adjusted BIC n*=(n+2)/24 (https://github.com/dlinzer/poLCA/issues/10)
+    mod2$aBIC <- round((-2 * mod2$llik) + (log((mod2$N+2)/24) * mod2$npar), 2) 
+    # Conditional AIC
+    mod2$cAIC <-  round((-2 * mod2$llik) + (2 * mod2$Nobs * log(mod2$N/mod2$Nobs)), 2)
+    # approximate weight of evidence criterion  #https://jbds.isdsa.org/public/journals/1/html/v2n2/qiu/
+    mod2$awe <-  round((-2 * mod2$llik) + (2 * mod2$npar * log(mod2$Nobs)+1.5), 2)    
+    # Gsq: deviance
+    mod2$Gsq
+    # Likelihood ratio test
+    mod2$Gsq.pvalue <- (1 - pchisq(mod2$Gsq, mod2$df))
+    # Relative entropy
+    mod2$RelEnt <- round(relative.entropy(mod2), 2)
+    # Entropy R-squared
+    mod2$EntR2 <- round(entropy.R2(mod2), 2)
+    # Deviance change
+    mod2$DevChange <- round(mod2_min1$Gsq - mod2$Gsq, 2)
+    # Degrees of freedom change
+    mod2$dfChange <- mod2_min1$resid.df - mod2$resid.df
+    # P-value for deviance change
+    mod2$pvalDevChange <- round(pchisq(mod2$DevChange, mod2$dfChange, lower.tail = FALSE), 4)
+    mod2$BLRT <- round(fitted_log_ratio_array_adj_ppio[[i]],2)
+    mod2$BLRT.pvalue <- p_value_array_adj_ppio[[i]]
+    # Add the model index to the data frame
+    mod2$ModelIndex <- i
+
+    tab_ppio2 <- rbind.data.frame(tab_ppio2, t(data.matrix(mod2[c("llik", "Chisq", "Chisq.pvalue", "resid.df", "aic", "bic", "aBIC", "cAIC", "awe", "Gsq", "Gsq.pvalue", "RelEnt", "EntR2", "DevChange", "dfChange", "pvalDevChange", "ModelIndex","BLRT", "BLRT.pvalue")])))
+
+    #  } else {}
+  }
+}
+
+# identify the list-like columns
+list_cols2 <- sapply(tab_ppio2, is.list)
+# unlist the list-like columns
+unlisted_cols2 <- lapply(tab_ppio2[list_cols2], unlist)
+# bind the unlisted columns as a data frame
+tab_ppio2 <- cbind(tab_ppio2[!list_cols2], do.call(cbind, unlisted_cols2))
+#Erase rownames
+rownames(tab_ppio2) <- NULL
+
+manualcolors2 <- c('indianred1', 'cornflowerblue', 'gray50', 'darkolivegreen4', 'slateblue2', 
+                  'firebrick4', 'goldenrod4')
+levels2 <- c("llik", "Chisq", "Chisq.pvalue", "resid.df", "aic", "bic", "aBIC", "cAIC", "awe",
+            "Gsq", "Gsq.pvalue", "RelEnt", "EntR2", "DevChange", "dfChange",
+            "pvalDevChange", "BLRT", "BLRT.pvalue")
+labels2 <- c('Log-Verosimilitud', 'Chi2', 'valor p Chi2', 'Grados de libertad', 
+            'Criterio de Información\nde Akaike(AIC)', 'Criterio de Información\nBayesiano (BIC)', 'BIC Ajustado (SABIC)', "AIC Corregido",'Peso de evidencia aproximado(awe)','G-squared/Deviance', 'Valor p G-squared', 'Entropía Relativa', 'Entropía R2', 'Cambio en Deviance\n(con modelo previo)', 'Grados de libertad del cambio', 'valor p cambio deviance', 'BLRT', 'valor p BLRT')
+fig_lca_fit2<- tab_ppio2 %>%
+  dplyr::mutate_if(is.character, as.numeric) %>%  # convert character columns to numeric
+  tidyr::pivot_longer(cols = -ModelIndex, #"evryone but index"
+                       names_to = "indices", values_to = "value", values_drop_na = F) %>%
+  dplyr::mutate(indices = factor(indices, levels = levels2, labels = labels2)) %>%
+  dplyr::filter(grepl("(AIC|BIC|awe)",indices, ignore.case=T))%>%
+	dplyr::mutate(ModelIndex= factor(ModelIndex, levels=2:n_class_max)) %>% 
+  ggplot(aes(x = ModelIndex, y = value, group = indices, color = indices, linetype = indices)) +
+  geom_line(size = 1.5) +
+  scale_color_manual(values = manualcolors) +
+  #scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  labs(x = "Número de clases", y = "Valor", color = "Medida", linetype = "Medida") +
+  #facet_wrap(.~indices, scales = "free_y", nrow = 4, ncol = 1) +
+  theme_bw()
+
+fig_lca_fit2
+ggsave("_fig2_comparison_adj_sin_po_ano.png",fig_lca_fit2, dpi=600)
+
+```
+
+Luego en una tabla
+
+::: controlly2
+```{r, echo=FALSE}
+tab_ppio2 %>%#
+  dplyr::select(ModelIndex, everything()) %>% 
+    dplyr::mutate_if(is.character, as.numeric) %>%  # convert character columns to numeric
+    knitr::kable(format="markdown", caption="Fit measures of models")
+```
+:::
+
+Presentamos el modelo con mejor ajuste
+
+::: controlly
+```{r, echo=FALSE}
+print(LCA_best_model_adj_ppio) #
+```
+:::
+
+
+```{r, echo=FALSE}
+print(Sys.time())
+save.image("data2_lca2_adj_sin_po_ano.RData")
+```
+
+```{r, echo=FALSE}
+require(tidyverse)
+sesion_info <- devtools::session_info()
+dplyr::select(
+  tibble::as_tibble(sesion_info$packages),
+  c(package, loadedversion, source)
+) %>% 
+  DT::datatable(filter = 'top', colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
+              caption = htmltools::tags$caption(
+        style = 'caption-side: top; text-align: left;',
+        '', htmltools::em('Packages')),
+      options=list(
+initComplete = htmlwidgets::JS(
+        "function(settings, json) {",
+        "$(this.api().tables().body()).css({
+            'font-family': 'Helvetica Neue',
+            'font-size': '50%', 
+            'code-inline-font-size': '15%', 
+            'white-space': 'nowrap',
+            'line-height': '0.75em',
+            'min-height': '0.5em'
+            });",#;
+        "}")))
+```

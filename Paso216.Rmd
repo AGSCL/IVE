@@ -1,0 +1,409 @@
+---
+title: "Paso 2.16"
+description: |
+  Análisis de clases latentes exploratoria y comparativa con predictores (glca), sin pueblo originario y sin año y recategorización de edad mujer y semana gestacional hito 1
+date: "`r withr::with_locale(new = c('LC_TIME' = 'C'), code =format(Sys.time(),'%B %d, %Y'))`"
+author: "Andrés González Santa Cruz"
+output:
+  distill::distill_article:
+    code_folding: true
+    fig_height: 6
+    fig_width: 8
+    theme: flatly
+    toc: yes
+    toc_depth: 5
+    toc_float: yes
+    output_dir: "docs"
+  toc_float:
+    collapsed: false
+    smooth_scroll: true
+---
+
+```{css zoom-lib-src, echo = FALSE}
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+```
+
+```{js zoom-jquery, echo = FALSE}
+ $(document).ready(function() {
+    $('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+    // onClick function for all plots (img's)
+    $('img:not(.zoomImg)').click(function() {
+      $('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+      $('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+    });
+    // onClick function for zoomImg
+    $('img.zoomImg').click(function() {
+      $('.zoomDiv').css({opacity: '0', width: '0%'}); 
+    });
+  });
+  
+```
+
+```{css hideOutput-lib-src, echo = FALSE}
+<script src="hideOutput.js"></script> 
+```
+
+```{js hideOutput, echo = FALSE}
+$(document).ready(function() {    
+	$chunks = $('.fold');    
+	$chunks.each(function () {      // add button to source code chunks     
+	if ( $(this).hasClass('s') ) {       
+		$('pre.r', this).prepend("<div class=\"showopt\">Show Source</div><br style=\"line-height:22px;\"/>");
+       		$('pre.r', this).children('code').attr('class', 'folded');     
+       		}      // add button to output chunks     
+		if ( $(this).hasClass('o') ) {       
+			$('pre:not(.r)', this).has('code').prepend("<div class=\"showopt\">Show Output</div><br style=\"line-height:22px;\"/>");       
+			$('pre:not(.r)', this).children('code:not(r)').addClass('folded');        // add button to plots       
+			$(this).find('img').wrap('<pre class=\"plot\"></pre>');       
+			$('pre.plot', this).prepend("<div class=\"showopt\">Show Plot</div><br style=\"line-height:22px;\"/>");       
+			$('pre.plot', this).children('img').addClass('folded');      
+			}   
+});    // hide all chunks when document is loaded   
+	$('.folded').css('display', 'none')    // function to toggle the visibility   
+	$('.showopt').click(function() {     
+			var label = $(this).html();     
+			if (label.indexOf("Show") >= 0) {       
+				$(this).html(label.replace("Show", "Hide"));     
+			} else {
+			  $(this).html(label.replace("Hide", "Show"));     
+			}     
+	$(this).siblings('code, img').slideToggle('fast', 'swing');   
+	}); 
+}); 
+
+```
+
+```{=html}
+<style type="text/css">
+.showopt {   
+  background-color: #004c93;   color: #FFFFFF;    width: 100px;   height: 20px;   text-align: center;   vertical-align: middle !important;   float: right;   font-family: sans-serif;   border-radius: 8px; 
+  }
+
+.showopt:hover {     
+        background-color: #dfe4f2;
+        color: #004c93; 
+        }  
+pre.plot {   
+        background-color: white !important; 
+        } 
+.tablelines table, .tablelines td, .tablelines th {
+        border: 1px solid black;
+        }
+
+.centrado {
+    text-align: center;
+}
+
+.table.center {
+    margin-left:auto; 
+    margin-right:auto;
+  }
+
+/* https://vivekjaiskumar.medium.com/css-is-and-not-selector-17c942ec83f :is()*/
+
+/* Applies to outputs that are not code other than R*/
+
+pre {
+  overflow-x: auto !important;
+}
+pre code {
+  word-wrap: normal !important;
+  white-space: pre !important;
+}
+/*
+pre:not(.sourceCode) { 
+  white-space: nowrap !important;
+}
+*/
+.sourceCode { /* Important gives precedence  */
+  font-size: 10px !important;
+  line-height: 50% !important;
+}
+
+body{ /* Normal  */
+      text-align: justify;
+  }
+
+.superbigimage{
+    overflow-y:scroll;
+    height:350px;
+    white-space: nowrap;
+    overflow-x: auto; 
+    width:100%;
+}
+.superbigimage img{
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.message { color:#446C6E; font-family: monospace;font-size: 10px; line-height: 110%; font-weight: bold;}
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 5px; text-align: justify;}
+div.red { background-color:#e6bab1; border-radius: 5px; padding: 5px; text-align: justify;}
+
+.pandoc-table { /* Should add !important; but it seems no necessary  */
+  margin-left:auto; /* To center */
+  margin-right:auto;
+  border-collapse: collapse;
+  table-layout: auto;
+  font-size: 11px;
+  overflow-y: auto;
+  max-height:450px !important;
+  white-space: nowrap;
+  overflow-x: auto; 
+  width:450px;
+}
+
+.pandoc-table th {/* header */
+text-align: center !important;
+font-size: 10px;
+padding: 0px;
+}
+
+.pandoc-table td {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+}
+
+.pandoc-table caption {
+    text-align: left !important;
+    font-size: 11px !important;
+}
+
+.controlly{
+    overflow-y:scroll;
+    height:350px;
+    overflow-x: scroll; 
+}
+
+
+.controlly2{
+    overflow-y:scroll;
+    height:550px;
+    overflow-x: scroll; 
+}
+
+</style>
+```
+```{=html}
+<!-- We gotta do each function to hide code and outputs per section, by every ID, we gotta create a different function -->
+<script>
+function myFunction1() {
+    var x = document.getElementById("myDIV");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+
+<script>
+function myFunction2() {
+    var x = document.getElementById("myDIV2");
+    if (x.style.display === "none") {
+        x.style.display = "block";
+    } else {
+        x.style.display = "none";
+    }
+}
+</script>
+```
+
+
+Cargamos los datos
+
+```{r, echo=FALSE}
+rm(list = ls());gc()
+load("data2_lca215_sin_po_alt_ano_2023_05_14.RData")
+```
+
+Cargamos los paquetes
+
+```{r, echo=FALSE, results="hide"}
+knitr::opts_chunk$set(echo = TRUE)
+
+if(!require(poLCA)){install.packages("poLCA")}
+if(!require(poLCAParallel)){devtools::install_github("QMUL/poLCAParallel@package")}
+if(!require(compareGroups)){install.packages("compareGroups")}
+if(!require(parallel)){install.packages("parallel")}
+if(!require(Hmisc)){install.packages("Hmisc")}
+if(!require(tidyverse)){install.packages("tidyverse")}
+try(if(!require(sjPlot)){install.packages("sjPlot")})
+if(!require(emmeans)){install.packages("emmeans")}
+if(!require(nnet)){install.packages("nnet")}
+if(!require(here)){install.packages("here")}
+if(!require(doParallel)){install.packages("doParallel")}
+if(!require(progress)){install.packages("progress")}
+if(!require(caret)){install.packages("caret")}
+if(!require(rpart)){install.packages("rpart")}
+if(!require(rpart.plot)){install.packages("rpart.plot")}
+if(!require(partykit)){install.packages("partykit")}
+if(!require(randomForest)){install.packages("randomForest")}
+if(!require(ggcorrplot)){install.packages("ggcorrplot")}
+if(!require(polycor)){install.packages("polycor")}
+if(!require(tableone)){install.packages("tableone")}
+if(!require(broom)){install.packages("broom")}
+if(!require(plotly)){install.packages("plotly")}
+if(!require(rsvg)){install.packages("rsvg")}
+if(!require(DiagrammeRsvg)){install.packages("DiagrammeRsvg")}
+if(!require(glca)){install.packages("glca")}
+#if(!require(poLCA)){githubinstall::gh_install_packages("poLCA", ref = github_pull("14"))}
+
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
+```
+
+Definimos ciertas constantes
+
+```{r}
+clus_iter= 500 #500
+n_thread <- parallel::detectCores()
+nrep <- clus_iter # number of different initial values (could be n_thread too)
+n_class_max <- 10 # maximum number of classes to investigate
+n_bootstrap <- 100 #30 # 50 number of bootstrap samples
+print(n_thread)
+```
+
+# Análisis de clases latentes
+
+## Especificar modelo
+
+Los valores ceros se declararon datos perdidos.
+
+```{r, adj, echo=FALSE}
+
+f_adj<- item(CAUSAL, EDAD_MUJER_REC, PAIS_ORIGEN_REC, HITO1_EDAD_GEST_SEM_REC, MACROZONA, PREV_TRAMO_REC) ~ outcome
+
+```
+
+## Análisis de clases latentes
+
+```{r, glca-get, echo=FALSE}
+#Biemer, P. P., & Wiesen, C. (2002). Measurement error evaluation of self-reported drug use: a latent class analysis of the US National Household Survey on Drug Abuse. Journal of the Royal Statistical Society: Series A (Statistics in Society), 165(1), 97–119. doi:10.1111/1467-985x.00612  
+#lca_entropia(x="ppio", seed= 2125, k= 8, f= f_preds, dat= mydata_preds, nbr_repet= 30, na_rm= T)
+#3
+#<div style="border: 1px solid #ddd; padding: 5px; overflow-y: scroll; height:400px; overflow-x: scroll; width:100%">
+# f is the selected variables
+# dat is the data
+# nb_var is the number of selected variables
+# k is the number of latent class generated
+# nbr_repet is the number of repetition to  
+# reach the convergence of EM algorithm
+# x es el código para las variables de los modelos
+#seed es el numero random para las semillas. ej: 4345.
+#Modo de calcular el mejor modelo.
+#z_ # 
+#2023-01-20
+#https://github.com/QMUL/poLCAParallel/blob/master/exec/3_blrt.R
+#0h s
+seed<-2125
+old <- Sys.time()
+
+lca22 <- glca(f_adj, data = mydata_preds3, nclass = 2, seed = seed, verbose = FALSE, n.init = 5e2, decreasing=T, maxiter = 1e4,testiter = 500)
+lca23 <- glca(f_adj, data = mydata_preds3, nclass = 3, seed = seed, verbose = FALSE, n.init = 5e2, decreasing=T, maxiter = 1e4,testiter = 500)
+lca24 <- glca(f_adj, data = mydata_preds3, nclass = 4, seed = seed, verbose = FALSE, n.init = 5e2, decreasing=T, maxiter = 1e4,testiter = 500)
+lca25 <- glca(f_adj, data = mydata_preds3, nclass = 5, seed = seed, verbose = FALSE, n.init = 5e2, decreasing=T, maxiter = 1e4,testiter = 500)
+lca26 <- glca(f_adj, data = mydata_preds3, nclass = 6, seed = seed, verbose = FALSE, n.init = 5e2, decreasing=T, maxiter = 1e4,testiter = 500)
+lca27 <- glca(f_adj, data = mydata_preds3, nclass = 7, seed = seed, verbose = FALSE, n.init = 5e2, decreasing=T, maxiter = 1e4,testiter = 500)
+lca28 <- glca(f_adj, data = mydata_preds3, nclass = 8, seed = seed, verbose = FALSE, n.init = 5e2, decreasing=T, maxiter = 1e4,testiter = 500)
+lca29 <- glca(f_adj, data = mydata_preds3, nclass = 9, seed = seed, verbose = FALSE, n.init = 5e2, decreasing=T, maxiter = 1e4,testiter = 500)
+lca210 <- glca(f_adj, data = mydata_preds3, nclass = 10, seed = seed, verbose = FALSE, n.init = 5e2, decreasing=T, maxiter = 1e4,testiter = 500)
+
+new_med<-(Sys.time())
+paste0("The model took ",round(new_med-old,2)," until every LCA was computed")
+```
+
+Luego calculamos la razón de verosimilitud mediante remuestreo bootstrap (BLRT) entre los distintos modelos con el que asume una clase menos.
+
+```{r,blrt, echo=FALSE}
+gof2<-
+gofglca(lca22, lca23, lca24, lca25, lca26, lca27, lca28, lca29, lca210, test = "chisq")
+
+bootlrt2<-
+gofglca(lca22, lca23, lca24, lca25, lca26, lca27, lca28, lca29, lca210, test = "boot", nboot=n_bootstrap, seed=2125)
+                     
+```
+
+## Resultados
+
+Hicimos un gráfico de los resultados
+
+```{r, echo=FALSE}
+
+
+manualcolors <- c('indianred1', 'cornflowerblue', 'gray50', 'darkolivegreen4', 'slateblue2', 
+                  'firebrick4', 'goldenrod4')
+levels4 <- c("logLik", "Gsq", "AIC", "CAIC", "BIC", "entropy", "Res.Df")
+labels4 <- c('Log-Verosimilitud', 'Chi2', 'Criterio de Información\nde Akaike(AIC)', 'AIC Corregido', 'Criterio de Información\nBayesiano (BIC)', 'Entropía', 'Grados de libertad residuales')
+fig_lca_fit4<- cbind.data.frame(rn=2:10,gof2$gtable) %>%
+  data.frame() %>% 
+  dplyr::mutate_if(is.character, as.numeric) %>%  # convert character columns to numeric
+  tidyr::pivot_longer(cols = -rn,names_to = "indices", values_to = "value", values_drop_na = F) %>%
+  dplyr::mutate(indices = factor(indices, levels = levels4, labels = labels4)) %>%
+  dplyr::filter(grepl("(AIC|BIC)",indices, ignore.case=T))%>%
+	dplyr::mutate(ModelIndex= factor(rn, levels=2:10)) %>% 
+  ggplot(aes(x = ModelIndex, y = value, group = indices, color = indices, linetype = indices)) +
+  geom_line(size = 1.5) +
+  scale_color_manual(values = manualcolors) +
+  #scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  labs(x = "Número de clases", y = "Valor", color = "Medida", linetype = "Medida") +
+  #facet_wrap(.~indices, scales = "free_y", nrow = 4, ncol = 1) +
+  theme_bw()
+
+fig_lca_fit4
+ggsave("_fig1_comparison_glca_sin_po_ano.png",fig_lca_fit4, dpi=600)
+#International Journal of Workplace Health Management  (Zhang et al., 2018).
+```
+
+Luego en una tabla
+
+::: controlly2
+```{r, echo=FALSE}
+cbind.data.frame(rn=2:10,gof2$gtable) %>%#
+  dplyr::select(rn, everything()) %>% 
+    dplyr::mutate_if(is.character, as.numeric) %>%  # convert character columns to numeric
+    knitr::kable(format="markdown", caption="Índices de ajuste modelos")
+best_model2<-
+as.numeric(cbind.data.frame(rn=2:10,gof2$gtable) %>% dplyr::summarise(which.min(BIC)+1))
+```
+:::
+
+Presentamos el modelo con mejor ajuste
+
+::: controlly
+```{r, echo=FALSE}
+summary(eval(parse(text = paste0("lca2",best_model2)))) #
+```
+:::
+
+```{r, echo=FALSE}
+save.image("data2_lca2_adj216_alt_sin_po_ano.RData")
+```
+
+```{r, echo=FALSE}
+require(tidyverse)
+sesion_info <- devtools::session_info()
+dplyr::select(
+  tibble::as_tibble(sesion_info$packages),
+  c(package, loadedversion, source)
+) %>% 
+  DT::datatable(filter = 'top', colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
+              caption = htmltools::tags$caption(
+        style = 'caption-side: top; text-align: left;',
+        '', htmltools::em('Packages')),
+      options=list(
+initComplete = htmlwidgets::JS(
+        "function(settings, json) {",
+        "$(this.api().tables().body()).css({
+            'font-family': 'Helvetica Neue',
+            'font-size': '50%', 
+            'code-inline-font-size': '15%', 
+            'white-space': 'nowrap',
+            'line-height': '0.75em',
+            'min-height': '0.5em'
+            });",#;
+        "}")))
+```
+

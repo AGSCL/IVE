@@ -25,6 +25,10 @@ editor: visual
 -   [Paso 2.10. Análisis de clases latentes, selección de clases, con resultado distal, sin pueblo originario](Paso210.html)
 -   [Paso 2.11. Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario](Paso211.html)
 -   [Paso 2.12. Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario, con resultado distal](Paso212.html)
+-   [Paso 2.13. Análisis de clases latentes, selección de clases, sin pueblo originario y año](Paso213.html)
+-   [Paso 2.14. Análisis de clases latentes, selección de clases, sin pueblo originario y año, con resultado distal](Paso214.html)
+-   [Paso 2.15. Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario y año](Paso215.html)
+-   [Paso 2.16. Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario y año, con resultado distal](Paso216.html)
 
 **Caracterización**
 
@@ -32,6 +36,7 @@ editor: visual
 -   [Paso 3.2. Análisis de clases latentes, modelos alternativos definitivos](Paso32.html)
 -   [Paso 3.3. Análisis de clases latentes, modelos definitivos, sin pueblo originario](Paso33.html)
 -   [Paso 3.4. Análisis de clases latentes, modelos alternativos definitivos, sin pueblo originario](Paso34.html)
+-   [Paso 3.5. Análisis de clases latentes, modelos alternativos definitivos, sin pueblo originario y año](Paso35.html)
 -   [Paso 2 (Stata). Análisis de clases latentes, selección de clases](lca_step1_corr_apr23.html)
 -   [Paso 3 (Stata). Análisis de clases latentes, modelo definitivo](lca_step2_corr_apr23.html)
 -   [Paso 2.2 (Stata). Análisis de clases latentes, selección de clases, con resultado distal](lca_step3_corr_apr23.html)

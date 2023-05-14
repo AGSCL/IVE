@@ -216,7 +216,7 @@ Cargamos los datos
 ```{r, echo=FALSE}
 rm(list = ls());gc()
 #cargar glca con y sin resultado distal
-load("data2_lca2_adj4_alt_sin_po_2023_05_12.RData")
+load("data2_lca2_adj4_alt_sin_po_2023_05_12 (3).RData")
 ```
 
 Cargamos los paquetes
@@ -281,22 +281,22 @@ do.call("bind_rows",best_model_glca$param$rho$ALL) %>%
   t() %>% 
   round(2) %>% 
   data.table::data.table(keep.rownames = T) %>% 
-  magrittr::set_colnames(c("variables", paste0("Class",1:7))) %>% 
+  magrittr::set_colnames(c("variables", paste0("Class",1:length(best_model_glca$param$gamma)))) %>% 
   tidyr::separate(variables, into=c("var", "prob"), sep=".Y =")
 
 lcmodel_glca <- reshape2::melt(rho_glca, level=2) %>% dplyr::rename("class"="variable")
 
-traductor_cats <- readxl::read_excel("tabla12.xlsx") %>% 
+traductor_cats <- readxl::read_excel("tabla12_corr.xlsx") %>% 
   dplyr::mutate(level=readr::parse_double(level)) %>% 
-  dplyr::mutate(level= dplyr::case_when(grepl("CAUSAL",charactersitic)~ level-1,T~level)) %>% 
-  dplyr::mutate(charactersitic=gsub(" \\(%\\)", "", charactersitic))
-
+  dplyr::mutate(level= dplyr::case_when(grepl("CAUSAL",Name)~ level-1,T~level)) %>% 
+  dplyr::mutate(level= dplyr::case_when(grepl("AÑO",Name)~ level-1,T~level)) %>% 
+  dplyr::mutate(charactersitic=gsub(" \\(%\\)", "", Name))
 
 
 lcmodel_glca<- lcmodel_glca %>% 
   dplyr::mutate(pr=as.numeric(gsub("[^0-9.]+", "", prob))) %>% 
-  dplyr::left_join(traductor_cats[,c("charactersitic", "level", "CATEGORIA")], by= c("var"="charactersitic", "pr"="level")) %>% 
-  dplyr::mutate(CATEGORIA= dplyr::case_when(var=="AÑO" & prob==" 1"~"Perdidos", T~CATEGORIA))
+  dplyr::left_join(traductor_cats[,c("charactersitic", "level", "CATEGORIA")], by= c("var"="charactersitic", "pr"="level"))  
+  #dplyr::mutate(CATEGORIA= dplyr::case_when(var=="AÑO" & prob==" 1"~"Perdidos", T~CATEGORIA))
 
 lcmodel_glca$text_label<-paste0("Categoria:",lcmodel_glca$CATEGORIA,"<br>%: ",scales::percent(lcmodel_glca$value))
 
@@ -339,7 +339,7 @@ do.call("bind_rows",best_model_glca_w_distal_outcome$param$rho$ALL) %>%
   t() %>% 
   round(2) %>% 
   data.table::data.table(keep.rownames = T) %>% 
-  magrittr::set_colnames(c("variables", paste0("Class",1:7))) %>% 
+  magrittr::set_colnames(c("variables", paste0("Class",1:dim(best_model_glca_w_distal_outcome$param$gamma[[1]])[[2]]))) %>% 
   tidyr::separate(variables, into=c("var", "prob"), sep=".Y =")
 
 lcmodel_glca_adj <- reshape2::melt(rho_glca_adj, level=2) %>% dplyr::rename("class"="variable")
@@ -381,7 +381,7 @@ plot(eval(parse(text = paste0("lca2",best_model2))), ask=F)
 
 ```{r adj-paso4-bvr, eval=F, echo=T, error=T, message=TRUE, warning=TRUE, paged.print=TRUE}
 glca_gam_dist_outcome<- best_model_glca_w_distal_outcome$param$gamma[[1]]
-glca_gam_dist_outcome<-colnames(paste0("Class",1:7))
+glca_gam_dist_outcome<-colnames(paste0("Class",1:length(best_model_glca_w_distal_outcome$param$gamma)))
 #conditional probabilities
 #Pr(B1=1|Class 3)
 posteriors_glca_adj <- data.frame(best_model_glca_w_distal_outcome$posterior, 

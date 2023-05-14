@@ -522,15 +522,7 @@ knitr::knit_hooks$set(
 #:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
 #:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:
 
-as.data.frame.TableOne <- function(x, ...) {capture.output(print(x,
-                          showAllLevels = TRUE, ...) -> x)
-  y <- as.data.frame(x)
-  y$charactersitic <- dplyr::na_if(rownames(x), "")
-  y <- y %>%
-  fill(charactersitic, .direction = "down") %>%
-  select(charactersitic, everything())
-  rownames(y) <- NULL
-  y}
+
 ```
 
 Definimos ciertas constantes
@@ -685,8 +677,7 @@ Modificamos la base de datos para incluir la variable resultado.
 preds2 <-c(setdiff(preds,""),"HITO2_DECISION_MUJER_IVE")  
 
 mydata_preds2 <- data2%>% 
-    dplyr::mutate(EDAD_MUJER_REC= factor(dplyr::case_when(EDAD_MUJER<18~"1.<18", EDAD_MUJER<17 & EDAD_MUJER<25~"2.18-24", EDAD_MUJER<24 & EDAD_MUJER<=35~"3.25-35",EDAD_MUJER>35~"4.>35")), HITO1_EDAD_GESTACIONAL_SEMANAS= factor(dplyr::case_when(HITO1_EDAD_GESTACIONAL_SEMANAS>=4 & HITO1_EDAD_GESTACIONAL_SEMANAS<14~"1.4-13 semanas", HITO1_EDAD_GESTACIONAL_SEMANAS>=14 & HITO1_EDAD_GESTACIONAL_SEMANAS<28~"2.14-27 semanas", HITO1_EDAD_GESTACIONAL_SEMANAS>=28~ "3.>28 semanas")))%>% 
-dplyr::mutate(across(preds, ~ as.numeric(factor(.))+1))%>% dplyr::mutate(across(preds, ~ dplyr::case_when(is.na(.)~ 1, T~ .)))  %>% dplyr::select(any_of(preds2)) %>% dplyr::mutate(outcome= factor(as.numeric(grepl('INTERRUMPIR', HITO2_DECISION_MUJER_IVE)))) 
+    dplyr::mutate(EDAD_MUJER_REC= factor(dplyr::case_when(EDAD_MUJER<18~"1.<18", EDAD_MUJER>=18 & EDAD_MUJER<25~"2.18-24", EDAD_MUJER>=25 & EDAD_MUJER<35~"3.25-35",EDAD_MUJER>=35~"4.>=35")), HITO1_EDAD_GEST_SEM_REC= factor(dplyr::case_when(HITO1_EDAD_GESTACIONAL_SEMANAS<14~"1.0-13 semanas", HITO1_EDAD_GESTACIONAL_SEMANAS>=14 & HITO1_EDAD_GESTACIONAL_SEMANAS<28~"2.14-27 semanas", HITO1_EDAD_GESTACIONAL_SEMANAS>=28~ "3.>=28 semanas")))%>% dplyr::mutate(across(preds, ~ as.numeric(factor(.))+1))%>% dplyr::mutate(across(preds, ~ dplyr::case_when(is.na(.)~ 1, T~ .)))  %>% dplyr::select(any_of(preds2)) %>% dplyr::mutate(outcome= factor(as.numeric(grepl('INTERRUMPIR', HITO2_DECISION_MUJER_IVE)))) 
 
 #data.table::data.table(.)
 #
@@ -737,6 +728,17 @@ mydata_preds3 %>% rio::export("mydata_preds3_2023_05_07.dta")
 
 ::: controlly2
 ```{r}
+run_tableone <- function(df, listVars, catVars, strata) {
+  capture.output(x <- print(CreateTableOne(vars = listVars, data = df, factorVars = catVars, strata=strata,addOverall = T, includeNA =T),showAllLevels = TRUE))
+  x<-
+  as.data.frame(x) %>%
+    add_rownames("Name")
+  x$Name <- stringr::str_replace(x$Name, "^X$", NA_character_)
+  x$Name <- stringr::str_replace(x$Name, "^X\\.", NA_character_)
+  x$Name <- stringr::str_replace_all(x$Name, "\\.{3,}", "")
+  x <- x %>% tidyr::fill(Name, .direction = "down") 
+}
+
 #| class-output: controlly
 tab2<-
     CreateTableOne(vars =c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC","HITO2_DECISION_MUJER_IVE"),
@@ -745,8 +747,9 @@ tab2<-
                  factorVars=c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC"),
                  strata= "HITO2_DECISION_MUJER_IVE",addOverall = T, includeNA =T)
 
-as.data.frame.TableOne(tab2) %>% knitr::kable("markdown", caption="Descriptivos (acotado)")
-#as.data.frame.TableOne(tab2)%>% rio::export("tabla12.xlsx")
+
+run_tableone(listVars =c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC","HITO2_DECISION_MUJER_IVE"), df= mydata_preds3, catVars= c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC"),strata= "HITO2_DECISION_MUJER_IVE") %>%  knitr::kable("markdown", caption="Descriptivos (acotado)")
+run_tableone(listVars =c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC","HITO2_DECISION_MUJER_IVE"), df= mydata_preds3, catVars= c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC"),strata= "HITO2_DECISION_MUJER_IVE") %>% rio::export("tabla12_update.xlsx")
 ```
 :::
 

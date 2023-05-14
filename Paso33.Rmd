@@ -304,10 +304,11 @@ warning(paste("Probabildiades predichas: ",
   paste(round(prop.table(table(LCA_best_model_mod$predclass)),4)*100, collapse=", ")
   ))
 
-traductor_cats <- readxl::read_excel("tabla12.xlsx") %>% 
+traductor_cats <- readxl::read_excel("tabla12_corr.xlsx") %>% 
   dplyr::mutate(level=readr::parse_double(level)) %>% 
-  dplyr::mutate(charactersitic=gsub(" \\(%\\)", "", charactersitic))
-
+  dplyr::mutate(level= dplyr::case_when(grepl("CAUSAL",Name)~ level-1,T~level)) %>% 
+  dplyr::mutate(level= dplyr::case_when(grepl("AÑO",Name)~ level-1,T~level)) %>% 
+  dplyr::mutate(charactersitic=gsub(" \\(%\\)", "", Name))
 
 
 lcmodel <- reshape2::melt(LCA_best_model_mod$probs, level=2)

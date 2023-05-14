@@ -1,7 +1,7 @@
 ---
-title: "Paso 2.10"
+title: "Paso 2.14"
 description: |
-  Análisis de clases latentes exploratoria y comparativa con predictores, sin pueblo originario, pero con año y recategorización de edad mujer y semana gestacional hito 1
+  Análisis de clases latentes exploratoria y comparativa con predictores, sin pueblo originario, sin año y recategorización de edad mujer y semana gestacional hito 1
 date: "`r withr::with_locale(new = c('LC_TIME' = 'C'), code =format(Sys.time(),'%B %d, %Y'))`"
 author: "Andrés González Santa Cruz"
 output:
@@ -216,7 +216,7 @@ Cargamos los datos
 ```{r, echo=FALSE}
 rm(list = ls());gc()
 print(Sys.time())
-load("data2_lca2_sin_po_2023_05_08.RData")
+load("data2_lca2_sin_po_2023_05_12.RData")
 ```
 
 Cargamos los paquetes
@@ -296,7 +296,6 @@ digraph flowchart {
 
   # Nodes
   subgraph samelevel {
-    ANIO [label = 'Año',fontsize=10,shape = box]
     CAUSAL [label = 'Causal',fontsize=10,shape = box]
     MUJER_REC [label = 'Sexo\n(mujer)',fontsize=10,shape = box]
     EDAD_MUJER_REC [label = 'Edad\nmujer',fontsize=10,shape = box]
@@ -305,7 +304,7 @@ digraph flowchart {
     PAIS_ORIGEN_REC [label = 'País de\norigen',fontsize=10,shape = box]
     PREV_TRAMO_REC [label = 'Previsión y\ntramo',fontsize=10,shape = box]
     
-  {rank=same; rankdir= 'TB'; CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC ANIO}
+  {rank=same; rankdir= 'TB'; CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC }
   }
   LCA [label= 'Clases\nlatentes', shape= circle, style=filled, color=lightgrey, fontsize=10]
   
@@ -313,7 +312,7 @@ digraph flowchart {
 
   # Nodes
   subgraph {
-   LCA ->  {CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC ANIO} [rank=same; rankdir= 'TB'] 
+   LCA ->  {CAUSAL MUJER_REC EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC } [rank=same; rankdir= 'TB'] 
 }
   subgraph {
    LCA -> inter [minlen=14] #minlen es necesario para correr arrowhead = none; 
@@ -329,13 +328,12 @@ WidthCM = 21
 HeightCM = 8
 
 gr_lca2 %>%
-  export_svg %>% charToRaw %>% rsvg_pdf("_flowchart_lca_adj_sin_po.pdf")
+  export_svg %>% charToRaw %>% rsvg_pdf("_flowchart_lca_adj_sin_po_ano.pdf")
 
 gr_lca2 %>% export_svg()%>%charToRaw %>% rsvg(width = WidthCM *(DPI/2.54), height = HeightCM *(DPI/2.54)) %>% png::writePNG("_flowchart_lca0_adj_sin_po.png")
 
-htmlwidgets::saveWidget(gr_lca2, "_flowchart_lca_adj_sin_po.html")
-webshot::webshot("_flowchart_lca_adj.html", "_flowchart_lca_adj_sin_po.png",vwidth = 1200, vheight = 900,
-        zoom = 2)
+htmlwidgets::saveWidget(gr_lca2, "_flowchart_lca_adj_sin_po_ano.html")
+webshot::webshot("_flowchart_lca_adj_ano.html", "_flowchart_lca_adj_sin_po_ano.png",vwidth = 1200, vheight = 900, zoom = 2)
 ```
 
 
@@ -362,7 +360,7 @@ webshot::webshot("_flowchart_lca_adj.html", "_flowchart_lca_adj_sin_po.png",vwid
 #2023-01-20
 #https://github.com/QMUL/poLCAParallel/blob/master/exec/3_blrt.R
 #0h s
-f_adj<-cbind(AÑO, CAUSAL, EDAD_MUJER_REC, PAIS_ORIGEN_REC, HITO1_EDAD_GEST_SEM_REC, MACROZONA, PREV_TRAMO_REC)~ outcome
+f_adj<-cbind(CAUSAL, EDAD_MUJER_REC, PAIS_ORIGEN_REC, HITO1_EDAD_GEST_SEM_REC, MACROZONA, PREV_TRAMO_REC)~ outcome
 
 seed<-2125
 old <- Sys.time()
@@ -584,7 +582,7 @@ fig_lca_fit2<- tab_ppio2 %>%
   theme_bw()
 
 fig_lca_fit2
-ggsave("_fig2_comparison_adj_sin_po.png",fig_lca_fit2, dpi=600)
+ggsave("_fig2_comparison_adj_sin_po_ano.png",fig_lca_fit2, dpi=600)
 
 ```
 
@@ -610,7 +608,7 @@ print(LCA_best_model_adj_ppio) #
 
 ```{r, echo=FALSE}
 print(Sys.time())
-save.image("data2_lca2_adj_sin_po.RData")
+save.image("data2_lca2_adj_sin_po_ano.RData")
 ```
 
 ```{r, echo=FALSE}
