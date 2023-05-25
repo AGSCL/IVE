@@ -489,7 +489,7 @@ bvr_LCA_best_model_adj_mod<-bvr(LCA_best_model_adj_mod)
 posteriors_adj <- data.frame(LCA_best_model_adj_mod$posterior, 
                              predclass=LCA_best_model_adj_mod$predclass) 
 
-classification_table_adj <- plyr::ddply(posteriors, "predclass", function(x) colSums(x[,1:length(LCA_best_model_adj_mod$P)]))
+classification_table_adj <- plyr::ddply(posteriors_adj, "predclass", function(x) colSums(x[,1:length(LCA_best_model_adj_mod$P)]))
 clasification_errors_adj<- 1 - sum(diag(as.matrix(classification_table_adj[,2:(length(LCA_best_model_adj_mod$P)+1)]))) / sum(classification_table_adj[,2:(length(LCA_best_model_adj_mod$P)+1)]) 
 
 warning(paste("Error de clasificación: ", round(clasification_errors_adj,2)))

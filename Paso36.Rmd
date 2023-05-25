@@ -323,6 +323,7 @@ lcmodel_glca %>% rio::export("variables_probabilities_in_category_glca_sin_po_an
 
 <br>
 
+
 ### Con resultado distal
 
 ::: controlly2
@@ -430,6 +431,164 @@ coef(eval(parse(text = paste0("lca2",best_model2))))
 
 ```{r, echo=FALSE}
 save.image("data2_lca3_glca_sin_po_ano.RData")
+```
+
+# Comparar modelos
+
+```{r posterior, eval=T}
+#Posterior mean class
+round(apply(best_model_glca$posterior$ALL, 2,mean)*100,2)
+
+#Classifying by posterior probs.
+posterior_glca_07<-
+best_model_glca$posterior$ALL %>% 
+    dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
+  dplyr::mutate(final_07=dplyr::case_when(`Class 1`==1~1,`Class 2`==1~2, `Class 3`==1~3,`Class 4`==1~4, `Class 5`==1~5))
+posterior_glca_07 %>% 
+    rowwise() %>%
+  mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_07,count_ones)
+
+posterior_glca_05<-
+best_model_glca$posterior$ALL %>% 
+    dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
+  dplyr::mutate(final_05=dplyr::case_when(`Class 1`==1~1,`Class 2`==1~2, `Class 3`==1~3,`Class 4`==1~4, `Class 5`==1~5))
+posterior_glca_05 %>% 
+  rowwise() %>%
+  mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_05, count_ones)
+
+#comparar clasificaciones
+
+load("data2_lca3_sin_po_ano_2023_05_14.RData")
+
+posterior_polca_05<-
+LCA_best_model_mod$posterior %>% 
+  data.frame() %>% 
+  dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
+  dplyr::mutate(final_05=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))
+
+table(posterior_polca_05$final_05,LCA_best_model_mod$predclass)
+warning(paste0("Sujetos fuera de la clasificación >0.5: ",round(1-sum(diag(table(posterior_polca_05$final_05,LCA_best_model_mod$predclass, exclude=NULL)))/length(LCA_best_model_adj_mod$predclass),3)))
+
+posterior_polca_07<-
+LCA_best_model_mod$posterior %>% 
+  data.frame() %>% 
+  dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
+  dplyr::mutate(final_07=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))
+
+table(posterior_polca_07$final_07,LCA_best_model_mod$predclass, exclude=NULL)
+
+warning(paste0("Sujetos fuera de la clasificación >0.7: ",round(1-sum(diag(table(posterior_polca_07$final_07,LCA_best_model_mod$predclass, exclude=NULL)))/length(LCA_best_model_mod$predclass),2)))
+
+LCA_best_model_mod$posterior %>% 
+  data.frame() %>% 
+  dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
+  dplyr::mutate(final_07=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))%>% 
+  rowwise() %>%
+  mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_07, count_ones)
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+invisible("Cuán diferentes son unos modelos de otros??")
+table(posterior_glca_07$final_07,posterior_polca_07$final_07, exclude=NULL)
+
+table(posterior_glca_07$final_07,car::recode(posterior_polca_07$final_07,"3=1;4=2;2=3;1=4;NA=NA"),exclude=NULL)
+
+sum(diag(table(posterior_glca_07$final_07,car::recode(posterior_polca_07$final_07,"3=1;4=2;2=3;1=4;NA=NA"))))/sum(table(posterior_glca_07$final_07,car::recode(posterior_polca_07$final_07,"3=1;4=2;2=3;1=4;NA=NA"),exclude=NULL))
+
+sum(diag(table(posterior_glca_07$final_07,car::recode(posterior_polca_07$final_07,"3=1;4=2;2=3;1=4;NA=NA"))))/sum(table(posterior_glca_07$final_07,posterior_polca_07$final_07, exclude=NULL))
+paste0("Perdidos en ambos: ", data.frame(table(posterior_glca_07$final_07,posterior_polca_07$final_07, exclude=NULL))[36,3])
+
+table(posterior_glca_05$final_05,posterior_polca_05$final_05, exclude=NULL)
+
+sum(diag(table(posterior_glca_05$final_05,car::recode(posterior_polca_05$final_05,"3=1;4=2;2=3;1=4;NA=NA"))))/sum(table(posterior_glca_05$final_05,posterior_polca_05$final_05, exclude=NULL))
+paste0("Perdidos en ambos: ", data.frame(table(posterior_glca_05$final_05,posterior_polca_05$final_05, exclude=NULL))[36,3])
+#best_model_glca_w_distal_outcome
+#LCA_best_model_adj_mod
+```
+
+```{r posterior-adj, eval=T}
+#Posterior mean class
+round(apply(best_model_glca$posterior$ALL, 2,mean)*100,2)
+
+#Classifying by posterior probs.
+posterior_glca_07adj<-
+best_model_glca_w_distal_outcome$posterior$ALL %>% 
+    dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
+  dplyr::mutate(final_07=dplyr::case_when(`Class 1`==1~1,`Class 2`==1~2, `Class 3`==1~3,`Class 4`==1~4, `Class 5`==1~5))
+posterior_glca_07adj %>% 
+    rowwise() %>%
+  mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_07,count_ones)
+
+posterior_glca_05adj<-
+best_model_glca_w_distal_outcome$posterior$ALL %>% 
+    dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
+  dplyr::mutate(final_05=dplyr::case_when(`Class 1`==1~1,`Class 2`==1~2, `Class 3`==1~3,`Class 4`==1~4, `Class 5`==1~5))
+posterior_glca_05 %>% 
+  rowwise() %>%
+  mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_05, count_ones)
+
+#comparar clasificaciones
+
+posterior_polca_05adj<-
+LCA_best_model_adj_mod$posterior %>% 
+  data.frame() %>% 
+  dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
+  dplyr::mutate(final_05=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))
+
+table(posterior_polca_05adj$final_05,LCA_best_model_adj_mod$predclass)
+warning(paste0("Sujetos fuera de la clasificación >0.5: ",round(1-sum(diag(table(posterior_polca_05adj$final_05,LCA_best_model_adj_mod$predclass, exclude=NULL)))/length(LCA_best_model_adj_mod$predclass),3)))
+
+posterior_polca_07adj<-
+LCA_best_model_adj_mod$posterior %>% 
+  data.frame() %>% 
+  dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
+  dplyr::mutate(final_07=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))
+
+table(posterior_polca_07adj$final_07,LCA_best_model_adj_mod$predclass, exclude=NULL)
+
+warning(paste0("Sujetos fuera de la clasificación >0.7: ",round(1-sum(diag(table(posterior_polca_07adj$final_07,LCA_best_model_adj_mod$predclass)))/length(LCA_best_model_adj_mod$predclass),2)))
+
+LCA_best_model_adj_mod$posterior %>% 
+  data.frame() %>% 
+  dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
+  dplyr::mutate(final_07=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))%>% 
+  rowwise() %>%
+  mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_07, count_ones)
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+invisible("Cuán diferentes son unos modelos de otros??")
+table(posterior_glca_07adj$final_07,posterior_polca_07adj$final_07, exclude=NULL)
+
+table(posterior_glca_07adj$final_07,car::recode(posterior_polca_07adj$final_07,"1=5;2=1;3=2;4=4;5=3;NA=NA"),exclude=NULL)
+
+sum(diag(table(posterior_glca_07adj$final_07,car::recode(posterior_polca_07adj$final_07,"1=5;2=1;3=2;4=4;5=3;NA=NA"))))/sum(table(posterior_glca_07adj$final_07,car::recode(posterior_polca_07adj$final_07,"1=5;2=1;3=2;4=4;5=3;NA=NA"),exclude=NULL))
+paste0("Perdidos en ambos: ", data.frame(table(posterior_glca_07adj$final_07,posterior_polca_07adj$final_07, exclude=NULL))[36,3])
+
+sum(diag(table(posterior_glca_07adj$final_07,car::recode(posterior_polca_07adj$final_07,"1=5;2=1;3=2;4=4;5=3;NA=NA"))))/sum(table(posterior_glca_07adj$final_07,posterior_polca_07adj$final_07, exclude=NULL))
+
+table(posterior_glca_05adj$final_05,posterior_polca_05adj$final_05, exclude=NULL)
+
+sum(diag(table(posterior_glca_05adj$final_05,car::recode(posterior_polca_05adj$final_05,"1=5;2=1;3=2;4=4;5=3;NA=NA"))))/sum(table(posterior_glca_05adj$final_05,posterior_polca_05adj$final_05, exclude=NULL))
+
+paste0("Perdidos en ambos: ", data.frame(table(posterior_glca_05adj$final_05,posterior_polca_05adj$final_05, exclude=NULL))[36,3])
+
+invisible("ojo que no calzan porque son perdidos")
+
+#best_model_glca_w_distal_outcome
+#LCA_best_model_adj_mod
 ```
 
 ```{r, echo=FALSE}
