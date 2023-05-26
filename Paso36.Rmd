@@ -450,6 +450,18 @@ posterior_glca_07 %>%
   ungroup() %>% 
   janitor::tabyl(final_07,count_ones)
 
+paste(
+posterior_glca_07 %>% 
+  rowwise() %>%
+  dplyr::mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_07, count_ones) %>%
+  dplyr::mutate(percentage = round(`1` / sum(`1`) * 100,1)) %>% 
+  dplyr::mutate(format=paste0(`1`," (",percentage,"%)")) %>% 
+  dplyr::mutate(perc = round(`0` / (sum(`1`)+ sum(`0`)) * 100,4)) %>% 
+  dplyr::select(format) %>%  unlist(),
+collapse=", ") 
+
 posterior_glca_05<-
 best_model_glca$posterior$ALL %>% 
     dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
@@ -460,6 +472,18 @@ posterior_glca_05 %>%
   ungroup() %>% 
   janitor::tabyl(final_05, count_ones)
 
+paste(
+posterior_glca_05 %>% 
+  rowwise() %>%
+  dplyr::mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_05, count_ones) %>%
+  dplyr::mutate(percentage = round(`1` / sum(`1`) * 100,1)) %>% 
+  dplyr::mutate(perc = round(`0` / (sum(`1`)+ sum(`0`)) * 100,4)) %>% 
+  dplyr::mutate(format=paste0(`1`," (",percentage,"%)")) %>% 
+  dplyr::select(format) %>%  unlist(),
+collapse=", ") 
+
 #comparar clasificaciones
 
 load("data2_lca3_sin_po_ano_2023_05_14.RData")
@@ -469,6 +493,15 @@ LCA_best_model_mod$posterior %>%
   data.frame() %>% 
   dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
   dplyr::mutate(final_05=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))
+
+paste(
+    posterior_polca_05 %>% 
+        janitor::tabyl(final_05) %>% 
+        dplyr::mutate_at(c("percent", "valid_percent"),~round(.,3)*100) %>% 
+        dplyr::mutate(format=paste0(`n`," (",valid_percent,"%)")) %>% 
+        dplyr::select(format)%>%  unlist(),
+    collapse=", ") 
+
 
 table(posterior_polca_05$final_05,LCA_best_model_mod$predclass)
 warning(paste0("Sujetos fuera de la clasificación >0.5: ",round(1-sum(diag(table(posterior_polca_05$final_05,LCA_best_model_mod$predclass, exclude=NULL)))/length(LCA_best_model_adj_mod$predclass),3)))
@@ -488,7 +521,7 @@ LCA_best_model_mod$posterior %>%
   dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
   dplyr::mutate(final_07=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))%>% 
   rowwise() %>%
-  mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  mutate(count_ones = sum(c_across(starts_with("X")) == 1)) %>%
   ungroup() %>% 
   janitor::tabyl(final_07, count_ones)
 
@@ -507,6 +540,7 @@ paste0("Perdidos en ambos: ", data.frame(table(posterior_glca_07$final_07,poster
 table(posterior_glca_05$final_05,posterior_polca_05$final_05, exclude=NULL)
 
 sum(diag(table(posterior_glca_05$final_05,car::recode(posterior_polca_05$final_05,"3=1;4=2;2=3;1=4;NA=NA"))))/sum(table(posterior_glca_05$final_05,posterior_polca_05$final_05, exclude=NULL))
+
 paste0("Perdidos en ambos: ", data.frame(table(posterior_glca_05$final_05,posterior_polca_05$final_05, exclude=NULL))[36,3])
 #best_model_glca_w_distal_outcome
 #LCA_best_model_adj_mod
@@ -527,16 +561,41 @@ posterior_glca_07adj %>%
   ungroup() %>% 
   janitor::tabyl(final_07,count_ones)
 
+paste(
+posterior_glca_07adj %>% 
+  rowwise() %>%
+  dplyr::mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_07, count_ones) %>%
+  dplyr::mutate(percentage = round(`1` / sum(`1`) * 100,1)) %>% 
+  #dplyr::mutate(perc = round(`0` / (sum(`1`)+ sum(`0`)) * 100,4)) %>% 
+  dplyr::mutate(format=paste0(`1`," (",percentage,"%)")) %>% 
+  dplyr::select(format) %>%  unlist(),
+collapse=", ") 
+
 posterior_glca_05adj<-
 best_model_glca_w_distal_outcome$posterior$ALL %>% 
     dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
   dplyr::mutate(final_05=dplyr::case_when(`Class 1`==1~1,`Class 2`==1~2, `Class 3`==1~3,`Class 4`==1~4, `Class 5`==1~5))
-posterior_glca_05 %>% 
+posterior_glca_05adj %>% 
   rowwise() %>%
   mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
   ungroup() %>% 
   janitor::tabyl(final_05, count_ones)
 
+paste(
+posterior_glca_05adj %>% 
+  rowwise() %>%
+  dplyr::mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_05, count_ones) %>%
+  dplyr::mutate(percentage = round(`1` / sum(`1`) * 100,1)) %>% 
+  #dplyr::mutate(perc = round(`0` / (sum(`1`)+ sum(`0`)) * 100,4)) %>% 
+  dplyr::mutate(format=paste0(`1`," (",percentage,"%)")) %>% 
+  dplyr::select(format) %>%  unlist(),
+collapse=", ") 
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
 #comparar clasificaciones
 
 posterior_polca_05adj<-
@@ -544,6 +603,14 @@ LCA_best_model_adj_mod$posterior %>%
   data.frame() %>% 
   dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
   dplyr::mutate(final_05=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))
+
+paste(
+    posterior_polca_05adj %>% 
+        janitor::tabyl(final_05) %>% 
+        dplyr::mutate_at(c("percent"),~round(.,3)*100) %>% 
+        dplyr::mutate(format=paste0(`n`," (",percent,"%)")) %>% 
+        dplyr::select(format)%>%  unlist(),
+    collapse=", ") 
 
 table(posterior_polca_05adj$final_05,LCA_best_model_adj_mod$predclass)
 warning(paste0("Sujetos fuera de la clasificación >0.5: ",round(1-sum(diag(table(posterior_polca_05adj$final_05,LCA_best_model_adj_mod$predclass, exclude=NULL)))/length(LCA_best_model_adj_mod$predclass),3)))
@@ -558,12 +625,20 @@ table(posterior_polca_07adj$final_07,LCA_best_model_adj_mod$predclass, exclude=N
 
 warning(paste0("Sujetos fuera de la clasificación >0.7: ",round(1-sum(diag(table(posterior_polca_07adj$final_07,LCA_best_model_adj_mod$predclass)))/length(LCA_best_model_adj_mod$predclass),2)))
 
+paste(
+posterior_polca_07adj %>% 
+    janitor::tabyl(final_07) %>% 
+    dplyr::mutate_at(c("percent","valid_percent"),~round(.,3)*100) %>% 
+    dplyr::mutate(format=paste0(`n`," (",valid_percent,"%)")) %>% 
+    dplyr::select(format)%>%  unlist(),
+collapse=", ") 
+
 LCA_best_model_adj_mod$posterior %>% 
   data.frame() %>% 
   dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
   dplyr::mutate(final_07=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))%>% 
   rowwise() %>%
-  mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  mutate(count_ones = sum(c_across(starts_with("X")) == 1)) %>%
   ungroup() %>% 
   janitor::tabyl(final_07, count_ones)
 
@@ -590,6 +665,33 @@ invisible("ojo que no calzan porque son perdidos")
 #best_model_glca_w_distal_outcome
 #LCA_best_model_adj_mod
 ```
+
+```{r}
+bd_reg<-
+bind_rows(
+broom::tidy(glm(outcome~factor(final_07), data=cbind.data.frame(mydata_preds3,final_07=posterior_polca_07adj$final_07,final_05=posterior_polca_05adj$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))),
+            exponentiate=T, conf.int = T
+),
+broom::tidy(glm(outcome~factor(final_05), data=cbind.data.frame(mydata_preds3,final_07=posterior_polca_07adj$final_07,final_05=posterior_polca_05adj$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))),
+            exponentiate=T, conf.int = T
+),
+broom::tidy(glm(outcome~factor(final_07), data=cbind.data.frame(mydata_preds3,final_07=posterior_polca_07$final_07,final_05=posterior_polca_05$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))),
+            exponentiate=T, conf.int = T
+),
+broom::tidy(glm(outcome~factor(final_05), data=cbind.data.frame(mydata_preds3,final_07=posterior_polca_07$final_07,final_05=posterior_polca_05$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))),
+            exponentiate=T, conf.int = T
+)
+) %>% 
+  dplyr::select(-std.error, -statistic) %>% 
+  dplyr::mutate_at(c("estimate","conf.low","conf.high"),~round(.,2)) %>%
+  dplyr::mutate_at(c("p.value"),~round(.,4)) %>% 
+  add_column(reg=c(rep(">.7 probs adj",5),rep(">.5 probs adj",5),rep(">.7 probs",5),rep(">.5 probs",5))) %>% 
+  dplyr::select(reg, everything())
+#cbind.data.frame(mydata_preds3,final_07=posterior_polca_07adj$final_07,final_05=posterior_polca_05adj$final_05) %>% janitor::tabyl(outcome,final_07)
+bd_reg %>% 
+  knitr::kable("markdown",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)")
+```
+
 
 ```{r, echo=FALSE}
 require(tidyverse)
