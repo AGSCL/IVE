@@ -215,7 +215,7 @@ x.style.display = "none";
 }
 </script>
 ```
-## Cargar paquetes
+# Cargar paquetes
 
 Cargar bases de datos
 
@@ -261,9 +261,9 @@ cbind.fill <- function(...){
 }
 ```
 
-# 
+# Análisis de clases latentes, modelos definitivos, sin pueblo originario y año
 
-```{r,corregir-fig-ajuste-1, echo=FALSE}
+```{r,corregir-fig-ajuste-1, fig.cap= "Índices de ajuste, modelo sin covariable", echo=FALSE}
 rm(list = ls());gc()
 load("data2_lca3_sin_po_ano_2023_05_14.RData") #Paso 213 y 214
 #variables_probabilities_in_category_sin_po_ano.xlsx
@@ -292,7 +292,29 @@ fig_lca_fit
 ggsave("__fig2_medidas_de_ajuste_polca_sin_ano_pueb_orig.pdf",fig_lca_fit)
 ```
 
+```{r,corregir-fig-ajuste-2, fig.cap= "Índices de ajuste, modelo variable distal", echo=FALSE}
+manualcolors2<- c(paste0("gray",seq(20,80, by=20)))
+fig_lca_fit2<- tab_ppio2 %>%
+  dplyr::mutate_if(is.character, as.numeric) %>%  # convert character columns to numeric
+  tidyr::pivot_longer(cols = -ModelIndex, #"evryone but index"
+                       names_to = "indices", values_to = "value", values_drop_na = F) %>%
+  dplyr::mutate(indices = factor(indices, levels = levels2, labels = labels2)) %>%
+  dplyr::filter(grepl("BIC",indices, ignore.case=T))%>%
+  dplyr::mutate(ModelIndex= factor(ModelIndex, levels=2:n_class_max)) %>% 
+  ggplot(aes(x = ModelIndex, y = value, group = indices, color = indices, linetype = indices)) +
+  geom_line(size = 1.5) +
+  scale_color_manual(values = manualcolors2) +
+  #scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  labs(x = "Número de clases", y="Valor", color="Medida",linetype="Medida")+
+  #facet_wrap(.~indices, scales = "free_y", nrow = 4, ncol = 1) +
+  sjPlot::theme_sjplot()
 
+fig_lca_fit2
+
+ggsave("__fig3_medidas_de_ajuste_polca_sin_ano_pueb_orig_adj.pdf",fig_lca_fit2)
+```
+
+::: controlly
 ```{r,corregir-tabla-descriptiva, echo=FALSE}
 
 table_homolog<-
@@ -330,7 +352,7 @@ no_mostrar=1
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
-if(no_mostrar==0){
+#if(no_mostrar==0){
   #    dplyr::select(HITO2_DECISION_MUJER_IVE, c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC")) %>% 
   chisquare_test<-
   mydata_preds3%>% 
@@ -403,13 +425,82 @@ medicion=paste0(
                    kruskal= kruskal,
                    iqr= med_iqr), "tableone_extension.xlsx")
    
-}
+#}
+```
+:::
+
+
+## Figuras
+
+```{r, clasificaciones-no-ajustado, fig.cap= "Distribución de categorías del modelo", echo=FALSE}
+#https://agscl.github.io/IVE/Paso35.html
+require(plotly)
+# ggplotly(zp1, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+zp1
 ```
 
 
-```{r, echo=FALSE}
-#save.image("data2_lca4.RData")
+```{r, clasificaciones-res-distal,  fig.cap= "Distribución de categorías del modelo ajustado", echo=FALSE}
+# ggplotly(zp2, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+zp2
 ```
+
+
+## Regresión logística
+
+```{r, reg-log, echo=FALSE}
+
+df_model_LCA2 %>% select(starts_with("prob_c")) %>% 
+  t() %>% data.table::data.table(keep.rownames=T) %>% 
+  dplyr::mutate(rn=gsub("prob_c","",rn)) %>% 
+  knitr::kable("markdown", caption="Probabilidad de pertenecer a una clase, según interrupción del embarazo", col.names = c("Clase","No interrumpe", "Interrumpe"))
+```
+
+
+# Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario y año Búsqueda de clases, Análisis secundario
+
+## Medidas de ajuste poLCA y glca, combinados
+
+::: controlly
+```{r,corregir-fig-ajuste-3, echo=FALSE}
+#rm(list = ls());gc()
+load("data2_lca3_glca_sin_po_ano.RData")
+
+tab_ppio %>%#
+  dplyr::select(ModelIndex, everything()) %>% 
+    dplyr::mutate_if(is.character, as.numeric) %>% 
+  cbind.data.frame(dplyr::select(data.frame(bootlrt$gtable), BIC, entropy, Gsq, Boot.p.value)) %>% 
+  # convert character columns to numeric
+    knitr::kable(format="markdown", caption="Medidas de ajuste")#%>%    rio::export("table_fit.xlsx")
+```
+:::
+
+::: controlly
+```{r,corregir-fig-ajuste-4, echo=FALSE}
+tab_ppio2 %>%#
+  dplyr::select(ModelIndex, everything()) %>% 
+    dplyr::mutate_if(is.character, as.numeric) %>% 
+  cbind.data.frame(dplyr::select(data.frame(bootlrt2$gtable), BIC, entropy, Gsq, Boot.p.value)) %>% 
+  # convert character columns to numeric
+    knitr::kable(format="markdown", caption="Medidas de ajuste (ajustado)")
+```
+:::
+
+## Figuras
+
+```{r, clasificaciones-no-ajustado-alt, fig.cap= "Distribución de categorías del modelo (alternativo)", echo=FALSE}
+##https://agscl.github.io/IVE/Paso36.html
+require(plotly)
+# ggplotly(zp3, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+zp3
+```
+
+
+```{r, clasificaciones-res-distal-alt,  fig.cap= "Distribución de categorías del modelo ajustado (alternativo)", echo=FALSE}
+# ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+zp4
+```
+
 
 ```{r, echo=FALSE}
 require(tidyverse)
@@ -435,6 +526,3 @@ initComplete = htmlwidgets::JS(
             });",#;
         "}")))
 ```
-
-
-
