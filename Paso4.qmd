@@ -1,0 +1,440 @@
+---
+title: "Paso 1"
+description: |
+  Explicación 
+date: "`r withr::with_locale(new = c('LC_TIME' = 'C'), code =format(Sys.time(),'%B %d, %Y'))`"
+author: "Andrés González Santa Cruz"
+format: 
+  html:
+    code-fold: true
+editor: visual
+---
+
+```{css}
+#| echo: false
+
+script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"
+
+```
+
+```{js zoom-jquery, echo = FALSE}
+$(document).ready(function() {
+
+$('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
+
+// onClick function for all plots (img's)
+
+$('img:not(.zoomImg)').click(function() {
+$('.zoomImg').attr('src', $(this).attr('src')).css({width: '100%'});
+$('.zoomDiv').css({opacity: '1', width: 'auto', border: '1px solid white', borderRadius: '5px', position: 'fixed', top: '50%', left: '50%', marginRight: '-50%', transform: 'translate(-50%, -50%)', boxShadow: '0px 0px 50px #888888', zIndex: '50', overflow: 'auto', maxHeight: '100%'});
+});
+
+// onClick function for zoomImg
+
+$('img.zoomImg').click(function() {
+$('.zoomDiv').css({opacity: '0', width: '0%'});
+});
+});
+```
+
+```{css hideOutput-lib-src, echo = FALSE}
+<script src="hideOutput.js"></script>
+```
+
+```{js hideOutput, echo = FALSE}
+$(document).ready(function() {
+
+\$chunks = \$('.fold');
+
+\$chunks.each(function () { // add button to source code chunks
+if ( \$(this).hasClass('s') ) {
+    \$('pre.r', this).prepend("\<div class=\\"showopt\\"\>Show Source\</div\>\<br style=\\"line-height:22px;\\"/\>");
+    \$('pre.r', this).children('code').attr('class', 'folded');
+    } // add button to output chunks
+
+    if ( \$(this).hasClass('o') ) {
+        \$('pre:not(.r)', this).has('code').prepend("\<div class=\\"showopt\\"\>Show Output\</div\>\<br style=\\"line-height:22px;\\"/\>");
+        \$('pre:not(.r)', this).children('code:not(r)').addClass('folded'); // add button to plots
+        \$(this).find('img').wrap('\<pre class=\\"plot\\"\>\</pre\>');
+        \$('pre.plot', this).prepend("\<div class=\\"showopt\\"\>Show Plot\</div\>\<br style=\\"line-height:22px;\\"/\>");
+        \$('pre.plot', this).children('img').addClass('folded');
+        }
+}); // hide all chunks when document is loaded
+
+\$('.folded').css('display', 'none') // function to toggle the visibility
+\$('.showopt').click(function() {
+        var label = \$(this).html();
+        if (label.indexOf("Show") \>= 0) {
+            \$(this).html(label.replace("Show", "Hide"));
+        } else {
+        \$(this).html(label.replace("Hide", "Show"));
+        }
+
+\$(this).siblings('code, img').slideToggle('fast', 'swing');
+});
+});
+```
+
+```{=html}
+<style type="text/css">
+
+.showopt {
+
+background-color: #004c93; color: #FFFFFF; width: 100px; height: 20px; text-align: center; vertical-align: middle !important; float: right; font-family: sans-serif; border-radius: 8px;
+
+}
+
+.showopt:hover {
+background-color: #dfe4f2;
+color: #004c93;
+
+}
+
+pre.plot {
+background-color: white !important;
+}
+
+.tablelines table, .tablelines td, .tablelines th {
+border: 1px solid black;
+}
+
+.centrado {
+text-align: center;
+}
+
+.table.center {
+margin-left:auto;
+margin-right:auto;
+}
+
+/* https://vivekjaiskumar.medium.com/css-is-and-not-selector-17c942ec83f :is()*/
+
+/* Applies to outputs that are not code other than R*/
+
+pre {
+overflow-x: auto !important;
+}
+
+pre code {
+word-wrap: normal !important;
+white-space: pre !important;
+}
+
+/*
+pre:not(.sourceCode) {
+white-space: nowrap !important;
+}
+*/
+.sourceCode { /* Important gives precedence */
+font-size: 10px !important;
+line-height: 50% !important;
+}
+body{ /* Normal */
+text-align: justify;
+}
+.superbigimage{
+overflow-y:scroll;
+height:350px;
+white-space: nowrap;
+overflow-x: auto;
+width:100%;
+}
+.superbigimage img{
+overflow-y: scroll;
+overflow-x: hidden;
+}
+.message { color:#446C6E; font-family: monospace;font-size: 10px; line-height: 110%; font-weight: bold;}
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 5px; text-align: justify;}
+div.red { background-color:#e6bab1; border-radius: 5px; padding: 5px; text-align: justify;}
+.pandoc-table { /* Should add !important; but it seems no necessary */
+margin-left:auto; /* To center */
+margin-right:auto;
+border-collapse: collapse;
+table-layout: auto;
+font-size: 11px;
+overflow-y: auto;
+max-height:450px !important;
+white-space: nowrap;
+overflow-x: auto;
+width:450px;
+}
+.pandoc-table th {/* header */
+text-align: center !important;
+font-size: 10px;
+padding: 0px;
+}
+.pandoc-table td {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+}
+.pandoc-table caption {
+text-align: left !important;
+font-size: 11px !important;
+}
+
+.center-table {
+text-align: left !important;
+font-size: 9px;
+padding: 0px;
+overflow-y:scroll;
+height:400px;
+overflow-x: scroll;
+}
+
+.controlly{
+overflow-y:scroll;
+height:350px;
+overflow-x: scroll;
+
+}
+</style>
+```
+```{=html}
+<!-- We gotta do each function to hide code and outputs per section, by every ID, we gotta create a different function -->
+
+<script>
+function myFunction1() {
+var x = document.getElementById("myDIV");
+if (x.style.display === "none") {
+x.style.display = "block";
+} else {
+x.style.display = "none";
+}
+}
+</script>
+
+<script>
+function myFunction2() {
+var x = document.getElementById("myDIV2");
+if (x.style.display === "none") {
+x.style.display = "block";
+} else {
+x.style.display = "none";
+}
+}
+</script>
+```
+## Cargar paquetes
+
+Cargar bases de datos
+
+```{r}
+#| message: false
+#| include: false
+#| warning: false
+
+rm(list = ls()) # limpiar completamente el entorno global environment
+
+if(!require(poLCA)){install.packages("poLCA")}
+if(!require(poLCAParallel)){devtools::install_github("QMUL/poLCAParallel@package")}
+if(!require(compareGroups)){install.packages("compareGroups")}
+if(!require(parallel)){install.packages("parallel")}
+if(!require(Hmisc)){install.packages("Hmisc")}
+if(!require(tidyverse)){install.packages("tidyverse")}
+try(if(!require(sjPlot)){install.packages("sjPlot")})
+if(!require(emmeans)){install.packages("emmeans")}
+if(!require(nnet)){install.packages("nnet")}
+if(!require(here)){install.packages("here")}
+if(!require(doParallel)){install.packages("doParallel")}
+if(!require(progress)){install.packages("progress")}
+if(!require(caret)){install.packages("caret")}
+if(!require(rpart)){install.packages("rpart")}
+if(!require(rpart.plot)){install.packages("rpart.plot")}
+if(!require(partykit)){install.packages("partykit")}
+if(!require(randomForest)){install.packages("randomForest")}
+if(!require(ggcorrplot)){install.packages("ggcorrplot")}
+if(!require(polycor)){install.packages("polycor")}
+if(!require(tableone)){install.packages("tableone")}
+if(!require(broom)){install.packages("broom")}
+if(!require(plotly)){install.packages("plotly")}
+
+`%>%`<- magrittr::`%>%`
+
+
+#ags_funcion_para ver datos
+cbind.fill <- function(...){
+  nm <- list(...) 
+  nm <- lapply(nm, as.matrix)
+  n <- max(sapply(nm, nrow)) 
+  do.call(cbind, lapply(nm, function (x) rbind(x, matrix(, n-nrow(x), ncol(x)))))
+}
+```
+
+# 
+
+```{r,corregir-fig-ajuste-1, echo=FALSE}
+rm(list = ls());gc()
+load("data2_lca3_sin_po_ano_2023_05_14.RData") #Paso 213 y 214
+#variables_probabilities_in_category_sin_po_ano.xlsx
+#variables_probabilities_in_category_glca_adj_sin_po.xlsxbootlrt
+require(sjPlot)
+require(tidyverse)
+require(tableone)
+
+manualcolors<- c(paste0("gray",seq(20,80, by=20)))
+fig_lca_fit<- tab_ppio %>%
+  dplyr::mutate_if(is.character, as.numeric) %>%  # convert character columns to numeric
+  tidyr::pivot_longer(cols = -ModelIndex, #"evryone but index"
+                      names_to = "indices", values_to = "value", values_drop_na = F) %>%
+  dplyr::mutate(indices = factor(indices, levels = levels, labels = labels)) %>%
+  dplyr::filter(grepl("(BIC)",indices, ignore.case=T))%>%
+  dplyr::mutate(ModelIndex= factor(ModelIndex, levels=2:n_class_max)) %>% 
+  ggplot(aes(x = ModelIndex, y = value, group = indices, color = indices, linetype = indices)) +
+  geom_line(size = 1.5) +
+  scale_color_manual(values = manualcolors) +
+  #scale_linetype_manual(values = c("solid", "dashed", "dotted")) +
+  labs(x = "Número de clases", y="Valor", color="Medida", linetype="Medida")+
+  #facet_wrap(.~indices, scales = "free_y", nrow = 4, ncol = 1) +
+  sjPlot::theme_sjplot()
+
+fig_lca_fit
+ggsave("__fig2_medidas_de_ajuste_polca_sin_ano_pueb_orig.pdf",fig_lca_fit)
+```
+
+
+```{r,corregir-tabla-descriptiva, echo=FALSE}
+
+table_homolog<-
+cbind.data.frame(
+Name = c("n", "CAUSAL", "CAUSAL", "CAUSAL", "EDAD_MUJER_REC", 
+                        "EDAD_MUJER_REC", "EDAD_MUJER_REC", "EDAD_MUJER_REC", "EDAD_MUJER_REC", 
+                        "PAIS_ORIGEN_REC", "PAIS_ORIGEN_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC", 
+                        "HITO1_EDAD_GEST_SEM_REC", "HITO1_EDAD_GEST_SEM_REC", "HITO1_EDAD_GEST_SEM_REC", 
+                        "MACROZONA", "MACROZONA", "MACROZONA", "MACROZONA", "MACROZONA", 
+                        "MACROZONA", "AÑO", "AÑO", "AÑO", "AÑO", "AÑO", "PREV_TRAMO_REC", 
+                        "PREV_TRAMO_REC", "PREV_TRAMO_REC", "PREV_TRAMO_REC", "PREV_TRAMO_REC", 
+                        "HITO2_DECISION_MUJER_IVE", "HITO2_DECISION_MUJER_IVE", "HITO2_DECISION_MUJER_IVE"),
+level = c("", "2", "3", "4", "1", "2", "3", "4", "5", "1", 
+          "2", "3", "1", "2", "3", "4", "1", "2", "3", "4", "5", "6", "2", 
+          "3", "4", "5", "6", "1", "2", "3", "4", "5", "CONTINUAR EL EMBARAZO", 
+          "INTERRUMPIR EL EMBARAZO", "NO APLICA, INSCONSCIENTE"),
+cat = c("", "Causal 1", "Causal 2", "Causal 3", "[Perdidos]", "1. <18", "2. 18-24", "3. 25-35", "4. >=35", 
+          "[Perdidos]", "Chile", "Otros", "[Perdidos]", "1. 0-13 semanas", "2. 14-27 semanas", "3. >=28 semanas", 
+          "[Perdidos]", "Centro", "Centro Norte", "Centro Sur", "Norte", "Sur", "2018", "2019", "2020", "2021", "2022", 
+          "[Perdidos]", "ISAPRE o FFAA", "FONASA A/B", "FONASA C/D", "NINGUNA", "CONTINUAR EL EMBARAZO", "INTERRUMPIR EL EMBARAZO", "NO APLICA, INSCONSCIENTE")
+)
+run_tableone(listVars =c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", 
+                         "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC",
+                         "HITO2_DECISION_MUJER_IVE"), df= mydata_preds3, 
+             catVars= c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", 
+                        "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC"),
+             strata= "outcome") %>%  
+  dplyr::left_join(table_homolog, by= c("Name"="Name","level"="level")) %>% 
+  dplyr::select(Name, cat, everything()) %>% 
+  dplyr::select(-level) %>% 
+  knitr::kable("markdown", caption="Descriptivos (acotado)")
+  #knitr::kable("html", caption="Descriptivos (acotado)") %>% kableExtra::kable_classic()
+
+no_mostrar=1
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+if(no_mostrar==0){
+  #    dplyr::select(HITO2_DECISION_MUJER_IVE, c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC")) %>% 
+  chisquare_test<-
+  mydata_preds3%>% 
+    dplyr::select( 
+      c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", 
+        "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "PREV_TRAMO_REC", "outcome")) %>% 
+    tidyr::gather(variable,measure, -outcome) %>% 
+    dplyr::group_by(variable) %>%
+    dplyr::do(cbind.data.frame(broom::tidy(chisq.test(.$outcome, .$measure)),
+                               broom::tidy(sum(table(.$outcome, .$measure))))) %>% 
+    #casos completos
+    #chisq.test(table(Base_fiscalia_v14_filt$motivodeegreso_mod_imp_rec, Base_fiscalia_v14_filt$sus_principal_mod, exclude=NULL))
+    dplyr::mutate(p.value=ifelse(p.value<.001,"<0.001",sprintf("%1.3f",p.value))) %>% 
+    dplyr::mutate(statistic=sprintf("%2.0f",statistic)) %>% 
+    dplyr::mutate(report=paste0("X²(",parameter,", ",x,")=",statistic,"; p", ifelse(p.value=="<0.001",p.value, paste0("=",p.value)))) %>%
+    dplyr::mutate(report=sub("0\\.","0,",sub("\\.",",",report)))
+  
+  # chisq.test(Base_fiscalia_v14_filt$motivodeegreso_mod_imp_rec, is.na(Base_fiscalia_v14_filt$offender_d)) 
+  # chisq.test(Base_fiscalia_v14_filt$motivodeegreso_mod_imp_rec, is.na(Base_fiscalia_v14_filt$offender_d)) 
+  # 
+  fisher_test<-
+  mydata_preds3 %>% 
+    dplyr::select( 
+      c("CAUSAL", "EDAD_MUJER_REC", "PREV_TRAMO_REC", "outcome")) %>% 
+    tidyr::gather(variable,measure, -outcome) %>% 
+    dplyr::group_by(variable) %>%
+    dplyr::do(fisher.test(table(.$outcome, .$measure, exclude=NULL), 
+                          workspace = 2e10, simulate.p.value = T, B=1e5) %>% 
+                broom::tidy()) 
+
+  #EDAD_MUJER  HITO1_EDAD_GESTACIONAL_SEMANAS  
+  med_iqr <-
+rbind.data.frame(medicion=
+paste0(
+  "Edad mujer (IVE): ",
+  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.5, na.rm=T), "(",
+  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.25, na.rm=T),", ",
+  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.75, na.rm=T),")"
+  ),
+medicion=paste0(
+  "Edad mujer (no IVE): ",
+  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.5, na.rm=T), "(",
+  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.25, na.rm=T),", ",
+  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.75, na.rm=T),")"
+  ),
+medicion=paste0(
+  "Edad gestacional en semanas (IVE): ",
+  quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==1],.5, na.rm=T), "(", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==1],.25, na.rm=T),", ", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==1],.75, na.rm=T),")"),
+medicion=paste0(
+  "Edad gestacional en semanas (no IVE): ",
+  quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==0],.5, na.rm=T), "(", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==0],.25, na.rm=T),", ", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==0],.75, na.rm=T),")" )
+)
+  colnames(med_iqr)<-"medicion"
+  
+  # Kurksal Wallis
+  kruskal<-
+  rbind.data.frame(
+  name=paste0("Edad mujer (continua): H(",kruskal.test(data2$EDAD_MUJER ~ mydata_preds3$outcome)$parameter,")=",
+         round(kruskal.test(data2$EDAD_MUJER ~ mydata_preds3$outcome)$statistic,1), ", p=",
+         round(kruskal.test(data2$EDAD_MUJER ~ mydata_preds3$outcome)$p.value,3)),
+  name=paste0("Edad gestacional (continua): H(",kruskal.test(data2$HITO1_EDAD_GESTACIONAL_SEMANAS ~ mydata_preds3$outcome)$parameter,")=",
+         round(kruskal.test(data2$HITO1_EDAD_GESTACIONAL_SEMANAS ~ mydata_preds3$outcome)$statistic,1), ", p=",
+         round(kruskal.test(data2$HITO1_EDAD_GESTACIONAL_SEMANAS ~ mydata_preds3$outcome)$p.value,3))
+  )
+    colnames(kruskal)<-"names"
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+  rio::export(list(chisquare_test = chisquare_test, 
+                   fisher_test = fisher_test, 
+                   kruskal= kruskal,
+                   iqr= med_iqr), "tableone_extension.xlsx")
+   
+}
+```
+
+
+```{r, echo=FALSE}
+#save.image("data2_lca4.RData")
+```
+
+```{r, echo=FALSE}
+require(tidyverse)
+sesion_info <- devtools::session_info()
+dplyr::select(
+  tibble::as_tibble(sesion_info$packages),
+  c(package, loadedversion, source)
+) %>% 
+  DT::datatable(filter = 'top', colnames = c('Row number' =1,'Variable' = 2, 'Percentage'= 3),
+              caption = htmltools::tags$caption(
+        style = 'caption-side: top; text-align: left;',
+        '', htmltools::em('Packages')),
+      options=list(
+initComplete = htmlwidgets::JS(
+        "function(settings, json) {",
+        "$(this.api().tables().body()).css({
+            'font-family': 'Helvetica Neue',
+            'font-size': '50%', 
+            'code-inline-font-size': '15%', 
+            'white-space': 'nowrap',
+            'line-height': '0.75em',
+            'min-height': '0.5em'
+            });",#;
+        "}")))
+```
+
+
+
