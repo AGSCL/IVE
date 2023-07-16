@@ -1,7 +1,7 @@
 ---
-title: "Paso 1"
+title: "Paso 4"
 description: |
-  Explicación 
+  Resumen de datos para exportar a revista 
 date: "`r withr::with_locale(new = c('LC_TIME' = 'C'), code =format(Sys.time(),'%B %d, %Y'))`"
 author: "Andrés González Santa Cruz"
 format: 
@@ -429,7 +429,6 @@ medicion=paste0(
 ```
 :::
 
-
 ## Figuras
 
 ```{r, clasificaciones-no-ajustado, fig.cap= "Distribución de categorías del modelo", echo=FALSE}
@@ -439,12 +438,10 @@ require(plotly)
 zp1
 ```
 
-
 ```{r, clasificaciones-res-distal,  fig.cap= "Distribución de categorías del modelo ajustado", echo=FALSE}
 # ggplotly(zp2, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 zp2
 ```
-
 
 ## Regresión logística
 
@@ -455,7 +452,6 @@ df_model_LCA2 %>% select(starts_with("prob_c")) %>%
   dplyr::mutate(rn=gsub("prob_c","",rn)) %>% 
   knitr::kable("markdown", caption="Probabilidad de pertenecer a una clase, según interrupción del embarazo", col.names = c("Clase","No interrumpe", "Interrumpe"))
 ```
-
 
 # Análisis de clases latentes, selección de clases, modelo alternativo, sin pueblo originario y año Búsqueda de clases, Análisis secundario
 
@@ -470,8 +466,13 @@ tab_ppio %>%#
   dplyr::select(ModelIndex, everything()) %>% 
     dplyr::mutate_if(is.character, as.numeric) %>% 
   cbind.data.frame(dplyr::select(data.frame(bootlrt$gtable), BIC, entropy, Gsq, Boot.p.value)) %>% 
+  janitor::clean_names() %>% 
+  dplyr::mutate_if(is.numeric, ~round(.,2)) %>% 
+  dplyr::select(model_index, bic, a_bic, bic, bic_2, rel_ent, ent_r2, entropy, gsq_2, boot_p_value) -> tab_fit1
+
+tab_fit1 %>% 
   # convert character columns to numeric
-    knitr::kable(format="markdown", caption="Medidas de ajuste")#%>%    rio::export("table_fit.xlsx")
+    knitr::kable(format="markdown", caption="Medidas de ajuste (dividir por 1000 gsq_2)")
 ```
 :::
 
@@ -481,8 +482,20 @@ tab_ppio2 %>%#
   dplyr::select(ModelIndex, everything()) %>% 
     dplyr::mutate_if(is.character, as.numeric) %>% 
   cbind.data.frame(dplyr::select(data.frame(bootlrt2$gtable), BIC, entropy, Gsq, Boot.p.value)) %>% 
+  janitor::clean_names() %>% 
+  dplyr::mutate_if(is.numeric, ~round(.,2)) %>% 
+  dplyr::select(model_index, bic, a_bic, bic, bic_2, rel_ent, ent_r2, entropy, gsq_2, boot_p_value) -> tab_fit2
+
+tab_fit2 %>% 
   # convert character columns to numeric
     knitr::kable(format="markdown", caption="Medidas de ajuste (ajustado)")
+
+ rio::export(list(sin_ajustar = tab_fit1, 
+                   ajustado = tab_fit2), "polca_glca_fit_table.xlsx")
+ #Masyn is talking about normalized entropy above, which ranges from 0 to 1.
+# Masyn, K. (2013). Chapter 25 Latent Class Analysis and Finite Mixture Modeling. The Oxford Handbook of Quantitative Methods. D. Little (eds). https://www.statmodel.com/download/Masyn_2013.pdf
+ #Vermunt, J. K., & Magidson, J. (2016). Technical guide for Latent GOLD 5.1: Basic, advanced, and syntax. Belmont, MA: Statistical Innovations Inc.
+ #https://www.google.com/url?q=https://www.statisticalinnovations.com/wp-content/uploads/LGtechnical.pdf&sa=D&source=docs&ust=1689531259723207&usg=AOvVaw2N3g_gco8-GUiiPhRQxRoS
 ```
 :::
 
@@ -495,12 +508,10 @@ require(plotly)
 zp3
 ```
 
-
 ```{r, clasificaciones-res-distal-alt,  fig.cap= "Distribución de categorías del modelo ajustado (alternativo)", echo=FALSE}
 # ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 zp4
 ```
-
 
 ```{r, echo=FALSE}
 require(tidyverse)
