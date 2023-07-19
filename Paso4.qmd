@@ -263,7 +263,7 @@ cbind.fill <- function(...){
 
 # Análisis de clases latentes, modelos definitivos, sin pueblo originario y año
 
-```{r,corregir-fig-ajuste-1, fig.cap= "Índices de ajuste, modelo sin covariable", echo=FALSE}
+```{r,corregir-fig-ajuste-1, fig.cap= "Índices de ajuste, modelo sin covariable", echo=T}
 rm(list = ls());gc()
 load("data2_lca3_sin_po_ano_2023_05_14.RData") #Paso 213 y 214
 #variables_probabilities_in_category_sin_po_ano.xlsx
@@ -292,7 +292,7 @@ fig_lca_fit
 ggsave("__fig2_medidas_de_ajuste_polca_sin_ano_pueb_orig.pdf",fig_lca_fit)
 ```
 
-```{r,corregir-fig-ajuste-2, fig.cap= "Índices de ajuste, modelo variable distal", echo=FALSE}
+```{r,corregir-fig-ajuste-2, fig.cap= "Índices de ajuste, modelo variable distal", echo=T}
 manualcolors2<- c(paste0("gray",seq(20,80, by=20)))
 fig_lca_fit2<- tab_ppio2 %>%
   dplyr::mutate_if(is.character, as.numeric) %>%  # convert character columns to numeric
@@ -315,7 +315,7 @@ ggsave("__fig3_medidas_de_ajuste_polca_sin_ano_pueb_orig_adj.pdf",fig_lca_fit2)
 ```
 
 ::: controlly
-```{r,corregir-tabla-descriptiva, echo=FALSE}
+```{r,corregir-tabla-descriptiva, echo=T}
 
 table_homolog<-
 cbind.data.frame(
@@ -431,21 +431,29 @@ medicion=paste0(
 
 ## Figuras
 
-```{r, clasificaciones-no-ajustado, fig.cap= "Distribución de categorías del modelo", echo=FALSE}
+```{r, clasificaciones-no-ajustado, fig.cap= "Distribución de categorías del modelo", echo=T}
 #https://agscl.github.io/IVE/Paso35.html
 require(plotly)
 # ggplotly(zp1, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 zp1
 ```
 
-```{r, clasificaciones-res-distal,  fig.cap= "Distribución de categorías del modelo ajustado", echo=FALSE}
+```{r}
+ggplotly(zp1, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+```
+
+```{r, clasificaciones-res-distal,  fig.cap= "Distribución de categorías del modelo ajustado", echo=T}
 # ggplotly(zp2, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 zp2
 ```
 
+```{r}
+ggplotly(zp2, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+```
+
 ## Regresión logística
 
-```{r, reg-log, echo=FALSE}
+```{r, reg-log, echo=T}
 
 df_model_LCA2 %>% select(starts_with("prob_c")) %>% 
   t() %>% data.table::data.table(keep.rownames=T) %>% 
@@ -458,7 +466,7 @@ df_model_LCA2 %>% select(starts_with("prob_c")) %>%
 ## Medidas de ajuste poLCA y glca, combinados
 
 ::: controlly
-```{r,corregir-fig-ajuste-3, echo=FALSE}
+```{r,corregir-fig-ajuste-3, echo=T}
 #rm(list = ls());gc()
 load("data2_lca3_glca_sin_po_ano.RData")
 
@@ -477,7 +485,7 @@ tab_fit1 %>%
 :::
 
 ::: controlly
-```{r,corregir-fig-ajuste-4, echo=FALSE}
+```{r,corregir-fig-ajuste-4, echo=T}
 tab_ppio2 %>%#
   dplyr::select(ModelIndex, everything()) %>% 
     dplyr::mutate_if(is.character, as.numeric) %>% 
@@ -501,19 +509,27 @@ tab_fit2 %>%
 
 ## Figuras
 
-```{r, clasificaciones-no-ajustado-alt, fig.cap= "Distribución de categorías del modelo (alternativo)", echo=FALSE}
+```{r, clasificaciones-no-ajustado-alt, fig.cap= "Distribución de categorías del modelo (alternativo)", echo=T}
 ##https://agscl.github.io/IVE/Paso36.html
 require(plotly)
 # ggplotly(zp3, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 zp3
 ```
 
-```{r, clasificaciones-res-distal-alt,  fig.cap= "Distribución de categorías del modelo ajustado (alternativo)", echo=FALSE}
+```{r}
+ggplotly(zp3, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+```
+
+```{r, clasificaciones-res-distal-alt,  fig.cap= "Distribución de categorías del modelo ajustado (alternativo)", echo=T}
 # ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 zp4
 ```
 
-```{r, echo=FALSE}
+```{r}
+ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+```
+
+```{r, echo=T}
 require(tidyverse)
 sesion_info <- devtools::session_info()
 dplyr::select(
