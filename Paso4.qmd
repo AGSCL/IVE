@@ -248,6 +248,7 @@ if(!require(polycor)){install.packages("polycor")}
 if(!require(tableone)){install.packages("tableone")}
 if(!require(broom)){install.packages("broom")}
 if(!require(plotly)){install.packages("plotly")}
+if(!require(ggrepel)){install.packages("ggrepel")}
 
 `%>%`<- magrittr::`%>%`
 
@@ -376,7 +377,7 @@ no_mostrar=1
   fisher_test<-
   mydata_preds3 %>% 
     dplyr::select( 
-      c("CAUSAL", "EDAD_MUJER_REC", "PREV_TRAMO_REC", "outcome")) %>% 
+    c("CAUSAL", "EDAD_MUJER_REC", "PREV_TRAMO_REC", "MACROZONA", "outcome"))%>% 
     tidyr::gather(variable,measure, -outcome) %>% 
     dplyr::group_by(variable) %>%
     dplyr::do(fisher.test(table(.$outcome, .$measure, exclude=NULL), 
@@ -387,23 +388,32 @@ no_mostrar=1
   med_iqr <-
 rbind.data.frame(medicion=
 paste0(
+  "Edad mujer: ",
+  quantile(data2$EDAD_MUJER,.5, na.rm=T), "[",
+  quantile(data2$EDAD_MUJER,.25, na.rm=T),", ",
+  quantile(data2$EDAD_MUJER,.75, na.rm=T),"]"
+  ), medicion=
+paste0(
   "Edad mujer (IVE): ",
-  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.5, na.rm=T), "(",
+  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.5, na.rm=T), "[",
   quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.25, na.rm=T),", ",
-  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.75, na.rm=T),")"
+  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.75, na.rm=T),"]"
   ),
 medicion=paste0(
   "Edad mujer (no IVE): ",
-  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.5, na.rm=T), "(",
+  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.5, na.rm=T), "[",
   quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.25, na.rm=T),", ",
-  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.75, na.rm=T),")"
+  quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.75, na.rm=T),"]"
   ),
 medicion=paste0(
+  "Edad gestacional en semanas: ",
+  quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS,.5, na.rm=T), "[", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS,.25, na.rm=T),", ", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS,.75, na.rm=T),"]"),
+medicion=paste0(
   "Edad gestacional en semanas (IVE): ",
-  quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==1],.5, na.rm=T), "(", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==1],.25, na.rm=T),", ", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==1],.75, na.rm=T),")"),
+  quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==1],.5, na.rm=T), "[", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==1],.25, na.rm=T),", ", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==1],.75, na.rm=T),"]"),
 medicion=paste0(
   "Edad gestacional en semanas (no IVE): ",
-  quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==0],.5, na.rm=T), "(", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==0],.25, na.rm=T),", ", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==0],.75, na.rm=T),")" )
+  quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==0],.5, na.rm=T), "[", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==0],.25, na.rm=T),", ", quantile(data2$HITO1_EDAD_GESTACIONAL_SEMANAS[mydata_preds3$outcome==0],.75, na.rm=T),"]" )
 )
   colnames(med_iqr)<-"medicion"
   
@@ -429,18 +439,54 @@ medicion=paste0(
 ```
 :::
 
-## Figuras
+## Figuras (poLCA)
 
 ```{r, clasificaciones-no-ajustado, fig.cap= "Distribución de categorías del modelo", echo=T}
 #https://agscl.github.io/IVE/Paso35.html
 require(plotly)
-# ggplotly(zp1, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
-zp1
+#https://github.com/slowkow/ggrepel
+zp1b <- ggplot(lcmodel %>% 
+                 dplyr::filter(!is.na(CATEGORIA)) %>% 
+                 dplyr::mutate(Var1=str_replace(Var1,"class","Clase"),
+                 L2= dplyr::case_when(L2=="CAUSAL"~ "Causal",
+                                      L2=="EDAD_MUJER_REC"~ "Edad mujer",
+                                      L2=="MACROZONA"~ "Macrozona",
+                                      L2=="HITO1_EDAD_GEST_SEM_REC"~ "Edad Gestacional\n(EG) Hito 1",
+                                      L2=="PREV_TRAMO_REC"~ "Previsión y\ntramo",
+                                    L2=="PAIS_ORIGEN_REC"~ "País de origen")) %>% dplyr::mutate(lab2=glue::glue("{stringr::str_replace(CATEGORIA,' ','\n')}\n({scales::percent(value)})")),aes(x = L2, y = value, fill = Var2, label=lab2))
+zp1b <- zp1b + geom_bar(stat = "identity", position = "stack")
+#zp1b <- zp1b + geom_text(position = position_stack(vjust = 0.5), size=3)  # add labels
+zp1b <- zp1b + facet_grid(Var1 ~ .) 
+zp1b <- zp1b + scale_fill_manual(values=paste0("grey",seq(20,80, by=60/6))) +theme_bw()
+zp1b <- zp1b + labs(y = "Porcentaje de probabilidad de respuesta", 
+                  x = "",
+                  fill ="Cateorías de\nRespuesta")
+zp1b <- zp1b + theme( axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank(),                    
+                    panel.grid.major.y=element_blank())
+zp1b <- zp1b + guides(fill = guide_legend(reverse=TRUE))
+zp1b <- zp1b + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+
+
+ggsave("zp1.png", zp1b+ggrepel::geom_label_repel(#aes(#y=half, label=lab),
+      #position = position_dodge(width = .5),    # move to center of bars
+              #vjust = 0,    # nudge above top of bar
+  #position = position_stack(vjust = 0.5),
+            #position = position_dodge(width = .8),
+            #vjust = .1,
+            position = position_stack(vjust = 0.5),
+              size = 3,
+            max.iter = 1e6,
+            #direction = "y",
+            #force=1,
+            #seed=123,
+            colour = "white", fontface = "bold")+theme(legend.position= "none"), height=13)#, fill = "white" --> dentro de label repel
+
+ ggplotly(zp1, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800) 
 ```
 
-```{r}
-ggplotly(zp1, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
-```
+\
 
 ```{r, clasificaciones-res-distal,  fig.cap= "Distribución de categorías del modelo ajustado", echo=T}
 # ggplotly(zp2, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
@@ -448,10 +494,27 @@ zp2
 ```
 
 ```{r}
-ggplotly(zp2, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+ggplotly(zp2, tooltip= c("text_label"))%>% layout(xaxis= list(showticklabel=T), height=600, width=800)
 ```
 
-## Regresión logística
+```{r}
+zp1_tab<-
+lcmodel %>%
+  dplyr::select(Var1, L2, CATEGORIA, pr, value) %>% 
+  tidyr::pivot_wider(id_cols =c(L2,pr,CATEGORIA), names_from = Var1, values_from=value) %>% 
+  dplyr::mutate(across(contains("class"),~ sprintf("%01.1f",.*100)))
+zp2_tab<-
+lcmodel_adj %>%
+  dplyr::select(Var1, L2, CATEGORIA, pr, value) %>% 
+  tidyr::pivot_wider(id_cols =c(L2,pr,CATEGORIA),  names_from = Var1, values_from=value) %>% 
+  dplyr::mutate(across(contains("class"),~ sprintf("%01.1f",.*100)))
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+  rio::export(list(zp1 = zp1_tab, 
+                   zp2_zp1_adj = zp2_tab), "tab_mod_dist_cat.xlsx")
+```
+
+## Regresión logística (poLCA)
 
 ```{r, reg-log, echo=T}
 
@@ -465,11 +528,14 @@ df_model_LCA2 %>% select(starts_with("prob_c")) %>%
 
 ## Medidas de ajuste poLCA y glca, combinados
 
+```{r, "cargar datos glca"}
+load("data2_lca3_glca_sin_po_ano.RData")
+
+```
+
 ::: controlly
 ```{r,corregir-fig-ajuste-3, echo=T}
 #rm(list = ls());gc()
-load("data2_lca3_glca_sin_po_ano.RData")
-
 tab_ppio %>%#
   dplyr::select(ModelIndex, everything()) %>% 
     dplyr::mutate_if(is.character, as.numeric) %>% 
@@ -528,6 +594,59 @@ zp4
 ```{r}
 ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 ```
+
+## Regresión logística
+
+```{r, "posterior-reg-log"}
+
+#Classifying by posterior probs.
+posterior_glca_05_final<-
+best_model_glca$posterior$ALL %>% 
+    dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
+  dplyr::mutate(final_05=dplyr::case_when(`Class 1`==1~1,`Class 2`==1~2, `Class 3`==1~3,`Class 4`==1~4, `Class 5`==1~5))
+
+posterior_glca_05_final %>% 
+  rowwise() %>%
+  dplyr::mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_05, count_ones)
+
+posterior_glca_07_final<-
+best_model_glca$posterior$ALL %>% 
+    dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
+  dplyr::mutate(final_07=dplyr::case_when(`Class 1`==1~1,`Class 2`==1~2, `Class 3`==1~3,`Class 4`==1~4, `Class 5`==1~5))
+
+posterior_glca_07_final %>% 
+    rowwise() %>%
+  dplyr::mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+  ungroup() %>% 
+  janitor::tabyl(final_07,count_ones)
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+bd_reg2<-
+bind_rows(
+broom::tidy(glm(outcome~factor(final_07), data=cbind.data.frame(mydata_preds3,final_07=posterior_glca_07_final$final_07,final_05=posterior_glca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0)) %>% dplyr::filter(!is.na(final_07))),
+            exponentiate=T, conf.int = T
+),
+broom::tidy(glm(outcome~factor(final_05), data=cbind.data.frame(mydata_preds3,final_07=posterior_glca_07_final$final_07,final_05=posterior_glca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))),
+            exponentiate=T, conf.int = T
+)
+) %>% 
+  dplyr::select(-std.error, -statistic) %>% 
+  dplyr::mutate_at(c("estimate","conf.low","conf.high"),~round(.,2)) %>%
+  dplyr::mutate_at(c("p.value"),~round(.,4)) %>% 
+  add_column(reg=c(rep(">.7 probs",5),rep(">.5 probs",5))) %>% 
+  dplyr::select(reg, everything()) %>% 
+  dplyr::mutate(output= glue::glue('{estimate} ({conf.low}-{conf.high})')) %>% 
+  dplyr::select(reg, term, output, p.value) 
+#cbind.data.frame(mydata_preds3,final_07=posterior_polca_07adj$final_07,final_05=posterior_polca_05adj$final_05) %>% janitor::tabyl(outcome,final_07)
+bd_reg2 %>% 
+  knitr::kable("markdown",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)")
+```
+
+## Información de la sesión
 
 ```{r, echo=T}
 require(tidyverse)
