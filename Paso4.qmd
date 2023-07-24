@@ -595,7 +595,7 @@ zp4
 ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 ```
 
-## Regresión logística
+## Regresión logística (no distal)
 
 ```{r, "posterior-reg-log"}
 
@@ -605,23 +605,22 @@ best_model_glca$posterior$ALL %>%
     dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
   dplyr::mutate(final_05=dplyr::case_when(`Class 1`==1~1,`Class 2`==1~2, `Class 3`==1~3,`Class 4`==1~4, `Class 5`==1~5))
 
-posterior_glca_05_final %>% 
-  rowwise() %>%
-  dplyr::mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
-  ungroup() %>% 
-  janitor::tabyl(final_05, count_ones)
+posterior_polca_05_final<-
+LCA_best_model_mod$posterior %>% 
+  data.frame() %>% 
+  dplyr::mutate_all(~ifelse(.>.5,1,0)) %>% 
+  dplyr::mutate(final_05=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))
 
 posterior_glca_07_final<-
 best_model_glca$posterior$ALL %>% 
     dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
   dplyr::mutate(final_07=dplyr::case_when(`Class 1`==1~1,`Class 2`==1~2, `Class 3`==1~3,`Class 4`==1~4, `Class 5`==1~5))
 
-posterior_glca_07_final %>% 
-    rowwise() %>%
-  dplyr::mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
-  ungroup() %>% 
-  janitor::tabyl(final_07,count_ones)
-
+posterior_polca_07_final<-
+LCA_best_model_mod$posterior %>% 
+  data.frame() %>% 
+  dplyr::mutate_all(~ifelse(.>.7,1,0)) %>% 
+  dplyr::mutate(final_07=dplyr::case_when(`X1`==1~1,`X2`==1~2, `X3`==1~3,`X4`==1~4, `X5`==1~5))
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
@@ -632,15 +631,22 @@ broom::tidy(glm(outcome~factor(final_07), data=cbind.data.frame(mydata_preds3,fi
 ),
 broom::tidy(glm(outcome~factor(final_05), data=cbind.data.frame(mydata_preds3,final_07=posterior_glca_07_final$final_07,final_05=posterior_glca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))),
             exponentiate=T, conf.int = T
+),
+broom::tidy(glm(outcome~factor(final_07), data=cbind.data.frame(mydata_preds3,final_07=posterior_polca_07_final$final_07,final_05=posterior_polca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0)) %>% dplyr::filter(!is.na(final_07))),
+            exponentiate=T, conf.int = T
+),
+broom::tidy(glm(outcome~factor(final_05), data=cbind.data.frame(mydata_preds3,final_07=posterior_polca_07_final$final_07,final_05=posterior_polca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))),
+            exponentiate=T, conf.int = T
 )
 ) %>% 
   dplyr::select(-std.error, -statistic) %>% 
   dplyr::mutate_at(c("estimate","conf.low","conf.high"),~round(.,2)) %>%
   dplyr::mutate_at(c("p.value"),~round(.,4)) %>% 
-  add_column(reg=c(rep(">.7 probs",5),rep(">.5 probs",5))) %>% 
-  dplyr::select(reg, everything()) %>% 
+  add_column(mod=c(rep("glca",10),rep("polca",10))) %>% 
+  add_column(reg=c(rep(">.7 probs",5),rep(">.5 probs",5),rep(">.7 probs",5),rep(">.5 probs",5))) %>% 
+  dplyr::select(mod, reg, everything()) %>% 
   dplyr::mutate(output= glue::glue('{estimate} ({conf.low}-{conf.high})')) %>% 
-  dplyr::select(reg, term, output, p.value) 
+  dplyr::select(mod, reg, term, output, p.value) 
 #cbind.data.frame(mydata_preds3,final_07=posterior_polca_07adj$final_07,final_05=posterior_polca_05adj$final_05) %>% janitor::tabyl(outcome,final_07)
 bd_reg2 %>% 
   knitr::kable("markdown",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)")
