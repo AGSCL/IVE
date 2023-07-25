@@ -445,7 +445,8 @@ medicion=paste0(
 #https://agscl.github.io/IVE/Paso35.html
 require(plotly)
 #https://github.com/slowkow/ggrepel
-zp1b <- ggplot(lcmodel %>% 
+lcmodel_wo_na<-
+lcmodel %>% 
                  dplyr::filter(!is.na(CATEGORIA)) %>% 
                  dplyr::mutate(Var1=str_replace(Var1,"class","Clase"),
                  L2= dplyr::case_when(L2=="CAUSAL"~ "Causal",
@@ -453,7 +454,9 @@ zp1b <- ggplot(lcmodel %>%
                                       L2=="MACROZONA"~ "Macrozona",
                                       L2=="HITO1_EDAD_GEST_SEM_REC"~ "Edad Gestacional\n(EG) Hito 1",
                                       L2=="PREV_TRAMO_REC"~ "Previsión y\ntramo",
-                                    L2=="PAIS_ORIGEN_REC"~ "País de origen")) %>% dplyr::mutate(lab2=glue::glue("{stringr::str_replace(CATEGORIA,' ','\n')}\n({scales::percent(value)})")),aes(x = L2, y = value, fill = Var2, label=lab2))
+                                    L2=="PAIS_ORIGEN_REC"~ "País de origen")) %>% dplyr::mutate(lab2=glue::glue("{stringr::str_replace(CATEGORIA,' ','\n')}\n({scales::percent(value)})"))
+
+zp1b <- ggplot(data= lcmodel_wo_na, aes(x = L2, y = value, fill = Var2, label=lab2))
 zp1b <- zp1b + geom_bar(stat = "identity", position = "stack")
 #zp1b <- zp1b + geom_text(position = position_stack(vjust = 0.5), size=3)  # add labels
 zp1b <- zp1b + facet_grid(Var1 ~ .) 
@@ -469,7 +472,7 @@ zp1b <- zp1b + theme(axis.text.x = element_text(angle = 30, hjust = 1))
 
 
 
-ggsave("zp1.png", zp1b+ggrepel::geom_label_repel(#aes(#y=half, label=lab),
+ggsave("zp1.png", zp1b+ggrepel::geom_label_repel(data= dplyr::filter(lcmodel_wo_na,!CATEGORIA=="Perdidos"),#aes(#y=half, label=lab),
       #position = position_dodge(width = .5),    # move to center of bars
               #vjust = 0,    # nudge above top of bar
   #position = position_stack(vjust = 0.5),
