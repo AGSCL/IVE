@@ -652,6 +652,22 @@ bd_reg2 %>%
   knitr::kable("markdown",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)")
 ```
 
+```{r, "dist"}
+mydata_preds3 %>% 
+    group_by(CAUSAL, PREV_TRAMO_REC, HITO2_DECISION_MUJER_IVE) %>% 
+    summarise(n=n()) %>%
+    dplyr::ungroup() %>% 
+    group_by(CAUSAL, PREV_TRAMO_REC) %>% 
+    dplyr::summarise(ive=sum(n[HITO2_DECISION_MUJER_IVE=="INTERRUMPIR EL EMBARAZO"]), perc= scales::percent(ive/sum(n))) %>% 
+  dplyr::ungroup() %>% 
+  dplyr::mutate(CAUSAL= case_when(CAUSAL==2~ "Causal 1", CAUSAL==3~ "Causal 2", CAUSAL==4~ "Causal 3")) %>% 
+  dplyr::mutate(PREV_TRAMO_REC= case_when(PREV_TRAMO_REC==1~ "NA", PREV_TRAMO_REC==2~ "ISAPRE o FFAA", PREV_TRAMO_REC==3~ "FONASA A/B", PREV_TRAMO_REC==4~ "FONASA C/D", PREV_TRAMO_REC==5~ "NINGUNA")) %>% 
+  dplyr::group_by(CAUSAL) %>% 
+  dplyr::mutate(perc_causal=scales::percent(ive/sum(ive))) %>% 
+  dplyr::select(CAUSAL, PREV_TRAMO_REC, perc_causal, perc, ive) %>% 
+  knitr::kable("markdown", caption="Distribución causal, previsión e IVE", col.names=c("Causal","Previsión y Tramo", "% de la previsión en la causal", "% de IVE para cada previsión por causal", "n"))
+```
+
 ## Información de la sesión
 
 ```{r, echo=T}
