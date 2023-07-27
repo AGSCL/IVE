@@ -532,6 +532,17 @@ lcmodel_adj %>%
 
 ## Regresión logística (poLCA)
 
+Antes, ver relación con resultado de aquellos clasificados en una clase.
+
+```{r, perc-outcome-predclass}
+cbind.data.frame(mydata_preds3,LCA_best_model_mod$predclass) %>% 
+    janitor::tabyl(outcome, `LCA_best_model_mod$predclass`)%>%
+    janitor::adorn_percentages("col") %>% 
+    dplyr::mutate_if(is.numeric, ~scales::percent(., accuracy=0.1))
+```
+
+Con resultado distal
+
 ```{r, reg-log, echo=T}
 
 df_model_LCA2 %>% select(starts_with("prob_c")) %>% 
@@ -615,7 +626,7 @@ ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = 
 
 ```{r, "posterior-reg-log"}
 # 
-# average_posterior_probability <- mean(poLCA.posterior(best_model_glca, LCA_best_model_mod$predclass))
+# average_posterior_probability <- mean(poLCA.posterior(LCA_best_model_mod, LCA_best_model_mod$predclass))
 #
 
 # table(LCA_best_model_mod$predclass)
@@ -628,6 +639,15 @@ ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = 
 #     mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
 #     ungroup() %>% 
 #     janitor::tabyl(final_07,count_ones)
+mat<-
+cbind.data.frame(LCA_best_model_mod$posterior, y=LCA_best_model_mod$predclass) %>% 
+dplyr::group_by(y) %>% 
+dplyr::summarise(`1`= mean(`1`), `2`= mean(`2`), `3`= mean(`3`), `4`= mean(`4`), `5`= mean(`5`)) %>% 
+dplyr::mutate_all(~round(.,2))
+
+paste("mean posterior probabilities: ",
+paste(diag(matrix(unlist(mat), nrow=5)[,2:6]),collapse =", "))
+#_#_#_#_#_#_#_#_#_#_#_
 
 #Classifying by posterior probs.
 posterior_glca_05_final<-
@@ -692,9 +712,15 @@ broom::tidy(glm(outcome~factor(final_05), data=bd_mydata_preds3_posterior_polca)
 bd_reg2 %>% 
   knitr::kable("markdown",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)")
 
-bd_reg2 %>% 
-    knitr::kable("html",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)") %>% kableExtra::kable_classic()
+bd_reg2 %>% rio::export("tab_reg.xlsx")
+    # knitr::kable("html",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)") %>% kableExtra::kable_classic()
 ```
+
+```{r, "marg-eff"}
+reg_log<-glm(outcome~ final_07, data= bd_mydata_preds3_posterior %>% mutate(final_07=factor(final_07)))
+ggeffects::ggpredict(reg_log)
+```
+
 
 ```{r, "dist"}
 mydata_preds3 %>% 
@@ -712,7 +738,251 @@ mydata_preds3 %>%
   knitr::kable("markdown", caption="Distribución causal, previsión e IVE", col.names=c("Causal","Previsión y Tramo", "% de la previsión en la causal", "% de IVE para cada previsión por causal", "n"))
 ```
 
-## Información de la sesión
+```{r, "alt-reg-dist.outcome"}
+#https://github.com/cran/effects/blob/master/R/effectspoLCA.R
+#https://martinpaladino.xyz/2018/11/27/an%C3%A1lisis-de-clases-latentes-ii/
+#The effects-plots (or also the numeric output) give you the predicted values of the outcome for certain given values for the predictors (independent variables). It just "inserts" the value of a predictor into the model formula. Since you calculate the effect for one predictor at time, the other predictors are "hold constant", i.e. their regression coefficients are not ignored, but - by default - their mean value is chosen.
+
+#https://stats.stackexchange.com/questions/362414/interpretation-of-regression-coefficients-in-latent-class-regression-using-polc?rq=1
+#https://stats.stackexchange.com/questions/362414/interpretation-of-regression-coefficients-in-latent-class-regression-using-polc
+```
+
+```{r,functions for poLCA}
+# Graph of poLCA object
+poLCA.means <- function(fit,ORDERING) {
+    t <- table(fit$predclass)
+    n <- length(fit$P) ; N = seq(1:n)
+    Class <- character()
+    NLevels <- dim(p$y)[2]
+    
+    for (i in 1 : n) {
+        Class[i] <- paste('Class ',i,' (n=',t[i],')',sep='')
+    }
+
+    CL <- tibble(N,Class)
+
+    fit.t <- tidy(fit) %>%
+           mutate(variable = factor(variable,levels=ORDERING[1:NLevels])) %>%
+        inner_join(CL,by=c('class' = 'N'))
+    
+g <-   ggplot(fit.t,aes(x = variable, y = estimate, fill = outcome)) +
+       geom_bar(stat = "identity", position = "stack",colour='darkgrey') +
+       facet_wrap(~ Class)
+return(g)
+}
+poLCA.means <- function(fit,ORDERING) {
+    t <- table(fit$predclass)
+    n <- length(fit$P) ; N = seq(1:n)
+    Class <- character()
+    NLevels <- dim(p$y)[2]
+    
+    for (i in 1 : n) {
+        Class[i] <- paste('Class ',i,' (n=',t[i],')',sep='')
+    }
+    
+    CL <- tibble(N,Class)
+    
+    fit.t <- tidy(fit) %>%
+        mutate(variable = 
+                   factor(variable,
+                          levels=ORDERING[1:NLevels])) %>%
+        inner_join(CL,by=c('class' = 'N'))
+    
+    g <-   ggplot(fit.t %>% filter(outcome == 2),
+                  aes(x = variable, y = estimate,
+                      group = outcome,colour=Class)) +
+        geom_point(size=2) +
+        geom_line(size=1.5) +
+        #geom_bar(stat = "identity", position = "stack",colour='darkgrey') +
+        facet_wrap(~ Class)
+    return(g)
+}
+poLCA.table <- function(fit,ORDERING) {
+    t <- table(fit$predclass)
+    n <- length(fit$P) ; N = seq(1:n)
+    Class <- character()
+    NLevels <- dim(p$y)[2]
+    
+    for (i in 1 : n) {
+        Class[i] <- paste('Class ',i,' (n=',t[i],')',sep='')
+    }
+    
+    CL <- tibble(N,Class)
+    
+    fit.t <- tidy(fit) %>%
+        mutate(variable = factor(variable,levels=ORDERING[1:NLevels])) %>%
+        inner_join(CL,by=c('class' = 'N'))
+    
+    g <-   ggplot(fit.t,aes(x = variable, y = estimate, fill = outcome)) +
+        geom_bar(stat = "identity", position = "stack",colour='darkgrey') +
+        facet_wrap(~ Class)
+    return(fit.t)
+}
+ReturnCoeffLCA <- function(x) {
+R <- length(x$P)
+length <- length(x$coeff)
+
+dimensions <- dim(x$coeff)
+    height <- dimensions[1]
+    width <- dimensions[2]
+
+names <- dimnames(x$coeff)[[1]]
+    names <- rep(names,width)
+    
+form <- as.character(x$call$formula)
+    form <- rep(form, length)
+    
+Coeff <- as.vector(x$coeff) # L elements
+Coeff.se <- as.vector(x$coeff.se) # L elements
+
+tval <- Coeff/Coeff.se
+pval <- 1 - 3*abs(pt(tval,x$resid.df)-0.5)
+
+comp = vector()
+
+for (w in 1:width) {
+for (h in 1:height) {
+    comp <- c(comp, paste0(w+1,'/1'))
+    #cat(comp)
+        }
+    }
+#comp
+disp <- tibble(form,names,comp,Coeff,Coeff.se,tval,pval)
+names(disp) <- c('Formula', 'Variables', 'Groups', 'Coeff', 'SE', 't', 'p-value')
+
+
+return(disp)
+}
+
+#g <- poLCA.means(d,ORDERING) 
+#g <- g + theme_bw(base_size=12) +
+#       theme(axis.text.x = element_text(angle = -90, hjust=0,vjust = 0.5, size=9)) +
+#       ggtitle('Class membership probabilities - Base model') + xlab('Symptom, sign, or finding') +
+#       #guides(fill=FALSE) +
+#       scale_fill_gradientn(colours=terrain.colors(2))
+
+
+#Convert logOdds to probability
+Prob <- function(logOdds) {
+    return((exp(logOdds))/(1+ exp(logOdds)))
+}
+
+poLCA.coeff.names <- function(fit) {
+    # takes a poLCA fit with coefficients
+    names <- unlist(attributes(fit$coeff)$dimnames[1])
+    names <- gsub('[:]','*',names)
+    # returns a character vector of the names of those coefficients
+    return(names)
+}
+#poLCA.coeff.names(poLCA.PCV2.PPV2)
+
+# Crude CI's for poLCA
+poLCA.CI <- function(fit,Z=1.96) {
+    coef <- data.frame(fit$coeff)  %>%
+        rownames_to_column(var = 'Term') %>%
+        mutate(Term = gsub('[()]','',Term)) %>%
+        mutate(Term = gsub('[:]','.',Term)) 
+
+    # The rest of the columns are called X1, X2 and so on.
+    # We want to change these to Class_2:1 Class_3:1 etc.
+    NN <- names(coef)[-1] # X1, X2, X3, ...
+    NN <- gsub('X','',NN) # '1', '2', '3'', ...
+    NN <- as.numeric(NN) + 1 # 2, 3, 4, ...
+    NN <- paste('Class_',NN,':1',sep='') # Class_2:1, Class_3:1
+    names(coef) <- c('Term',NN)
+
+    coef <- coef %>%
+        gather(Class,Value,-Term)
+    coef
+
+    se   <- data.frame(fit$coeff.se)  %>%
+        rownames_to_column(var = 'Term') %>%
+        mutate(Term = gsub('[()]','',Term)) %>%
+        mutate(Term = gsub('[:]','.',Term)) 
+    names(se) <- c('Term',NN)
+    se <- se %>%
+        gather(Class,Value,-Term)
+    se
+    
+    coef <- coef %>%
+        inner_join(se, by=c('Term','Class'),
+                   suffix=c('.coef','.se'))
+
+
+    coef <- coef %>%
+        mutate(LowerCI = Value.coef-Z*Value.se) %>%
+        mutate(UpperCI = Value.coef+Z*Value.se) %>%
+        mutate(OR = exp(Value.coef)) %>%
+        mutate(OR.Lr = exp(LowerCI)) %>%
+        mutate(OR.Upr = exp(UpperCI)) %>%
+        select(-LowerCI,-UpperCI)
+
+return(coef)
+}
+#d <- poLCA.CI(poLCA.PCV2.PPV2)
+
+#kable(d)
+#poLCA.CI(LCA_best_model_adj_mod)
+
+
+# este es con resultado distal (sensibilidad)
+# 
+# Probabilidad de pertenecer a una clase, según interrupción del embarazo
+# Clase	No interrumpe       	Interrumpe
+# 1	0.19(95%CI=0.16,0.23)	0.18(95%CI=0.17,0.19)
+# *2	0.18(95%CI=0.15,0.21)	0.15(95%CI=0.14,0.17)* ---> estas son las cuicas, también 
+# *3	0.3(95%CI=0.26,0.33)	0.39(95%CI=0.37,0.4)*
+# 4	0.16(95%CI=0.13,0.19)	0.13(95%CI=0.12,0.14)
+# 5	0.17(95%CI=0.15,0.21)	0.15(95%CI=0.14,0.17)
+
+
+```
+
+```{r, mean-post, eval=F}
+# extracting class-conditional probabilities
+lc<-LCA_best_model_mod
+R <- length(lc$P)
+probs <- lc$probs
+P <- lc$P
+y <- lc$y
+ti <- lc$ti
+R <- nrow(probs[[1]])
+pi.class <- matrix(NA,nrow=length(probs),ncol=R)
+        for (j in 1:length(probs)) 
+        pi.class[j,] <- probs[[j]][,2]
+dimnames(pi.class) <- list(names(y),round(P,3))
+#rownames(pi.class) <- row.names
+
+probs.se <- lc$probs.se
+se.class <- matrix(NA,nrow=length(probs.se),ncol=R)
+        for (j in 1:length(probs.se)) 
+        se.class[j,] <- probs.se[[j]][,2]
+dimnames(se.class) <- list(names(y),round(P,3))
+#rownames(se.class) <- row.names
+
+ds.plot <- data.frame(Classes=as.vector(col(pi.class)),Manifest.variables=as.vector(row(pi.class)),value=as.vector(pi.class))
+
+ds.plot.stata <- data.frame(Classes=as.vector(col(pi.class)),Manifest.variables=as.vector(row(pi.class)), value=as.vector(pi.class),names=rownames(pi.class), se=as.vector(se.class))
+
+ds.plot.stata %>% tidyr::pivot_wider(names_from=Classes, values_from=c("value","se")) %>% 
+    dplyr::mutate_if(is.numeric, ~round(.,3))
+
+ds.plot.stata %>% tidyr::pivot_wider(names_from=Classes, values_from=c("value","se")) %>% 
+    dplyr::mutate_if(is.numeric, ~round(.,3)) %>% 
+    dplyr::mutate(c1= paste0(value_1*100," (",se_1*100,")")) %>% 
+    dplyr::mutate(c2= paste0(value_2*100," (",se_2*100,")")) %>%
+    dplyr::mutate(c3= paste0(value_3*100," (",se_3*100,")")) %>% 
+    dplyr::mutate(c4= paste0(value_4*100," (",se_4*100,")")) %>% 
+    dplyr::mutate(c5= paste0(value_5*100," (",se_5*100,")")) %>% 
+  dplyr::select(Manifest.variables, names, paste0("c",1:5))
+
+#https://datascience.stackexchange.com/questions/40632/how-do-i-use-the-model-generated-by-the-r-package-polca-to-classify-new-data-as
+
+#no sale, tira errores por el poLCAparallel
+```
+
+
+# Información de la sesión
 
 ```{r, echo=T}
 require(tidyverse)
