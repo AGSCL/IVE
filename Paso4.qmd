@@ -454,7 +454,20 @@ lcmodel %>%
                                       L2=="MACROZONA"~ "Macrozona",
                                       L2=="HITO1_EDAD_GEST_SEM_REC"~ "Edad Gestacional\n(EG) Hito 1",
                                       L2=="PREV_TRAMO_REC"~ "Previsión y\ntramo",
-                                    L2=="PAIS_ORIGEN_REC"~ "País de origen")) %>% dplyr::mutate(lab2=glue::glue("{stringr::str_replace(CATEGORIA,' ','\n')}\n({scales::percent(value)})"))
+                                    L2=="PAIS_ORIGEN_REC"~ "País de origen")) %>%
+  dplyr::mutate(CATEGORIA= gsub("1.0-13 semanas","1. <=13 semanas",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("CENTRO","Centro",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("CENTRO NORTE","Centro norte",CATEGORIA)) %>%
+  dplyr::mutate(CATEGORIA= gsub("CENTRO SUR","Centro sur",CATEGORIA)) %>%
+  dplyr::mutate(CATEGORIA= gsub("NORTE","Norte",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("SUR","Sur",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  #
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(lab2=glue::glue("{stringr::str_replace(CATEGORIA,' ','\n')}\n({scales::percent(value)})"))
 
 zp1b <- ggplot(data= lcmodel_wo_na, aes(x = L2, y = value, fill = Var2, label=lab2))
 zp1b <- zp1b + geom_bar(stat = "identity", position = "stack")
@@ -601,6 +614,20 @@ ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = 
 ## Regresión logística (no distal)
 
 ```{r, "posterior-reg-log"}
+# 
+# average_posterior_probability <- mean(poLCA.posterior(best_model_glca, LCA_best_model_mod$predclass))
+#
+
+# table(LCA_best_model_mod$predclass)
+# table(posterior_glca_05_final$final_05)
+# table(posterior_glca_05_final$final_05,car::recode(posterior_glca_05_final$final_05,"4=1;3=2;3=3;2=4;5=5;NA=NA"))
+# 
+# 
+# posterior_glca_07_final %>% 
+#     rowwise() %>%
+#     mutate(count_ones = sum(c_across(starts_with("Class")) == 1)) %>%
+#     ungroup() %>% 
+#     janitor::tabyl(final_07,count_ones)
 
 #Classifying by posterior probs.
 posterior_glca_05_final<-
@@ -627,20 +654,31 @@ LCA_best_model_mod$posterior %>%
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+bd_mydata_preds3_posterior<-
+cbind.data.frame(mydata_preds3,final_07=posterior_glca_07_final$final_07,final_05=posterior_glca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))%>% 
+  dplyr::mutate(final_07= dplyr::case_when(final_07==1~3, final_07==3~1, final_07==2~4, final_07==4~2, final_07==4~1, final_07==1~4, T~final_07)) %>% 
+  dplyr::mutate(final_05= dplyr::case_when(final_05==1~3, final_05==3~1, final_05==2~4, final_05==4~2, final_05==4~1, final_05==1~4, T~final_05))%>%
+  dplyr::mutate(final_07=car::recode(final_07,"2=1;1=2")) %>% 
+  dplyr::mutate(final_05=car::recode(final_05,"2=1;1=2")) 
+  
+#janitor::tabyl(final_07) 
+
+bd_mydata_preds3_posterior_polca<-
+cbind.data.frame(mydata_preds3,final_07=posterior_polca_07_final$final_07,final_05=posterior_polca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0)) %>% 
+  dplyr::mutate(final_07=car::recode(final_07,"2=1;1=2")) %>% 
+  dplyr::mutate(final_07=car::recode(final_05,"2=1;1=2"))
+
 bd_reg2<-
 bind_rows(
-broom::tidy(glm(outcome~factor(final_07), data=cbind.data.frame(mydata_preds3,final_07=posterior_glca_07_final$final_07,final_05=posterior_glca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0)) %>% dplyr::filter(!is.na(final_07))),
-            exponentiate=T, conf.int = T
-),
-broom::tidy(glm(outcome~factor(final_05), data=cbind.data.frame(mydata_preds3,final_07=posterior_glca_07_final$final_07,final_05=posterior_glca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))),
-            exponentiate=T, conf.int = T
-),
-broom::tidy(glm(outcome~factor(final_07), data=cbind.data.frame(mydata_preds3,final_07=posterior_polca_07_final$final_07,final_05=posterior_polca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0)) %>% dplyr::filter(!is.na(final_07))),
-            exponentiate=T, conf.int = T
-),
-broom::tidy(glm(outcome~factor(final_05), data=cbind.data.frame(mydata_preds3,final_07=posterior_polca_07_final$final_07,final_05=posterior_polca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))),
-            exponentiate=T, conf.int = T
-)
+broom::tidy(glm(outcome~ factor(final_07), data= bd_mydata_preds3_posterior),
+            exponentiate=T, conf.int = T),
+broom::tidy(glm(outcome~factor(final_05), data=bd_mydata_preds3_posterior),
+            exponentiate=T, conf.int = T),
+broom::tidy(glm(outcome~factor(final_07), data=bd_mydata_preds3_posterior_polca),
+            exponentiate=T, conf.int = T),
+broom::tidy(glm(outcome~factor(final_05), data=bd_mydata_preds3_posterior_polca),
+            exponentiate=T, conf.int = T)
 ) %>% 
   dplyr::select(-std.error, -statistic) %>% 
   dplyr::mutate_at(c("estimate","conf.low","conf.high"),~round(.,2)) %>%
@@ -653,6 +691,9 @@ broom::tidy(glm(outcome~factor(final_05), data=cbind.data.frame(mydata_preds3,fi
 #cbind.data.frame(mydata_preds3,final_07=posterior_polca_07adj$final_07,final_05=posterior_polca_05adj$final_05) %>% janitor::tabyl(outcome,final_07)
 bd_reg2 %>% 
   knitr::kable("markdown",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)")
+
+bd_reg2 %>% 
+    knitr::kable("html",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)") %>% kableExtra::kable_classic()
 ```
 
 ```{r, "dist"}
