@@ -7,6 +7,7 @@ author: "Andrés González Santa Cruz"
 format: 
   html:
     code-fold: true
+    embed-resources: true
 editor: visual
 ---
 
@@ -567,7 +568,21 @@ ggsave("zp1.png", zp1b+ggrepel::geom_label_repel(data= dplyr::filter(lcmodel_wo_
 ggplotly(zp1a,height=600, width=800)%>% layout(xaxis= list(showticklabel=T))
 ```
 
-\
+```{r, fig.height=13}
+zp1b+ggrepel::geom_label_repel(data= dplyr::filter(lcmodel_wo_na,!CATEGORIA=="Perdidos"),#aes(#y=half, label=lab),
+      #position = position_dodge(width = .5),    # move to center of bars
+              #vjust = 0,    # nudge above top of bar
+  #position = position_stack(vjust = 0.5),
+            #position = position_dodge(width = .8),
+            #vjust = .1,
+            position = position_stack(vjust = 0.5),
+              size = 3,
+            max.iter = 1e6,
+            #direction = "y",
+            #force=1,
+            #seed=123,
+            colour = "white", fontface = "bold")+theme(legend.position= "none")
+```
 
 ```{r, clasificaciones-res-distal,  fig.cap= "Distribución de categorías del modelo ajustado", echo=T, error= T}
 
@@ -740,25 +755,25 @@ lcmodel_glca %>%
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
 
-zp3 <- ggplot(lcmodel_glca_wo_na,aes(x = L2, y = value, fill = factor(pr), label=text_label))
-zp3 <- zp3 + geom_bar(stat = "identity", position = "stack")
-zp3 <- zp3 + facet_grid(class ~ .) 
-zp3 <- zp3 + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
-zp3 <- zp3 + labs(y = "Porcentaje de probabilidad de respuesta", 
+zp3a <- ggplot(lcmodel_glca_wo_na,aes(x = L2, y = value, fill = factor(pr), label=text_label))
+zp3a <- zp3a + geom_bar(stat = "identity", position = "stack")
+zp3a <- zp3a + facet_grid(class ~ .) 
+zp3a <- zp3a + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
+zp3a <- zp3a + labs(y = "Porcentaje de probabilidad de respuesta", 
                   x = "",
                   fill ="Cateorías de\nRespuesta")
-zp3 <- zp3 + theme( axis.text.y=element_blank(),
+zp3a <- zp3a + theme( axis.text.y=element_blank(),
                     axis.ticks.y=element_blank(),                    
                     panel.grid.major.y=element_blank())
-zp3 <- zp3 + guides(fill = guide_legend(reverse=TRUE))
-zp3 <- zp3 + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+zp3a <- zp3a + guides(fill = guide_legend(reverse=TRUE))
+zp3a <- zp3a + theme(axis.text.x = element_text(angle = 30, hjust = 1))
 
 # ggplotly(zp3, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
-zp3
+zp3a
 ```
 
 ```{r, error= T}
-ggplotly(zp3, tooltip = c("text_label"),height=600, width=800)%>% layout(xaxis= list(showticklabels = T))
+ggplotly(zp3a, tooltip = c("text_label"),height=600, width=800)%>% layout(xaxis= list(showticklabels = T))
 ```
 
 ```{r, clasificaciones-res-distal-alt,  fig.cap= "Distribución de categorías del modelo ajustado (alternativo)", echo=T, error= T}
@@ -791,24 +806,24 @@ lcmodel_glca_adj %>%
 
 lcmodel_glca_adj_wo_na$text_label<-paste0("Categoria:",lcmodel_glca_adj_wo_na$CATEGORIA,"<br>%: ",scales::percent(lcmodel_glca_adj_wo_na$value))
 
-zp4 <- ggplot(lcmodel_glca_adj_wo_na,aes(x = var, y = value, fill = factor(pr), label=text_label))
-zp4 <- zp4 + geom_bar(stat = "identity", position = "stack")
-zp4 <- zp4 + facet_grid(class ~ .) 
-zp4 <- zp4 + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
-zp4 <- zp4 + labs(y = "Porcentaje de probabilidad de respuesta", 
+zp4a <- ggplot(lcmodel_glca_adj_wo_na,aes(x = var, y = value, fill = factor(pr), label=text_label))
+zp4a <- zp4a + geom_bar(stat = "identity", position = "stack")
+zp4a <- zp4a + facet_grid(class ~ .) 
+zp4a <- zp4a + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
+zp4a <- zp4a + labs(y = "Porcentaje de probabilidad de respuesta", 
                   x = "",
                   fill ="Cateorías de\nRespuesta")
-zp4 <- zp4 + theme( axis.text.y=element_blank(),
+zp4a <- zp4a + theme( axis.text.y=element_blank(),
                     axis.ticks.y=element_blank(),                    
                     panel.grid.major.y=element_blank())
-zp4 <- zp4 + guides(fill = guide_legend(reverse=TRUE))
-zp4 <- zp4 + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+zp4a <- zp4a + guides(fill = guide_legend(reverse=TRUE))
+zp4a <- zp4a + theme(axis.text.x = element_text(angle = 30, hjust = 1))
 
-zp4
+zp4a
 ```
 
 ```{r, error= T}
-ggplotly(zp4, tooltip = c("text_label"),height=600, width=800)%>% layout(xaxis= list(showticklabels = T))
+ggplotly(zp4a, tooltip = c("text_label"),height=600, width=800)%>% layout(xaxis= list(showticklabels = T))
 ```
 
 ## Regresión logística (no distal)
