@@ -226,32 +226,26 @@ Cargar bases de datos
 
 rm(list = ls()) # limpiar completamente el entorno global environment
 
-if(!require(poLCA)){install.packages("poLCA")}
-if(!require(poLCAParallel)){devtools::install_github("QMUL/poLCAParallel@package")}
-if(!require(compareGroups)){install.packages("compareGroups")}
-if(!require(parallel)){install.packages("parallel")}
-if(!require(Hmisc)){install.packages("Hmisc")}
-if(!require(tidyverse)){install.packages("tidyverse")}
-try(if(!require(sjPlot)){install.packages("sjPlot")})
-if(!require(emmeans)){install.packages("emmeans")}
-if(!require(nnet)){install.packages("nnet")}
-if(!require(here)){install.packages("here")}
-if(!require(doParallel)){install.packages("doParallel")}
-if(!require(progress)){install.packages("progress")}
-if(!require(caret)){install.packages("caret")}
-if(!require(rpart)){install.packages("rpart")}
-if(!require(rpart.plot)){install.packages("rpart.plot")}
-if(!require(partykit)){install.packages("partykit")}
-if(!require(randomForest)){install.packages("randomForest")}
-if(!require(ggcorrplot)){install.packages("ggcorrplot")}
-if(!require(polycor)){install.packages("polycor")}
-if(!require(tableone)){install.packages("tableone")}
-if(!require(broom)){install.packages("broom")}
-if(!require(plotly)){install.packages("plotly")}
-if(!require(ggrepel)){install.packages("ggrepel")}
+
+packages <- c("poLCA", "compareGroups", "parallel", "Hmisc", "tidyverse", "sjPlot", "emmeans", "here", "doParallel", "progress", "partykit", "ggcorrplot", "polycor", "tableone", "broom", "plotly", "ggrepel", "DiagrammeR", "rsvg", "DiagrammeRsvg", "webshot", "htmlwidgets")
+
+#https://cran.r-project.org/web/packages/ggplot2/news/news.html
+#had to downgrade: 
+#install.packages("ggplot2", version='3.4.1')
+
+missing_packages <- packages[!sapply(packages, require, character.only = TRUE)]
+if(length(missing_packages) > 0) {
+  warning(paste("Los siguientes paquetes no están instalados:", paste(missing_packages, collapse = ", ")))
+}
+
+# Para el paquete de GitHub
+if(!require(poLCAParallel)) warning("El paquete poLCAParallel no está instalado.")
+
+#if(!require(poLCAParallel)){devtools::install_github("QMUL/poLCAParallel@package")}
+#devtools::install_github("tidyverse/ggplot2")
+# Requiere Rtools 4.2
 
 `%>%`<- magrittr::`%>%`
-
 
 #ags_funcion_para ver datos
 cbind.fill <- function(...){
@@ -262,9 +256,60 @@ cbind.fill <- function(...){
 }
 ```
 
+```{r model,eval=T, echo=T, paged.print=TRUE, fig.cap="Gráfico esquemático", fig.align='center'}
+library(DiagrammeR) #⋉
+gr_lca2<-
+DiagrammeR::grViz("
+digraph flowchart {
+    fontname='Comic Sans MS'
+
+  # Nodes
+  subgraph samelevel {
+    CAUSAL [label = 'Causal',fontsize=10,shape = box]
+    EDAD_MUJER_REC [label = 'Edad\npersona\ngestante',fontsize=10,shape = box]
+    HITO1_EDAD_GEST_SEM_REC [label = 'Edad\nGestacional\nHito 1',fontsize=10,shape = box]
+    MACROZONA [label = 'Macrozona',fontsize=10,shape = box]
+    PAIS_ORIGEN_REC [label = 'País de\norigen',fontsize=10,shape = box]
+    PREV_TRAMO_REC [label = 'Previsión y\ntramo',fontsize=10,shape = box]
+    
+  {rank=same; rankdir= 'TB'; CAUSAL EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC }
+  }
+  LCA [label= 'Clases\nlatentes', shape= circle, style=filled, color=lightgrey, fontsize=10]
+  
+  inter [label = 'Interupción\nembarazo',fontsize=10,shape = box, height=.00002] # set the position of the inter node pos='15,100'
+
+  # Nodes
+  subgraph {
+   LCA ->  {CAUSAL EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC } [rank=same; rankdir= 'TB'] 
+}
+  subgraph {
+   LCA -> inter [minlen=14] #minlen es necesario para correr arrowhead = none; 
+  {rank=same; LCA inter [rankdir='LR']}; #; 
+}
+}")#, width = 1200, height = 900
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3733703/
+#Cohort matching on a variable associated with both outcome and censoring
+#Cohort matching on a confounder. We let A denote an exposure, Y denote an outcome, and C denote a confounder and matching variable. The variable S indicates whether an individual in the source population is selected for the matched study (1: selected, 0: not selected). See Section 2-7 for details.
+#https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7064555/
+
+gr_lca2 
+
+DPI = 1200
+WidthCM = 21
+HeightCM = 8
+
+gr_lca2 %>%
+  export_svg %>% charToRaw %>% rsvg::rsvg_pdf("_flowchart_lca_adj_sin_po_ano.pdf")
+
+gr_lca2 %>% export_svg()%>%charToRaw %>% rsvg(width = WidthCM *(DPI/2.54), height = HeightCM *(DPI/2.54)) %>% png::writePNG("_flowchart_lca0_adj_sin_po.png")
+
+htmlwidgets::saveWidget(gr_lca2, "_flowchart_lca_adj_sin_po_ano.html")
+#webshot::webshot("_flowchart_lca_adj_ano.html", "_flowchart_lca_adj_sin_po_ano.png",vwidth = 1200, vheight = 900, zoom = 2)
+```
+
 # Análisis de clases latentes, modelos definitivos, sin pueblo originario y año
 
-```{r,corregir-fig-ajuste-1, fig.cap= "Índices de ajuste, modelo sin covariable", echo=T}
+```{r,corregir-fig-ajuste-1, fig.cap= "Índices de ajuste, modelo sin covariable", echo=T, error= T}
 rm(list = ls());gc()
 load("data2_lca3_sin_po_ano_2023_05_14.RData") #Paso 213 y 214
 #variables_probabilities_in_category_sin_po_ano.xlsx
@@ -293,7 +338,7 @@ fig_lca_fit
 ggsave("__fig2_medidas_de_ajuste_polca_sin_ano_pueb_orig.pdf",fig_lca_fit)
 ```
 
-```{r,corregir-fig-ajuste-2, fig.cap= "Índices de ajuste, modelo variable distal", echo=T}
+```{r,corregir-fig-ajuste-2, fig.cap= "Índices de ajuste, modelo variable distal", echo=T, error= T}
 manualcolors2<- c(paste0("gray",seq(20,80, by=20)))
 fig_lca_fit2<- tab_ppio2 %>%
   dplyr::mutate_if(is.character, as.numeric) %>%  # convert character columns to numeric
@@ -316,7 +361,7 @@ ggsave("__fig3_medidas_de_ajuste_polca_sin_ano_pueb_orig_adj.pdf",fig_lca_fit2)
 ```
 
 ::: controlly
-```{r,corregir-tabla-descriptiva, echo=T}
+```{r,corregir-tabla-descriptiva, echo=T, error= T}
 
 table_homolog<-
 cbind.data.frame(
@@ -327,21 +372,21 @@ Name = c("n", "CAUSAL", "CAUSAL", "CAUSAL", "EDAD_MUJER_REC",
                         "MACROZONA", "MACROZONA", "MACROZONA", "MACROZONA", "MACROZONA", 
                         "MACROZONA", "AÑO", "AÑO", "AÑO", "AÑO", "AÑO", "PREV_TRAMO_REC", 
                         "PREV_TRAMO_REC", "PREV_TRAMO_REC", "PREV_TRAMO_REC", "PREV_TRAMO_REC", 
-                        "HITO2_DECISION_MUJER_IVE", "HITO2_DECISION_MUJER_IVE", "HITO2_DECISION_MUJER_IVE"),
+                        "HITO2_DECISION_MUJER_IVE", "HITO2_DECISION_MUJER_IVE", "HITO2_DECISION_MUJER_IVE","HITO4_MUJER_ACEPTA_ACOM","HITO4_MUJER_ACEPTA_ACOM","HITO4_MUJER_ACEPTA_ACOM"),
 level = c("", "2", "3", "4", "1", "2", "3", "4", "5", "1", 
           "2", "3", "1", "2", "3", "4", "1", "2", "3", "4", "5", "6", "2", 
           "3", "4", "5", "6", "1", "2", "3", "4", "5", "CONTINUAR EL EMBARAZO", 
-          "INTERRUMPIR EL EMBARAZO", "NO APLICA, INSCONSCIENTE"),
+          "INTERRUMPIR EL EMBARAZO", "NO APLICA, INSCONSCIENTE","NO", "SI", "NA"),
 cat = c("", "Causal 1", "Causal 2", "Causal 3", "[Perdidos]", "1. <18", "2. 18-24", "3. 25-35", "4. >=35", 
           "[Perdidos]", "Chile", "Otros", "[Perdidos]", "1. 0-13 semanas", "2. 14-27 semanas", "3. >=28 semanas", 
           "[Perdidos]", "Centro", "Centro Norte", "Centro Sur", "Norte", "Sur", "2018", "2019", "2020", "2021", "2022", 
-          "[Perdidos]", "ISAPRE o FFAA", "FONASA A/B", "FONASA C/D", "NINGUNA", "CONTINUAR EL EMBARAZO", "INTERRUMPIR EL EMBARAZO", "NO APLICA, INSCONSCIENTE")
+          "[Perdidos]", "ISAPRE o FFAA", "FONASA A/B", "FONASA C/D", "NINGUNA", "CONTINUAR EL EMBARAZO", "INTERRUMPIR EL EMBARAZO", "NO APLICA, INSCONSCIENTE", "NO", "SI", "[Perdidos]")
 )
 run_tableone(listVars =c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", 
                          "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC",
-                         "HITO2_DECISION_MUJER_IVE"), df= mydata_preds3, 
+                         "HITO2_DECISION_MUJER_IVE","HITO4_MUJER_ACEPTA_ACOM"), df= cbind.data.frame(mydata_preds3,HITO4_MUJER_ACEPTA_ACOM=mydata_preds$HITO4_MUJER_ACEPTA_ACOM), 
              catVars= c("CAUSAL", "EDAD_MUJER_REC", "PAIS_ORIGEN_REC", 
-                        "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC"),
+                        "HITO1_EDAD_GEST_SEM_REC","MACROZONA", "AÑO", "PREV_TRAMO_REC", "HITO4_MUJER_ACEPTA_ACOM"),
              strata= "outcome") %>%  
   dplyr::left_join(table_homolog, by= c("Name"="Name","level"="level")) %>% 
   dplyr::select(Name, cat, everything()) %>% 
@@ -388,19 +433,19 @@ no_mostrar=1
   med_iqr <-
 rbind.data.frame(medicion=
 paste0(
-  "Edad mujer: ",
+  "Edad persona gestante: ",
   quantile(data2$EDAD_MUJER,.5, na.rm=T), "[",
   quantile(data2$EDAD_MUJER,.25, na.rm=T),", ",
   quantile(data2$EDAD_MUJER,.75, na.rm=T),"]"
   ), medicion=
 paste0(
-  "Edad mujer (IVE): ",
+  "Edad persona gestante (IVE): ",
   quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.5, na.rm=T), "[",
   quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.25, na.rm=T),", ",
   quantile(data2$EDAD_MUJER[mydata_preds3$outcome==1],.75, na.rm=T),"]"
   ),
 medicion=paste0(
-  "Edad mujer (no IVE): ",
+  "Edad persona gestante (no IVE): ",
   quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.5, na.rm=T), "[",
   quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.25, na.rm=T),", ",
   quantile(data2$EDAD_MUJER[mydata_preds3$outcome==0],.75, na.rm=T),"]"
@@ -420,7 +465,7 @@ medicion=paste0(
   # Kurksal Wallis
   kruskal<-
   rbind.data.frame(
-  name=paste0("Edad mujer (continua): H(",kruskal.test(data2$EDAD_MUJER ~ mydata_preds3$outcome)$parameter,")=",
+  name=paste0("Edad persona gestante (continua): H(",kruskal.test(data2$EDAD_MUJER ~ mydata_preds3$outcome)$parameter,")=",
          round(kruskal.test(data2$EDAD_MUJER ~ mydata_preds3$outcome)$statistic,1), ", p=",
          round(kruskal.test(data2$EDAD_MUJER ~ mydata_preds3$outcome)$p.value,3)),
   name=paste0("Edad gestacional (continua): H(",kruskal.test(data2$HITO1_EDAD_GESTACIONAL_SEMANAS ~ mydata_preds3$outcome)$parameter,")=",
@@ -433,15 +478,15 @@ medicion=paste0(
   rio::export(list(chisquare_test = chisquare_test, 
                    fisher_test = fisher_test, 
                    kruskal= kruskal,
-                   iqr= med_iqr), "tableone_extension.xlsx")
+                   iqr= med_iqr), "tableone_extension.xlsx", overwrite = T)
    
-#}
+#, error= T}
 ```
 :::
 
 ## Figuras (poLCA)
 
-```{r, clasificaciones-no-ajustado, fig.cap= "Distribución de categorías del modelo", echo=T}
+```{r, clasificaciones-no-ajustado, fig.cap= "Distribución de categorías del modelo", echo=T, error= T}
 #https://agscl.github.io/IVE/Paso35.html
 require(plotly)
 #https://github.com/slowkow/ggrepel
@@ -450,7 +495,7 @@ lcmodel %>%
                  dplyr::filter(!is.na(CATEGORIA)) %>% 
                  dplyr::mutate(Var1=str_replace(Var1,"class","Clase"),
                  L2= dplyr::case_when(L2=="CAUSAL"~ "Causal",
-                                      L2=="EDAD_MUJER_REC"~ "Edad mujer",
+                                      L2=="EDAD_MUJER_REC"~ "Edad persona\ngestante",
                                       L2=="MACROZONA"~ "Macrozona",
                                       L2=="HITO1_EDAD_GEST_SEM_REC"~ "Edad Gestacional\n(EG) Hito 1",
                                       L2=="PREV_TRAMO_REC"~ "Previsión y\ntramo",
@@ -469,12 +514,33 @@ lcmodel %>%
   dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
   dplyr::mutate(lab2=glue::glue("{stringr::str_replace(CATEGORIA,' ','\n')}\n({scales::percent(value)})"))
 
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#2023-09-24
+lcmodel_wo_na$text_label_pre<-paste0("Categoria:",lcmodel_wo_na$CATEGORIA,"<br>%: ",scales::percent(lcmodel_wo_na$value))
+
+zp1a <- ggplot(lcmodel_wo_na,aes(x = L2, y = value, fill = Var2, label=text_label_pre))
+zp1a <- zp1a + geom_bar(stat = "identity", position = "stack")
+zp1a <- zp1a + facet_grid(Var1 ~ .) 
+zp1a <- zp1a + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
+zp1a <- zp1a + labs(y = "Porcentaje de probabilidad de respuesta", 
+                  x = "",
+                  fill ="Cateorías de\nRespuesta")
+zp1a <- zp1a + theme( axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank(),                    
+                    panel.grid.major.y=element_blank())
+zp1a <- zp1a + guides(fill = guide_legend(reverse=TRUE))
+zp1a <- zp1a + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
 zp1b <- ggplot(data= lcmodel_wo_na, aes(x = L2, y = value, fill = Var2, label=lab2))
 zp1b <- zp1b + geom_bar(stat = "identity", position = "stack")
 #zp1b <- zp1b + geom_text(position = position_stack(vjust = 0.5), size=3)  # add labels
 zp1b <- zp1b + facet_grid(Var1 ~ .) 
 zp1b <- zp1b + scale_fill_manual(values=paste0("grey",seq(20,80, by=60/6))) +theme_bw()
-zp1b <- zp1b + labs(y = "Porcentaje de probabilidad de respuesta", 
+zp1b <- zp1b + labs(y = "Probabilidad de respuesta", 
                   x = "",
                   fill ="Cateorías de\nRespuesta")
 zp1b <- zp1b + theme( axis.text.y=element_blank(),
@@ -482,8 +548,6 @@ zp1b <- zp1b + theme( axis.text.y=element_blank(),
                     panel.grid.major.y=element_blank())
 zp1b <- zp1b + guides(fill = guide_legend(reverse=TRUE))
 zp1b <- zp1b + theme(axis.text.x = element_text(angle = 30, hjust = 1))
-
-
 
 ggsave("zp1.png", zp1b+ggrepel::geom_label_repel(data= dplyr::filter(lcmodel_wo_na,!CATEGORIA=="Perdidos"),#aes(#y=half, label=lab),
       #position = position_dodge(width = .5),    # move to center of bars
@@ -499,21 +563,65 @@ ggsave("zp1.png", zp1b+ggrepel::geom_label_repel(data= dplyr::filter(lcmodel_wo_
             #seed=123,
             colour = "white", fontface = "bold")+theme(legend.position= "none"), height=13)#, fill = "white" --> dentro de label repel
 
- ggplotly(zp1, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800) 
+ #ggplotly(zp1a, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800) 
+ggplotly(zp1a,height=600, width=800)%>% layout(xaxis= list(showticklabel=T))
 ```
 
 \
 
-```{r, clasificaciones-res-distal,  fig.cap= "Distribución de categorías del modelo ajustado", echo=T}
-# ggplotly(zp2, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
-zp2
+```{r, clasificaciones-res-distal,  fig.cap= "Distribución de categorías del modelo ajustado", echo=T, error= T}
+
+lcmodel_adj_wo_na<-
+lcmodel_adj %>% 
+                 dplyr::filter(!is.na(CATEGORIA)) %>% 
+                 dplyr::mutate(Var1=str_replace(Var1,"class","Clase"),
+                 L2= dplyr::case_when(L2=="CAUSAL"~ "Causal",
+                                      L2=="EDAD_MUJER_REC"~ "Edad persona\ngestante",
+                                      L2=="MACROZONA"~ "Macrozona",
+                                      L2=="HITO1_EDAD_GEST_SEM_REC"~ "Edad Gestacional\n(EG) Hito 1",
+                                      L2=="PREV_TRAMO_REC"~ "Previsión y\ntramo",
+                                    L2=="PAIS_ORIGEN_REC"~ "País de origen")) %>%
+  dplyr::mutate(CATEGORIA= gsub("1.0-13 semanas","1. <=13 semanas",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("CENTRO","Centro",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("CENTRO NORTE","Centro norte",CATEGORIA)) %>%
+  dplyr::mutate(CATEGORIA= gsub("CENTRO SUR","Centro sur",CATEGORIA)) %>%
+  dplyr::mutate(CATEGORIA= gsub("NORTE","Norte",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("SUR","Sur",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  #
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(lab2=glue::glue("{stringr::str_replace(CATEGORIA,' ','\n')}\n({scales::percent(value)})"))
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#2023-09-24
+
+lcmodel_adj_wo_na$text_label_pre<-paste0("Categoria:",lcmodel_adj_wo_na$CATEGORIA,"<br>%: ",scales::percent(lcmodel_adj_wo_na$value))
+
+zp2a <- ggplot(lcmodel_adj_wo_na,aes(x = L2, y = value, fill = Var2, label=text_label))
+zp2a <- zp2a + geom_bar(stat = "identity", position = "stack")
+zp2a <- zp2a + facet_grid(Var1 ~ .) 
+zp2a <- zp2a + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
+zp2a <- zp2a + labs(y = "Porcentaje de probabilidad de respuesta", 
+                  x = "",
+                  fill ="Cateorías de\nRespuesta")
+zp2a <- zp2a + theme( axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank(),                    
+                    panel.grid.major.y=element_blank())
+zp2a <- zp2a + guides(fill = guide_legend(reverse=TRUE))
+zp2a <- zp2a + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
+zp2a
 ```
 
-```{r}
-ggplotly(zp2, tooltip= c("text_label"))%>% layout(xaxis= list(showticklabel=T), height=600, width=800)
+```{r, error= T}
+ggplotly(zp2a, tooltip= c("text_label"),height=600, width=800)%>% layout(xaxis= list(showticklabel=T))
 ```
 
-```{r}
+```{r, error= T}
 zp1_tab<-
 lcmodel %>%
   dplyr::select(Var1, L2, CATEGORIA, pr, value) %>% 
@@ -527,14 +635,14 @@ lcmodel_adj %>%
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
 #_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
   rio::export(list(zp1 = zp1_tab, 
-                   zp2_zp1_adj = zp2_tab), "tab_mod_dist_cat.xlsx")
+                   zp2_zp1_adj = zp2_tab), "tab_mod_dist_cat.xlsx", overwrite = T)
 ```
 
 ## Regresión logística (poLCA)
 
 Antes, ver relación con resultado de aquellos clasificados en una clase.
 
-```{r, perc-outcome-predclass}
+```{r, perc-outcome-predclass, error= T}
 cbind.data.frame(mydata_preds3,LCA_best_model_mod$predclass) %>% 
     janitor::tabyl(outcome, `LCA_best_model_mod$predclass`)%>%
     janitor::adorn_percentages("col") %>% 
@@ -543,7 +651,7 @@ cbind.data.frame(mydata_preds3,LCA_best_model_mod$predclass) %>%
 
 Con resultado distal
 
-```{r, reg-log, echo=T}
+```{r, reg-log, echo=T, error=T}
 
 df_model_LCA2 %>% select(starts_with("prob_c")) %>% 
   t() %>% data.table::data.table(keep.rownames=T) %>% 
@@ -556,12 +664,12 @@ df_model_LCA2 %>% select(starts_with("prob_c")) %>%
 ## Medidas de ajuste poLCA y glca, combinados
 
 ```{r, "cargar datos glca"}
-load("data2_lca3_glca_sin_po_ano.RData")
+load("data2_lca3_glca_sin_po_ano.RData") # from H:/Mi unidad/Angelica/secreto/IVE/Paso36.Rmd
 
 ```
 
 ::: controlly
-```{r,corregir-fig-ajuste-3, echo=T}
+```{r,corregir-fig-ajuste-3, echo=T, error= T}
 #rm(list = ls());gc()
 tab_ppio %>%#
   dplyr::select(ModelIndex, everything()) %>% 
@@ -578,7 +686,7 @@ tab_fit1 %>%
 :::
 
 ::: controlly
-```{r,corregir-fig-ajuste-4, echo=T}
+```{r,corregir-fig-ajuste-4, echo=T, error= T}
 tab_ppio2 %>%#
   dplyr::select(ModelIndex, everything()) %>% 
     dplyr::mutate_if(is.character, as.numeric) %>% 
@@ -592,7 +700,7 @@ tab_fit2 %>%
     knitr::kable(format="markdown", caption="Medidas de ajuste (ajustado)")
 
  rio::export(list(sin_ajustar = tab_fit1, 
-                   ajustado = tab_fit2), "polca_glca_fit_table.xlsx")
+                   ajustado = tab_fit2), "polca_glca_fit_table.xlsx", overwrite=T)
  #Masyn is talking about normalized entropy above, which ranges from 0 to 1.
 # Masyn, K. (2013). Chapter 25 Latent Class Analysis and Finite Mixture Modeling. The Oxford Handbook of Quantitative Methods. D. Little (eds). https://www.statmodel.com/download/Masyn_2013.pdf
  #Vermunt, J. K., & Magidson, J. (2016). Technical guide for Latent GOLD 5.1: Basic, advanced, and syntax. Belmont, MA: Statistical Innovations Inc.
@@ -602,29 +710,110 @@ tab_fit2 %>%
 
 ## Figuras
 
-```{r, clasificaciones-no-ajustado-alt, fig.cap= "Distribución de categorías del modelo (alternativo)", echo=T}
+```{r, clasificaciones-no-ajustado-alt, fig.cap= "Distribución de categorías del modelo (alternativo)", echo=T, error= T}
 ##https://agscl.github.io/IVE/Paso36.html
-require(plotly)
+
+lcmodel_glca_wo_na<-
+lcmodel_glca %>% 
+                 dplyr::filter(!is.na(CATEGORIA)) %>% 
+                 dplyr::mutate(class=str_replace(class,"Class","Clase"),
+                 L2= dplyr::case_when(var=="CAUSAL"~ "Causal",
+                                      var=="EDAD_MUJER_REC"~ "Edad persona\ngestante",
+                                      var=="MACROZONA"~ "Macrozona",
+                                      var=="HITO1_EDAD_GEST_SEM_REC"~ "Edad Gestacional\n(EG) Hito 1",
+                                      var=="PREV_TRAMO_REC"~ "Previsión y\ntramo",
+                                    var=="PAIS_ORIGEN_REC"~ "País de origen")) %>%
+  dplyr::mutate(CATEGORIA= gsub("1.0-13 semanas","1. <=13 semanas",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("CENTRO","Centro",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("CENTRO NORTE","Centro norte",CATEGORIA)) %>%
+  dplyr::mutate(CATEGORIA= gsub("CENTRO SUR","Centro sur",CATEGORIA)) %>%
+  dplyr::mutate(CATEGORIA= gsub("NORTE","Norte",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("SUR","Sur",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  #
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(lab2=glue::glue("{stringr::str_replace(CATEGORIA,' ','\n')}\n({scales::percent(value)})"))
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+zp3 <- ggplot(lcmodel_glca_wo_na,aes(x = L2, y = value, fill = factor(pr), label=text_label))
+zp3 <- zp3 + geom_bar(stat = "identity", position = "stack")
+zp3 <- zp3 + facet_grid(class ~ .) 
+zp3 <- zp3 + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
+zp3 <- zp3 + labs(y = "Porcentaje de probabilidad de respuesta", 
+                  x = "",
+                  fill ="Cateorías de\nRespuesta")
+zp3 <- zp3 + theme( axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank(),                    
+                    panel.grid.major.y=element_blank())
+zp3 <- zp3 + guides(fill = guide_legend(reverse=TRUE))
+zp3 <- zp3 + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
 # ggplotly(zp3, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
 zp3
 ```
 
-```{r}
-ggplotly(zp3, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+```{r, error= T}
+ggplotly(zp3, tooltip = c("text_label"),height=600, width=800)%>% layout(xaxis= list(showticklabels = T))
 ```
 
-```{r, clasificaciones-res-distal-alt,  fig.cap= "Distribución de categorías del modelo ajustado (alternativo)", echo=T}
-# ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+```{r, clasificaciones-res-distal-alt,  fig.cap= "Distribución de categorías del modelo ajustado (alternativo)", echo=T, error= T}
+lcmodel_glca_adj_wo_na<-
+lcmodel_glca_adj %>% 
+                 dplyr::filter(!is.na(CATEGORIA)) %>% 
+                 dplyr::mutate(class=str_replace(class,"Class","Clase"),
+                 L2= dplyr::case_when(var=="CAUSAL"~ "Causal",
+                                      var=="EDAD_MUJER_REC"~ "Edad persona\ngestante",
+                                      var=="MACROZONA"~ "Macrozona",
+                                      var=="HITO1_EDAD_GEST_SEM_REC"~ "Edad Gestacional\n(EG) Hito 1",
+                                      var=="PREV_TRAMO_REC"~ "Previsión y\ntramo",
+                                    var=="PAIS_ORIGEN_REC"~ "País de origen")) %>%
+  dplyr::mutate(CATEGORIA= gsub("1.0-13 semanas","1. <=13 semanas",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("CENTRO","Centro",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("CENTRO NORTE","Centro norte",CATEGORIA)) %>%
+  dplyr::mutate(CATEGORIA= gsub("CENTRO SUR","Centro sur",CATEGORIA)) %>%
+  dplyr::mutate(CATEGORIA= gsub("NORTE","Norte",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("SUR","Sur",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  #
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(CATEGORIA= gsub("25-35","25-34",CATEGORIA)) %>% 
+  dplyr::mutate(lab2=glue::glue("{stringr::str_replace(CATEGORIA,' ','\n')}\n({scales::percent(value)})"))
+
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_#_
+
+lcmodel_glca_adj_wo_na$text_label<-paste0("Categoria:",lcmodel_glca_adj_wo_na$CATEGORIA,"<br>%: ",scales::percent(lcmodel_glca_adj_wo_na$value))
+
+zp4 <- ggplot(lcmodel_glca_adj_wo_na,aes(x = var, y = value, fill = factor(pr), label=text_label))
+zp4 <- zp4 + geom_bar(stat = "identity", position = "stack")
+zp4 <- zp4 + facet_grid(class ~ .) 
+zp4 <- zp4 + scale_fill_brewer(type="seq", palette="Greys", na.value = "white") +theme_bw()
+zp4 <- zp4 + labs(y = "Porcentaje de probabilidad de respuesta", 
+                  x = "",
+                  fill ="Cateorías de\nRespuesta")
+zp4 <- zp4 + theme( axis.text.y=element_blank(),
+                    axis.ticks.y=element_blank(),                    
+                    panel.grid.major.y=element_blank())
+zp4 <- zp4 + guides(fill = guide_legend(reverse=TRUE))
+zp4 <- zp4 + theme(axis.text.x = element_text(angle = 30, hjust = 1))
+
 zp4
 ```
 
-```{r}
-ggplotly(zp4, tooltip = c("text_label"))%>% layout(xaxis= list(showticklabels = T),height=600, width=800)
+```{r, error= T}
+ggplotly(zp4, tooltip = c("text_label"),height=600, width=800)%>% layout(xaxis= list(showticklabels = T))
 ```
 
 ## Regresión logística (no distal)
 
-```{r, "posterior-reg-log"}
+```{r, "posterior-reg-log", error= T}
 # 
 # average_posterior_probability <- mean(poLCA.posterior(LCA_best_model_mod, LCA_best_model_mod$predclass))
 #
@@ -678,27 +867,31 @@ LCA_best_model_mod$posterior %>%
 bd_mydata_preds3_posterior<-
 cbind.data.frame(mydata_preds3,final_07=posterior_glca_07_final$final_07,final_05=posterior_glca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0))%>% 
   dplyr::mutate(final_07= dplyr::case_when(final_07==1~3, final_07==3~1, final_07==2~4, final_07==4~2, final_07==4~1, final_07==1~4, T~final_07)) %>% 
-  dplyr::mutate(final_05= dplyr::case_when(final_05==1~3, final_05==3~1, final_05==2~4, final_05==4~2, final_05==4~1, final_05==1~4, T~final_05))%>%
-  dplyr::mutate(final_07=car::recode(final_07,"2=1;1=2")) %>% 
-  dplyr::mutate(final_05=car::recode(final_05,"2=1;1=2")) 
+  dplyr::mutate(final_05= dplyr::case_when(final_05==1~3, final_05==3~1, final_05==2~4, final_05==4~2, final_05==4~1, final_05==1~4, T~final_05)) #%>%
+ # dplyr::mutate(final_07=car::recode(final_07,"2=1;1=2")) %>% 
+#  dplyr::mutate(final_05=car::recode(final_05,"2=1;1=2")) 
   
 #janitor::tabyl(final_07) 
 
 bd_mydata_preds3_posterior_polca<-
-cbind.data.frame(mydata_preds3,final_07=posterior_polca_07_final$final_07,final_05=posterior_polca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0)) %>% 
-  dplyr::mutate(final_07=car::recode(final_07,"2=1;1=2")) %>% 
-  dplyr::mutate(final_07=car::recode(final_05,"2=1;1=2"))
+cbind.data.frame(mydata_preds3,final_07=posterior_polca_07_final$final_07,final_05=posterior_polca_05_final$final_05)%>% dplyr::mutate(outcome=ifelse(outcome==1,1,0)) #%>% 
+  # dplyr::mutate(final_07=car::recode(final_07,"2=1;1=2")) %>% 
+  # dplyr::mutate(final_05=car::recode(final_05,"2=1;1=2"))
 
 bd_reg2<-
 bind_rows(
-broom::tidy(glm(outcome~ factor(final_07), data= bd_mydata_preds3_posterior),
-            exponentiate=T, conf.int = T),
-broom::tidy(glm(outcome~factor(final_05), data=bd_mydata_preds3_posterior),
-            exponentiate=T, conf.int = T),
-broom::tidy(glm(outcome~factor(final_07), data=bd_mydata_preds3_posterior_polca),
-            exponentiate=T, conf.int = T),
-broom::tidy(glm(outcome~factor(final_05), data=bd_mydata_preds3_posterior_polca),
-            exponentiate=T, conf.int = T)
+glm(outcome~ relevel(factor(final_07),ref=2), data= bd_mydata_preds3_posterior)%>% 
+    lmtest::coeftest(vcov. = sandwich::vcovHC, type = "HC0") %>% 
+            broom::tidy(exponentiate=T, conf.int = T),
+glm(outcome~ relevel(factor(final_05),ref=2), data= bd_mydata_preds3_posterior)%>% 
+    lmtest::coeftest(vcov. = sandwich::vcovHC, type = "HC0") %>% 
+            broom::tidy(exponentiate=T, conf.int = T),
+glm(outcome~ relevel(factor(final_07),ref=2), data= bd_mydata_preds3_posterior_polca)%>% 
+    lmtest::coeftest(vcov. = sandwich::vcovHC, type = "HC0") %>% 
+            broom::tidy(exponentiate=T, conf.int = T),
+glm(outcome~ relevel(factor(final_05),ref=2), data= bd_mydata_preds3_posterior_polca)%>% 
+    lmtest::coeftest(vcov. = sandwich::vcovHC, type = "HC0") %>% 
+            broom::tidy(exponentiate=T, conf.int = T)
 ) %>% 
   dplyr::select(-std.error, -statistic) %>% 
   dplyr::mutate_at(c("estimate","conf.low","conf.high"),~round(.,2)) %>%
@@ -706,23 +899,30 @@ broom::tidy(glm(outcome~factor(final_05), data=bd_mydata_preds3_posterior_polca)
   add_column(mod=c(rep("glca",10),rep("polca",10))) %>% 
   add_column(reg=c(rep(">.7 probs",5),rep(">.5 probs",5),rep(">.7 probs",5),rep(">.5 probs",5))) %>% 
   dplyr::select(mod, reg, everything()) %>% 
-  dplyr::mutate(output= glue::glue('{estimate} ({conf.low}-{conf.high})')) %>% 
+  dplyr::mutate(output= glue::glue('{sprintf("%.2f",exp(estimate))} ({sprintf("%.2f",exp(conf.low))}; {sprintf("%.2f",exp(conf.high))})')) %>% 
+  dplyr::mutate(p.value= ifelse(p.value<0.001,"<0.001",sprintf("%.3f", p.value))) %>% 
   dplyr::select(mod, reg, term, output, p.value) 
 #cbind.data.frame(mydata_preds3,final_07=posterior_polca_07adj$final_07,final_05=posterior_polca_05adj$final_05) %>% janitor::tabyl(outcome,final_07)
 bd_reg2 %>% 
   knitr::kable("markdown",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)")
 
-bd_reg2 %>% rio::export("tab_reg.xlsx")
+bd_reg2 %>% rio::export("tab_reg.xlsx", overwrite=T)
     # knitr::kable("html",size=9, caption="Regresión logística (x= Clase latente; y= interrumpir)") %>% kableExtra::kable_classic()
 ```
 
-```{r, "marg-eff"}
+```{r, "marg-eff", error= T}
 reg_log<-glm(outcome~ final_07, data= bd_mydata_preds3_posterior %>% mutate(final_07=factor(final_07)))
+reg_log<-
+glm(outcome~ relevel(factor(final_05),ref=2), data= bd_mydata_preds3_posterior_polca)
 ggeffects::ggpredict(reg_log)
 ```
 
+```{r}
+model3ff_reg_rec <- emmeans(glm(outcome~ factor(final_05), data= bd_mydata_preds3_posterior_polca), "final_05")
+pairs(model3ff_reg_rec, type = "response")#, type = "lp")
+```
 
-```{r, "dist"}
+```{r, "dist", error= T}
 mydata_preds3 %>% 
     group_by(CAUSAL, PREV_TRAMO_REC, HITO2_DECISION_MUJER_IVE) %>% 
     summarise(n=n()) %>%
@@ -738,7 +938,7 @@ mydata_preds3 %>%
   knitr::kable("markdown", caption="Distribución causal, previsión e IVE", col.names=c("Causal","Previsión y Tramo", "% de la previsión en la causal", "% de IVE para cada previsión por causal", "n"))
 ```
 
-```{r, "alt-reg-dist.outcome"}
+```{r, "alt-reg-dist.outcome", error= T}
 #https://github.com/cran/effects/blob/master/R/effectspoLCA.R
 #https://martinpaladino.xyz/2018/11/27/an%C3%A1lisis-de-clases-latentes-ii/
 #The effects-plots (or also the numeric output) give you the predicted values of the outcome for certain given values for the predictors (independent variables). It just "inserts" the value of a predictor into the model formula. Since you calculate the effect for one predictor at time, the other predictors are "hold constant", i.e. their regression coefficients are not ignored, but - by default - their mean value is chosen.
@@ -747,7 +947,7 @@ mydata_preds3 %>%
 #https://stats.stackexchange.com/questions/362414/interpretation-of-regression-coefficients-in-latent-class-regression-using-polc
 ```
 
-```{r,functions for poLCA}
+```{r,functions for poLCA, error= T}
 # Graph of poLCA object
 poLCA.means <- function(fit,ORDERING) {
     t <- table(fit$predclass)
@@ -938,7 +1138,7 @@ return(coef)
 
 ```
 
-```{r, mean-post, eval=F}
+```{r, mean-post, eval=F, error= T}
 # extracting class-conditional probabilities
 lc<-LCA_best_model_mod
 R <- length(lc$P)
@@ -981,10 +1181,49 @@ ds.plot.stata %>% tidyr::pivot_wider(names_from=Classes, values_from=c("value","
 #no sale, tira errores por el poLCAparallel
 ```
 
+```{r, "flexmix", eval=F, error= T}
+#https://cran.r-project.org/web/packages/flexmix/vignettes/regression-examples.pdf
+#https://cran.r-project.org/web/packages/flexmix/vignettes/mixture-regressions.pdf
+#https://cran.r-project.org/web/packages/flexmix/vignettes/bootstrapping.pdf
+require(flexmix)
+#2023-
+mydata_preds3_reg<-
+  mydata_preds3 %>% 
+    dplyr::group_by(CAUSAL, EDAD_MUJER_REC, MACROZONA, HITO1_EDAD_GEST_SEM_REC, PREV_TRAMO_REC, PAIS_ORIGEN_REC) %>% 
+    dplyr::summarise(success= sum(as.numeric(outcome)-1, na.rm=T),total= n(),failure= total- success) %>% 
+    data.table::data.table() %>% 
+    data.frame()
+#table_homolog
+require(flexmix)
+
+#t. The general form is y~x|g where y is the response, x the set of predictors and g an optional grouping factor for repeated measurements.
+# k= Number of clusters (not needed if cluster is specified).
+# 
+set.seed(2125)
+flexmix_fit <- stepFlexmix(cbind(success, failure) ~ CAUSAL+ EDAD_MUJER_REC+ MACROZONA+ HITO1_EDAD_GEST_SEM_REC+ PREV_TRAMO_REC+ PAIS_ORIGEN_REC, 
+      data =  mydata_preds3_reg,
+      model = FLXMRglmfix(family = "binomial"),
+      k = 1:9, 
+      nrep = 2.5e3, #1.5? probar
+      control = list(iter = 5e4, tol = 1e-8) #, minprior = 0.2 not recommended
+      )
+try(getModel(ArtEx.fit, "BIC"))
+getModel(flexmix_fit, "BIC")
+invisible("Modelo XXX, mejor ajuste. ")
+
+#predict latent class membership
+predictions <- clusters(fit)
+table(predictions)
+#posterior probabilities
+posterior_probs <- posterior(fit)
+head(posterior_probs)
+```
+
+<br>
 
 # Información de la sesión
 
-```{r, echo=T}
+```{r, echo=T, error= T}
 require(tidyverse)
 sesion_info <- devtools::session_info()
 dplyr::select(

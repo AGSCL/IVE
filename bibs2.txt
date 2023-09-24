@@ -1,0 +1,253 @@
+@article{Appelbaum2018,
+  doi = {10.1037/amp0000191},
+  url = {https://doi.org/10.1037/amp0000191},
+  year = {2018},
+  month = jan,
+  publisher = {American Psychological Association (APA)},
+  volume = {73},
+  number = {1},
+  pages = {3--25},
+  author = {Mark Appelbaum and Harris Cooper and Rex B. Kline and Evan Mayo-Wilson and Arthur M. Nezu and Stephen M. Rao},
+  title = {Journal article reporting standards for quantitative research in psychology: The APA Publications and Communications Board task force report.},
+  journal = {American Psychologist}
+}
+
+@misc{clacai2023,
+    title = {Situación aborto},
+    author = {Consorcio Latinoamericano Contra el Aborto Inseguro (CLACAI)},
+    year = {2023},
+    url = {https://clacai.org/aborto/}
+}
+
+@misc{celag2023,
+    title = {La cuestión del aborto en América Latina},
+    author = {Centro Estratégico Latinoamericano de Geopolítica},
+    year = {2023},
+    url = {https://www.celag.org/la-cuestion-del-aborto-en-america-latina/}
+}
+
+@misc{oms2023,
+    title = {Directrices sobre el aborto para ayudar a los países a prestar una atención que salve vidas},
+    author = {Organización Mundial de la Salud (OMS)},
+    year = {2023},
+    url = {https://srhr.org/abortioncare/whats-new/}
+}
+
+@misc{kff2023,
+    title = {Key Facts on Abortion in the United States},
+    author = {Kaiser Family Foundation},
+    year = {2023},
+    url = {https://www.kff.org/womens-health-policy/report/key-facts-on-abortion-in-the-united-states/}
+}
+
+@misc{ine2023,
+    title = {Demografía y Migración},
+    author = {Instituto Nacional de Estadísticas (INE)},
+    year = {2023},
+    url = {https://www.ine.gob.cl/estadisticas/sociales/demografia-y-vitales/demografia-y-migracion}
+}
+
+@article{Santos_2022,
+	doi = {10.1590/1518-8345.5834.3561},
+	url = {https://doi.org/10.1590/1518-8345.5834.3561},
+	year = 2022,
+	publisher = {FapUNIFESP (SciELO)},
+	volume = {30},
+	author = {Danyelle Leonette Araujo dos Santos and Rosa Maria Godoy Serpa da Fonseca},
+	title = {Necessidades em saúde de mulheres vítimas de violência sexual na busca pelo aborto legal},
+	journal = {Revista Latino-Americana de Enfermagem}
+}
+@article{Sucuzha2020,
+	doi = {10.35381/racji.v5i8.584},
+	url = {https://doi.org/10.35381%2Fracji.v5i8.584},
+	year = 2020,
+	month = {jan},
+	publisher = {Fundacion Koinonia},
+	volume = {5},
+	number = {8},
+	pages = {430},
+	author = {Martha Monserrath Sucuzhanay-Uyaguari and Cecilia Ivonne Narvaez-Zurita and Diego Fernando Trelles-Vicuna and Juan Carlos Erazo-Alvarez},
+	title = {Despenalización del aborto en el Ecuador para víctimas de violencia sexual},
+	journal = {IUSTITIA SOCIALIS}
+}
+@incollection{Santamartina2023,
+  doi = {10.2307/jj.1895817.17},
+  url = {https://doi.org/10.2307/jj.1895817.17},
+  year = {2023},
+  month = feb,
+  publisher = {J.M Bosch},
+  pages = {165--174},
+  author = {D. Jorge González Santamartina},
+  title = {Estudio de vulnerabilidad en víctimas de violencia sexual},
+  booktitle = {Cuadernos de psicología criminal y forense}
+}
+@article{Pedroso_2021,
+	doi = {10.46814/lajdv3n3-035},
+	url = {https://doi.org/10.46814%2Flajdv3n3-035},
+	year = 2021,
+	month = {jun},
+	publisher = {South Florida Publishing LLC},
+	volume = {3},
+	number = {3},
+	pages = {1455--1471},
+	author = {Daniela Pedroso and Yara Juliano and Patricia Colombo De Souza and Jefferson Drezett},
+	title = {Gravidez decorrente de violência sexual: Caracterização sociodemográfica das mulheres e desfechos do aborto em um serviço público de referência, São Paulo, Brasil},
+	journal = {Latin American Journal of Development}
+}
+@misc{subsecretaria2023,
+    title = {Controles prenatales},
+    author = {Subsecretaría de la Niñez, Gobierno de Chile},
+    year = {2023},
+    url = {https://www.crececontigo.gob.cl/tema/controles-prenatales/}
+}
+@article{Osborne_2022,
+	doi = {10.1111/pops.12803},
+	url = {https://doi.org/10.1111%2Fpops.12803},
+	year = 2022,
+	month = {mar},
+	publisher = {Wiley},
+	volume = {43},
+	number = {S1},
+	pages = {29--76},
+	author = {Danny Osborne and Yanshu Huang and Nickola C. Overall and Robbie M. Sutton and Aino Petterson and Karen M. Douglas and Paul G. Davies and Chris G. Sibley},
+	title = {Abortion Attitudes: An Overview of Demographic and Ideological Differences},
+	journal = {Political Psychology}
+}
+@article{Hanschmidt_2020,
+	doi = {10.1055/a-0981-6286},
+	url = {https://doi.org/10.1055%2Fa-0981-6286},
+	year = 2020,
+	month = {jan},
+	publisher = {Georg Thieme Verlag KG},
+	volume = {80},
+	number = {01},
+	pages = {84--94},
+	author = {Franz Hanschmidt and Julia Kaiser and Holger Stepan and Anette Kersting},
+	title = {The Change in Attitudes Towards Abortion in Former West and East Germany After Reunification: A Latent Class Analysis and Implications for Abortion Access},
+	journal = {Geburtshilfe und Frauenheilkunde}
+}
+@article{Hernandez_2017,
+	doi = {10.15446/rsap.v19n3.68470},
+	url = {https://doi.org/10.15446%2Frsap.v19n3.68470},
+	year = 2017,
+	month = {may},
+	publisher = {Universidad Nacional de Colombia},
+	volume = {19},
+	number = {3},
+	pages = {393--395},
+	author = {Luis Jorge Hernandez and Jovana Ocampo and Diana Rios and Claudia Calderon},
+	title = {El modelo de la OMS como orientador en la salud pública a partir de los determinantes sociales},
+	journal = {Revista de Salud Pública}
+}
+@article{Sanchez_Palacio_2020,
+	doi = {10.15649/cuidarte.935},
+	url = {https://doi.org/10.15649%2Fcuidarte.935},
+	year = 2020,
+	month = {feb},
+	publisher = {Universidad de Santander - UDES},
+	volume = {11},
+	number = {1},
+	author = {Natalia Sanchez Palacio and Diana Paola Betancurth Loaiza and Alejandra Jimenez Alvarez},
+	title = {La visita familiar desde los determinantes sociales de la salud: aporte de enfermería a la atención primaria},
+	journal = {Revista Cuidarte}
+}
+@article{Johnson_Motoyama_2022,
+	doi = {10.3390/ijerph192215386},
+	url = {https://doi.org/10.3390%2Fijerph192215386},
+	year = 2022,
+	month = {nov},
+	publisher = {MDPI AG},
+	volume = {19},
+	number = {22},
+	pages = {15386},
+	author = {Michelle Johnson-Motoyama and Deborah Moon and Nancy Rolock and David Crampton and C. Bailey Nichols and Hanna Haran and Yiran Zhang and Yasuyuki Motoyama and Eric Gonzalez and Nicole Sillaman},
+	title = {Social Determinants of Health and Child Maltreatment Prevention: The Family Success Network Pilot},
+	journal = {International Journal of Environmental Research and Public Health}
+}
+@article{Rezaei_2023,
+	doi = {10.1186/s12905-023-02512-y},
+	url = {https://doi.org/10.1186%2Fs12905-023-02512-y},
+	year = 2023,
+	month = {jul},
+	publisher = {Springer Science and Business Media LLC},
+	volume = {23},
+	number = {1},
+	author = {Fatemeh Rezaei and Leila Amiri-Farahani and Shima Haghani and Sally Pezaro and Fereshteh Behmanesh},
+	title = {The impact of the COVID-19 pandemic on contraceptive methods, abortion, and unintended pregnancy: a cross-sectional study},
+	journal = {BMC Women's Health}
+}
+@article{Yan_2022,
+	doi = {10.1371/journal.pone.0271288},
+	url = {https://doi.org/10.1371%2Fjournal.pone.0271288},
+	year = 2022,
+	month = {aug},
+	publisher = {Public Library of Science (PLoS)},
+	volume = {17},
+	number = {8},
+	pages = {e0271288},
+	author = {Ting Yan and Roger Tourangeau},
+	editor = {Janet E. Rosenbaum},
+	title = {Detecting underreporters of abortions and miscarriages in the national study of family growth, 2011-2015},
+	journal = {PLOS ONE}
+}
+@article{Lythgoe2018,
+  doi = {10.1080/10705511.2018.1495081},
+  url = {https://doi.org/10.1080/10705511.2018.1495081},
+  year = {2018},
+  month = aug,
+  publisher = {Informa UK Limited},
+  volume = {26},
+  number = {1},
+  pages = {51--65},
+  author = {Daniel T. Lythgoe and Marta Garcia-Finana and Trevor F. Cox},
+  title = {Latent Class Modeling with A Time-To-Event Distal Outcome: A Comparison of One, Two and Three-Step Approaches},
+  journal = {Structural Equation Modeling: A Multidisciplinary Journal}
+}
+@article{Grabino2023,
+  doi = {10.29112/ruae.v8i1.1890},
+  url = {https://doi.org/10.29112/ruae.v8i1.1890},
+  year = 2023,
+  month = jun,
+  publisher = {Revista Uruguaya de Antropologia y Etnografia},
+  volume = {8},
+  number = {1},
+  author = {Grabino, Valeria and Rohden, Fabíola and Viera Cherro, Mariana},
+  title = {Presentación del Dossier. El cuerpo reproductivo: la configuración de un campo de investigación, experiencia y lucha en la región},
+  journal = {revista uruguaya de antropología y etnografía}
+}
+@article{calderon2023,
+    title = {Impacto de la pandemia por COVID-19 en el uso de los métodos anticonceptivos, Chile},
+    author = {Calderón Canales, F. and Agüero Guerra, N. and Álamos Silva, F. and Andrade Millalonco, C. and Jubal Morales, P. and Waymann Landini, C.},
+    journal = {Salud, Ciencia y Tecnología},
+    year = {2023},
+    volume = {3},
+    pages = {214},
+    url = {https://revista.saludcyt.ar/ojs/index.php/sct/article/view/214},
+    note = {Disponible en Internet. [citado 6 de septiembre de 2023]}
+}
+
+@article{King2019,
+  doi = {10.1363/psrh.12124},
+  url = {https://doi.org/10.1363/psrh.12124},
+  year = {2019},
+  month = dec,
+  publisher = {Guttmacher Institute},
+  volume = {51},
+  number = {4},
+  pages = {229--238},
+  author = {Bryn King and Andrea Lane Eastman and Claudette Grinnell-Davis and Elizabeth Aparicio},
+  title = {Early Childbirth Among Foster Youth: A Latent Class Analysis to Determine Subgroups at Increased Risk},
+  journal = {Perspectives on Sexual and Reproductive Health}
+}
+@article{Munakampe2018,
+  doi = {10.1186/s12913-018-3722-5},
+  url = {https://doi.org/10.1186/s12913-018-3722-5},
+  year = {2018},
+  month = nov,
+  publisher = {Springer Science and Business Media {LLC}},
+  volume = {18},
+  number = {1},
+  author = {Margarate Nzala Munakampe and Joseph Mumba Zulu and Charles Michelo},
+  title = {Contraception and abortion knowledge,  attitudes and practices among adolescents from low and middle-income countries: a systematic review},
+  journal = {{BMC} Health Services Research}
+}			
