@@ -292,18 +292,20 @@
       document.body.style.height = "100%";
       document.documentElement.style.width = "100%";
       document.documentElement.style.height = "100%";
-      cel.style.position = "absolute";
-      var pad = unpackPadding(sizing.padding);
-      cel.style.top = pad.top + "px";
-      cel.style.right = pad.right + "px";
-      cel.style.bottom = pad.bottom + "px";
-      cel.style.left = pad.left + "px";
-      el.style.width = "100%";
-      el.style.height = "100%";
+      if (cel) {
+        cel.style.position = "absolute";
+        var pad = unpackPadding(sizing.padding);
+        cel.style.top = pad.top + "px";
+        cel.style.right = pad.right + "px";
+        cel.style.bottom = pad.bottom + "px";
+        cel.style.left = pad.left + "px";
+        el.style.width = "100%";
+        el.style.height = "100%";
+      }
 
       return {
-        getWidth: function() { return cel.getBoundingClientRect().width; },
-        getHeight: function() { return cel.getBoundingClientRect().height; }
+        getWidth: function() { return cel.offsetWidth; },
+        getHeight: function() { return cel.offsetHeight; }
       };
 
     } else {
@@ -311,8 +313,8 @@
       el.style.height = px(sizing.height);
 
       return {
-        getWidth: function() { return cel.getBoundingClientRect().width; },
-        getHeight: function() { return cel.getBoundingClientRect().height; }
+        getWidth: function() { return el.offsetWidth; },
+        getHeight: function() { return el.offsetHeight; }
       };
     }
   }
@@ -536,8 +538,8 @@
 
           elementData(el, "initialized", true);
           if (bindingDef.initialize) {
-            var rect = el.getBoundingClientRect();
-            var result = bindingDef.initialize(el, rect.width, rect.height);
+            var result = bindingDef.initialize(el, el.offsetWidth,
+              el.offsetHeight);
             elementData(el, "init_result", result);
           }
         }
@@ -579,30 +581,29 @@
       forEach(matches, function(el) {
         var sizeObj = initSizing(el, binding);
 
-        var getSize = function(el) {
-          if (sizeObj) {
-            return {w: sizeObj.getWidth(), h: sizeObj.getHeight()}
-          } else {
-            var rect = el.getBoundingClientRect();
-            return {w: rect.width, h: rect.height}
-          }
-        };
-
         if (hasClass(el, "html-widget-static-bound"))
           return;
         el.className = el.className + " html-widget-static-bound";
 
         var initResult;
         if (binding.initialize) {
-          var size = getSize(el);
-          initResult = binding.initialize(el, size.w, size.h);
+          initResult = binding.initialize(el,
+            sizeObj ? sizeObj.getWidth() : el.offsetWidth,
+            sizeObj ? sizeObj.getHeight() : el.offsetHeight
+          );
           elementData(el, "init_result", initResult);
         }
 
         if (binding.resize) {
-          var lastSize = getSize(el);
+          var lastSize = {
+            w: sizeObj ? sizeObj.getWidth() : el.offsetWidth,
+            h: sizeObj ? sizeObj.getHeight() : el.offsetHeight
+          };
           var resizeHandler = function(e) {
-            var size = getSize(el);
+            var size = {
+              w: sizeObj ? sizeObj.getWidth() : el.offsetWidth,
+              h: sizeObj ? sizeObj.getHeight() : el.offsetHeight
+            };
             if (size.w === 0 && size.h === 0)
               return;
             if (size.w === lastSize.w && size.h === lastSize.h)
@@ -904,7 +905,8 @@
     return result;
   }
 })();
-</script>
+
+</script><br />
 <script>/*
 Viz.js 1.8.2 (Graphviz 2.40.1, Expat 2.2.5, Emscripten 1.37.33)
 Copyright (c) 2014-2018 Michael Daines
@@ -1111,7 +1113,7 @@ if (typeof exports === 'object' && typeof module !== 'undefined') {
 }
 
 })(this);
-</script>
+</script><br />
 <style type="text/css">.DiagrammeR,.grViz pre {
 white-space: pre-wrap; 
 white-space: -moz-pre-wrap; 
@@ -1124,7 +1126,7 @@ font-family: Helvetica;
 font-size: 14px;
 color: #333333;
 }
-</style>
+</style><br />
 <script>HTMLWidgets.widget({
 
   name: 'grViz',
@@ -1221,9 +1223,11 @@ color: #333333;
 </head>
 <body style="background-color: white;">
 <div id="htmlwidget_container">
-  <div class="grViz html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-617ce72c39b63a0e725a" style="width:100%;height:338px;"></div>
+<div id="htmlwidget-db40552a377c0d20d3f1" class="grViz html-widget" style="width:100%;height:338px;">
+
 </div>
-<script type="application/json" data-for="htmlwidget-617ce72c39b63a0e725a">{"x":{"diagram":"\ndigraph flowchart {\n    fontname=\"Comic Sans MS\"\n\n  # Nodes\n  subgraph samelevel {\n    CAUSAL [label = \"Causal\",fontsize=10,shape = box]\n    EDAD_MUJER_REC [label = \"Edad\npersona\ngestante\",fontsize=10,shape = box]\n    HITO1_EDAD_GEST_SEM_REC [label = \"Edad\nGestacional\nHito 1\",fontsize=10,shape = box]\n    MACROZONA [label = \"Macrozona\",fontsize=10,shape = box]\n    PAIS_ORIGEN_REC [label = \"País de\norigen\",fontsize=10,shape = box]\n    PREV_TRAMO_REC [label = \"Previsión y\ntramo\",fontsize=10,shape = box]\n    \n  {rank=same; rankdir= \"TB\"; CAUSAL EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC }\n  }\n  LCA [label= \"Clases\nlatentes\", shape= circle, style=filled, color=lightgrey, fontsize=10]\n  \n  inter [label = \"Interupción\nembarazo\",fontsize=10,shape = box, height=.00002] # set the position of the inter node pos=\"15,100\"\n\n  # Nodes\n  subgraph {\n   LCA ->  {CAUSAL EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC } [rank=same; rankdir= \"TB\"] \n}\n  subgraph {\n   LCA -> inter [minlen=14] #minlen es necesario para correr arrowhead = none; \n  {rank=same; LCA inter [rankdir=\"LR\"]}; #; \n}\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
-<script type="application/htmlwidget-sizing" data-for="htmlwidget-617ce72c39b63a0e725a">{"viewer":{"width":450,"height":350,"padding":15,"fill":true},"browser":{"width":960,"height":500,"padding":40,"fill":false}}</script>
+</div>
+<script type="application/json" data-for="htmlwidget-db40552a377c0d20d3f1">{"x":{"diagram":"\ndigraph flowchart {\n    fontname=\"Comic Sans MS\"\n\n  # Nodes\n  subgraph samelevel {\n    CAUSAL [label = \"Causal\",fontsize=10,shape = box]\n    EDAD_MUJER_REC [label = \"Edad\npersona\ngestante\",fontsize=10,shape = box]\n    HITO1_EDAD_GEST_SEM_REC [label = \"Edad\nGestacional\nHito 1\",fontsize=10,shape = box]\n    MACROZONA [label = \"Macrozona\",fontsize=10,shape = box]\n    PAIS_ORIGEN_REC [label = \"País de\norigen\",fontsize=10,shape = box]\n    PREV_TRAMO_REC [label = \"Previsión y\ntramo\",fontsize=10,shape = box]\n    \n  {rank=same; rankdir= \"TB\"; CAUSAL EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC }\n  }\n  LCA [label= \"Clases\nlatentes\", shape= circle, style=filled, color=lightgrey, fontsize=10]\n  \n  inter [label = \"Interupción\nembarazo\",fontsize=10,shape = box, height=.00002] # set the position of the inter node pos=\"15,100\"\n\n  # Nodes\n  subgraph {\n   LCA ->  {CAUSAL EDAD_MUJER_REC HITO1_EDAD_GEST_SEM_REC MACROZONA PAIS_ORIGEN_REC PREV_TRAMO_REC } [rank=same; rankdir= \"TB\"] \n}\n  subgraph {\n   LCA -> inter [minlen=14] #minlen es necesario para correr arrowhead = none; \n  {rank=same; LCA inter [rankdir=\"LR\"]}; #; \n}\n}","config":{"engine":"dot","options":null}},"evals":[],"jsHooks":[]}</script>
+<script type="application/htmlwidget-sizing" data-for="htmlwidget-db40552a377c0d20d3f1">{"viewer":{"width":450,"height":350,"padding":15,"fill":true},"browser":{"width":960,"height":500,"padding":40,"fill":false}}</script>
 </body>
 </html>
