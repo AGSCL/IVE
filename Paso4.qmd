@@ -311,7 +311,7 @@ htmlwidgets::saveWidget(gr_lca2, "_flowchart_lca_adj_sin_po_ano.html")
 # Análisis de clases latentes, modelos definitivos, sin pueblo originario y año
 
 ```{r,corregir-fig-ajuste-1, fig.cap= "Índices de ajuste, modelo sin covariable", echo=T, error= T}
-rm(list = ls());gc()
+#rm(list = ls());gc()
 load("data2_lca3_sin_po_ano_2023_05_14.RData") #Paso 213 y 214
 #variables_probabilities_in_category_sin_po_ano.xlsx
 #variables_probabilities_in_category_glca_adj_sin_po.xlsxbootlrt
@@ -1240,45 +1240,114 @@ head(posterior_probs)
 
 
 ```{r, "posterior-reg-log-adj", error= T}
-
-
+invisible("2023-09-27: para obtener las probabildiades")
+require(glca)
 df_best_model_glca_w_distal_outcome<-
-  data.frame(best_model_glca_w_distal_outcome$coefficient) %>% 
-  rownames_to_column("term") %>% janitor::clean_names() %>%
-  rownames_to_column("rowname") %>%
-  gather(key = "key", value = "value", -rowname) %>%
-  spread(key = "rowname", value = "value") %>%
-  set_names(as.character(unlist(tail(., 1)))) %>%
-  slice(-n()) %>%
-  dplyr::mutate(term=strsplit(sub('^(.*?_.*?_.*?)_(.*)$', '\\1,\\2', term), ',')) %>%
-  separate(col=term,into = c("prefix", "suffix"),  sep = ", ", extra = "merge") %>%
-  dplyr::mutate(across(c("prefix", "suffix"), ~gsub('\\(|"|\\)', "", .)))
+  data.frame(coef(best_model_glca_w_distal_outcome)) %>% rownames_to_column("term") %>% janitor::clean_names() %>% 
+    rownames_to_column("rowname") %>%
+    gather(key = "key", value = "value", -rowname) %>%
+    spread(key = "rowname", value = "value") %>% 
+    set_names(as.character(unlist(tail(., 1)))) %>% 
+    slice(-n()) %>% 
+    dplyr::mutate(term=strsplit(sub('^(.*?_.*?_.*?)_(.*)$', '\\1,\\2', term), ',')) %>% 
+separate(col=term,into = c("prefix", "suffix"),  sep = ", ", extra = "merge") %>% 
+  dplyr::mutate(across(c("prefix", "suffix"), ~gsub('\\(|"|\\)', "", .))) 
 
 df_best_model_glca_w_distal_outcome2<-
-  df_best_model_glca_w_distal_outcome%>%
+df_best_model_glca_w_distal_outcome%>%
   dplyr::filter(suffix == "coefficient" | suffix == "std_error") %>%
   pivot_wider(names_from=suffix, values_from = c("(Intercept)", "outcome1")) %>%
-  dplyr::mutate_at(2:5, ~as.numeric(.)) %>%
+  dplyr::mutate_at(2:5, ~as.numeric(.)) %>% 
   dplyr::mutate(
-    odds_ratio_int = exp(`(Intercept)_coefficient`),
-    odds_ratio_comp = exp(`outcome1_coefficient`),
-    probability_int = odds_ratio_int / (1 + odds_ratio_int),
-    probability_comp = odds_ratio_comp / (1 + odds_ratio_comp),
     lower_log_or_int = `(Intercept)_coefficient` - 1.96 * `(Intercept)_std_error`,
-    upper_log_or_int = `(Intercept)_coefficient` + 1.96 * `outcome1_coefficient`,
+    upper_log_or_int = `(Intercept)_coefficient` + 1.96 * `outcome1_std_error`,
     lower_log_or_comp = `outcome1_coefficient` - 1.96 * `outcome1_std_error`,
-    upper_log_or_comp = `outcome1_coefficient` + 1.96 * `outcome1_std_error`,
-    lower_int = exp(lower_log_or_int) / (1 + exp(lower_log_or_int)),
-    upper_int = exp(upper_log_or_int) / (1 + exp(upper_log_or_int)),
-    lower_comp = exp(lower_log_or_comp) / (1 + exp(lower_log_or_comp)),
-    upper_comp = exp(upper_log_or_comp) / (1 + exp(upper_log_or_comp))) %>%
-  dplyr::select(prefix,
-                odds_ratio_int, odds_ratio_comp,
-                probability_int, lower_int, upper_int,
-                probability_comp, lower_comp, upper_comp)
+    upper_log_or_comp = `outcome1_coefficient` + 1.96 * `outcome1_std_error`) %>%
+  dplyr::rename("int_coef"="(Intercept)_coefficient", "int_std_error"="(Intercept)_std_error", "comp_coef"="outcome1_coefficient","comp_std_error"="outcome1_std_error") %>% 
+  dplyr::select(prefix,#t_coef int_std_error comp_coef comp_std_error 
+                int_coef, int_std_error, comp_coef, comp_std_error, 
+                lower_log_or_int, upper_log_or_int, lower_log_or_comp, upper_log_or_comp)
 
-df_best_model_glca_w_distal_outcome2 %>% 
-  knitr::kable("markdown", caption="Table of probabilities of LCA w/distal outcome")
+# List of call classes
+call_classes <- unique(df_best_model_glca_w_distal_outcome2$prefix)
+
+result2 <- map_df(call_classes, ~ {
+  df_best_model_glca_w_distal_outcome2 %>%
+    dplyr::mutate(int_comp_coef=int_coef+comp_coef) %>% 
+    dplyr::summarise(call_class = .x,
+                     nom = sum(ifelse(prefix == .x, exp(int_comp_coef), 0)),
+                     den = sum(exp(int_comp_coef)),
+                     prob = nom/(1+den))
+})
+
+result2_lo <- map_df(call_classes, ~ {
+    df_best_model_glca_w_distal_outcome2 %>%
+        dplyr::mutate(int_comp_coef=lower_log_or_int+lower_log_or_comp) %>% 
+        dplyr::summarise(call_class = .x,
+                         nom = sum(ifelse(prefix == .x, exp(int_comp_coef), 0)),
+                         den = sum(exp(int_comp_coef)),
+                         prob = nom/(1+den))
+})
+
+result2_hi <- map_df(call_classes, ~ {
+    df_best_model_glca_w_distal_outcome2 %>%
+        dplyr::mutate(int_comp_coef=upper_log_or_int+upper_log_or_comp) %>% 
+        dplyr::summarise(call_class = .x,
+                         nom = sum(ifelse(prefix == .x, exp(int_comp_coef), 0)),
+                         den = sum(exp(int_comp_coef)),
+                         prob = nom/(1+den))
+})
+
+
+result2b <- map_df(call_classes, ~ {
+  df_best_model_glca_w_distal_outcome2 %>%
+    dplyr::mutate(int_comp_coef=int_coef) %>% 
+    dplyr::summarise(call_class = .x,
+                     nom = sum(ifelse(prefix == .x, exp(int_comp_coef), 0)),
+                     den = sum(exp(int_comp_coef)),
+                     prob = nom/(1+den))
+})
+
+result2b_lo <- map_df(call_classes, ~ {
+    df_best_model_glca_w_distal_outcome2 %>%
+        dplyr::mutate(int_comp_coef=lower_log_or_int) %>% 
+        dplyr::summarise(call_class = .x,
+                         nom = sum(ifelse(prefix == .x, exp(int_comp_coef), 0)),
+                         den = sum(exp(int_comp_coef)),
+                         prob = nom/(1+den))
+})
+
+result2b_hi <- map_df(call_classes, ~ {
+    df_best_model_glca_w_distal_outcome2 %>%
+        dplyr::mutate(int_comp_coef=upper_log_or_int) %>% 
+        dplyr::summarise(call_class = .x,
+                         nom = sum(ifelse(prefix == .x, exp(int_comp_coef), 0)),
+                         den = sum(exp(int_comp_coef)),
+                         prob = nom/(1+den))
+})
+
+df_lca40522_probs<-
+cbind.data.frame(
+est=c(result2$prob, 1/(1+unique(result2$den))),
+lo=c(result2_lo$prob, 1/(1+unique(result2_lo$den))),
+hi=c(result2_hi$prob, 1/(1+unique(result2_hi$den))),
+est_int=c(result2b$prob, 1/(1+unique(result2b$den))),
+lo_int=c(result2b_lo$prob, 1/(1+unique(result2b_lo$den))),
+hi_int=c(result2b_hi$prob, 1/(1+unique(result2b_hi$den))))*100
+
+
+df_lca40522_probs %>% 
+  knitr::kable("markdown", caption="Tabla de probabilidades de LCA con resultado distal (int: no interrumpe)", digits=1)
+
+# Table: Tabla de probabilidades de LCA con resultado distal (int: no interrumpe)
+# 
+# |   est|    lo|    hi| est_int| lo_int| hi_int|
+# |-----:|-----:|-----:|-------:|------:|------:|
+# | 0.126| 0.086| 0.142|   0.119|  0.112|  0.124|
+# | 0.048| 0.019| 0.093|   0.016|  0.012|  0.022|
+# | 0.509| 0.372| 0.526|   0.746|  0.724|  0.748|
+# | 0.166| 0.110| 0.194|   0.079|  0.073|  0.084|
+# | 0.151| 0.413| 0.045|   0.041|  0.079|  0.022|
 ```
 
 <br>
